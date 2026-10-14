@@ -103,8 +103,7 @@ bool Maze::hasPassage(Position from, Position to) const {
     return false;
   }
 
-  return !cellAt(from).walls[wallIndex(direction)] && 
-    !cellAt(to).walls[wallIndex(opposite(direction))];
+  return !cellAt(from).walls[wallIndex(direction)] && !cellAt(to).walls[wallIndex(opposite(direction))];
 }
 
 std::vector<Position> Maze::neighbors(Position position) const {
