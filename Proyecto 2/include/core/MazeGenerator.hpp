@@ -14,4 +14,6 @@ struct GenerationResult {
 class MazeGenerator {
  public:
   static GenerationResult generateDfs(int rows, int cols, std::mt19937& rng);
+
+  static GenerationResult generateBfs(int rows, int cols, std::mt19937& rng);
 };
