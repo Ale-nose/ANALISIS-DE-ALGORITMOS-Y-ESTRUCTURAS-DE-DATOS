@@ -6,7 +6,7 @@ struct Position {
   int col;
 };
 
-bool operator==(Position a, Position b) {
+inline bool operator==(Position a, Position b) {
   return a.row == b.row && a.col == b.col;
 }
 

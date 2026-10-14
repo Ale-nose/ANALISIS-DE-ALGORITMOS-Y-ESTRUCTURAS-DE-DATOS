@@ -5,6 +5,7 @@
 #include <vector>
 
 #include "Cell.hpp"
+#include "GameConfig.hpp"
 
 class Maze {
  private:
