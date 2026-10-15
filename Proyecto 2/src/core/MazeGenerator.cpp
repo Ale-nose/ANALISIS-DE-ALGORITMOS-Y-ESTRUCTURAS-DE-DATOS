@@ -6,6 +6,8 @@
 #include <queue>
 #include <array>
 #include <algorithm>
+#include <stdexcept>
+#include <optional>
 
 #include "MazeGenerator.hpp"
 
@@ -148,4 +150,81 @@ GenerationResult MazeGenerator::generateBfs(int rows, int cols, std::mt19937& rn
   metrics.cpuTimeMs = 1000.0 * (endTime - startTime) / CLOCKS_PER_SEC;
 
   return GenerationResult{std::move(maze), metrics};
+}
+
+int MazeGenerator::addExtraPassages(Maze& maze, double probability, std::mt19937& rng) {
+  if (probability < 0 || probability > 1) {
+    throw std::invalid_argument("Invalid probability");
+  }
+
+  int addedPassages = 0;
+
+  int rows = maze.rows();
+  int cols = maze.cols();
+
+  std::bernoulli_distribution shouldOpen(probability);
+
+  for (int row = 0; row < rows; row++) {
+    for (int col = 0; col < cols; col++) {
+      Position current{row, col};
+
+      for (auto direction : {Direction::RIGHT, Direction::DOWN}) {
+        Position next = current;
+
+        if (direction == Direction::RIGHT) {
+          next.col++;
+        } else if (direction == Direction::DOWN) {
+          next.row++;
+        }
+
+        if (maze.isInside(next) == false) {
+          continue;
+        }
+
+        if (maze.hasPassage(current, next) == true) {
+          continue;
+        }
+
+        if (shouldOpen(rng)) {
+          maze.openPassage(current, direction);
+          addedPassages++;
+        }
+      }
+    }
+  }
+  return addedPassages;
+}
+
+GenerationResult MazeGenerator::generate(
+  int rows, int cols, GenerationAlgorithm algorithm, double extraEdgeProb, std::mt19937& rng) {
+  if (extraEdgeProb < 0 || extraEdgeProb > 1) {
+    throw std::invalid_argument("Invalid probability");
+  }
+
+  std::optional<GenerationResult> result;
+
+  if (algorithm == GenerationAlgorithm::DFS) {
+    result = generateDfs(rows, cols, rng);
+  } else if (algorithm == GenerationAlgorithm::BFS) {
+    result = generateBfs(rows, cols, rng);
+  } else {
+    throw std::invalid_argument("Invalid algorithm");
+  }
+
+  GenerationResult generated = std::move(result.value());
+
+  std::clock_t startTime = std::clock();
+
+  int added = addExtraPassages(generated.maze, extraEdgeProb, rng);
+
+  generated.metrics.extraEdges += added;
+  generated.metrics.createdEdges += added;
+
+  std::clock_t endTime = std::clock();
+
+  double extraTimeMs = 1000.0 * (endTime - startTime) / CLOCKS_PER_SEC;
+
+  generated.metrics.cpuTimeMs += extraTimeMs;
+
+  return generated;
 }

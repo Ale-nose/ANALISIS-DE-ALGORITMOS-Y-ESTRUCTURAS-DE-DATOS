@@ -16,4 +16,9 @@ class MazeGenerator {
   static GenerationResult generateDfs(int rows, int cols, std::mt19937& rng);
 
   static GenerationResult generateBfs(int rows, int cols, std::mt19937& rng);
+
+  static int addExtraPassages(Maze& maze, double probability, std::mt19937& rng);
+
+  static GenerationResult generate(
+    int rows, int cols, GenerationAlgorithm algorithm, double extraEdgeProb, std::mt19937& rng);
 };
