@@ -29,7 +29,7 @@ class Maze {
   int countDeadEnds() const;
 
   inline int entryCost(Position destination) const {
-    return cellAt(destination).terrain == TerrainType::MUD ? MUD_COST : 1;
+    return cellAt(destination).terrain == TerrainType::MUD ? MUD_COST : NORMAL_COST;
   }
   
   inline Cell& cellAt(Position position) {

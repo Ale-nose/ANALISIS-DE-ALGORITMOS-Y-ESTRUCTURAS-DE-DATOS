@@ -6,6 +6,7 @@ inline constexpr int MAP_ROWS = 10;
 inline constexpr int MAP_COLS = 20;
 
 // Movement costs
+inline constexpr int NORMAL_COST = 1;
 inline constexpr int MUD_COST = 2;
 
 // Fog of War
