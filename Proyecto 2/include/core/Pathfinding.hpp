@@ -5,6 +5,7 @@
 
 #include "GameTypes.hpp"
 #include "Metrics.hpp"
+#include "Maze.hpp"
 
 // Search visualization data
 struct SearchTrace {
@@ -20,3 +21,5 @@ struct SearchResult {
   SearchMetrics metrics;
   SearchTrace trace;
 };
+
+struct SearchResult findPathDijkstra(const Maze& maze, Position start, Position goal);
