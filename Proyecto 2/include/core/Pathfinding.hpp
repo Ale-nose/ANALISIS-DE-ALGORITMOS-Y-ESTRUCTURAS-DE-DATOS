@@ -23,3 +23,5 @@ struct SearchResult {
 };
 
 struct SearchResult findPathDijkstra(const Maze& maze, Position start, Position goal);
+
+struct SearchResult findPathBfs(const Maze& maze, Position start, Position goal);
