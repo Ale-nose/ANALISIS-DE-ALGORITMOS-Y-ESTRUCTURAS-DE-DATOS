@@ -18,7 +18,7 @@ inline constexpr double EXTRA_EDGE_PROB = 0.10;
 // Spawn probabilities
 inline constexpr double POWER_SPAWN_RATE = 0.08;
 inline constexpr double PORTAL_SPAWN_RATE = 0.03;
-inline constexpr double MUD_SPAWN_RATE = 0.02;
+inline constexpr double MUD_SPAWN_RATE = 0.12;
 inline constexpr double SHIELD_SPAWN_RATE = 0.02;
 
 // Player id 
