@@ -1,18 +1,25 @@
 // Copyright Alejandro, Ashley y Kevin
 #include <QApplication>
-#include <QMainWindow>
- 
-// TODO (Issue 34): replace the temporary window with
-// #include "mazecraze/ui/MainWindow.h" and mc::MainWindow.
- 
+#include <QDebug>
+
+#include "StartWindow.hpp"
+
+// TODO (Issue 34): MainWindow will own StartWindow and call
+// GameSetup::createGame(options) when gameStartRequested is emitted.
+
 int main(int argc, char* argv[]) {
   QApplication app(argc, argv);
 
-  // Temporary empty window until MainWindow is implemented.
-  QMainWindow window;
-  window.setWindowTitle("Maze Craze");
-  window.resize(800, 600);
-  window.show();
+  StartWindow startWindow;
+  QObject::connect(&startWindow, &StartWindow::gameStartRequested,
+                   [](const GameOptions& options) {
+                     qDebug() << "mode:" << static_cast<int>(options.mode)
+                              << "generator:"
+                              << static_cast<int>(options.generator)
+                              << "fog:" << options.fogEnabled
+                              << "seed:" << options.seed;
+                   });
+  startWindow.show();
 
   return app.exec();
 }
