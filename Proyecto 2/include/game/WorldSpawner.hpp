@@ -38,5 +38,26 @@ class WorldSpawner {
    */
     static void placeMud(Maze& maze, Position posPlayer1, Position posPlayer2, double rate, std::mt19937& random);
 
+      /**
+   * @brief Places shield tiles on random cells of the maze.
+   *
+   * Visits every cell except the two starting positions and the treasure and,
+   * with probability SHIELD_SPAWN_RATE, marks it as SpecialCellType::SHIELD_TILE.
+   * Walls and other cell data are not modified, and no shield is granted here:
+   * the protection logic is handled by the game engine when a player enters
+   * the cell.
+   *
+   * @param maze Maze whose cells may receive a shield tile.
+   * @param posPlayer1 Starting position of player 1 (never a shield tile).
+   * @param posPlayer2 Starting position of player 2 (never a shield tile).
+   * @param treasure Treasure position (never a shield tile).
+   * @param random Random number generator, shared with the rest of the
+   *                       setup so that the same seed produces the same maze.
+   *
+   * @note The cells are visited in a fixed order, which keeps the result
+   *       reproducible for a given generator state.
+   */
+  static void placeShieldTile(Maze& maze,Position posPlayer1,Position posPlayer2, Position treasure,std::mt19937& random);
+
 
 };
