@@ -4,6 +4,9 @@
 
 #include <random>
 #include <array>
+#include <vector>
+#include <algorithm>
+
 #include "Maze.hpp"
 #include "GameTypes.hpp"
 
@@ -83,6 +86,31 @@ class WorldSpawner {
    *       result reproducible for a given generator state.
    */
   static void placePowerUp(Maze& maze, Position posPlayer1,Position posPlayer2, Position treasure,std::mt19937& random);
+
+  /**
+   * @brief Places portals in pairs on random cells of the maze.
+   *
+   * Visits every cell except the two starting positions and the treasure and,
+   * with probability PORTAL_SPAWN_RATE, selects it as a portal candidate. The
+   * candidates are shuffled and grouped two by two: both cells of a pair
+   * receive the same positive identifier. If the number of candidates is odd,
+   * the last one is left without a portal. Cells without a portal keep their
+   * default value. Nobody is teleported here: that is handled by the game
+   * engine when a player enters a portal.
+   *
+   * @param maze Maze whose cells may receive a portal identifier.
+   * @param posPlayer1 Starting position of player 1 (never a portal).
+   * @param posPlayer2 Starting position of player 2 (never a portal).
+   * @param treasure Treasure position (never a portal).
+   * @param random Random number generator, shared with the rest of the
+   *                       setup so that the same seed produces the same maze.
+   *
+   * @note The shuffle makes the pairs spread over the whole maze instead of
+   *       linking cells that are close in scan order. The result is
+   *       reproducible for a given generator state and standard library.
+   */
+  static void placePortal(Maze& maze, Position posPlayer1,Position posPlayer2, Position treasure,std::mt19937& random);
+
 
 
 };
