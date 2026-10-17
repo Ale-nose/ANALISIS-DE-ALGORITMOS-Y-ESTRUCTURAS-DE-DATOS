@@ -20,3 +20,20 @@ void WorldSpawner::placeMud (Maze& maze, Position posPlayer1, Position posPlayer
   
 
 }
+
+void WorldSpawner::placeShieldTile(Maze& maze, Position posPlayer1, Position posPlayer2,Position treasure ,std::mt19937& random){
+   std::bernoulli_distribution chance(SHIELD_SPAWN_RATE);
+  for (int i = 0; i < maze.rows(); i++) {
+    for (int j = 0; j < maze.cols(); j++) {
+      Position current {i,j};
+      if (current == posPlayer1 || current == posPlayer2 || current == treasure) {
+        //skips it 
+      } else {
+        if(chance(random)) {
+          maze.cellAt(current).special = SpecialCellType::SHIELD_TILE;
+        }
+      }
+    }
+    
+  }
+}
