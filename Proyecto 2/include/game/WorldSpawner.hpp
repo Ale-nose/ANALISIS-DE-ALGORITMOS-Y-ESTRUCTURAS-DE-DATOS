@@ -3,6 +3,7 @@
 #pragma once
 
 #include <random>
+#include <array>
 #include "Maze.hpp"
 #include "GameTypes.hpp"
 
@@ -58,6 +59,30 @@ class WorldSpawner {
    *       reproducible for a given generator state.
    */
   static void placeShieldTile(Maze& maze,Position posPlayer1,Position posPlayer2, Position treasure,std::mt19937& random);
+
+    /**
+   * @brief Places random power-ups on the maze.
+   *
+   * Visits every cell except the two starting positions and the treasure and,
+   * with probability POWER_SPAWN_RATE, stores one of the three power-ups
+   * (PowerUpType::JUMP_WALL, PowerUpType::DOUBLE_PLAY or
+   * PowerUpType::CONTROL_ENEMY) chosen uniformly at random. Walls and other
+   * cell data are not modified, and no player inventory or turn is changed
+   * here: the power-up is applied by the game engine when a player enters
+   * the cell.
+   *
+   * @param[in,out] maze Maze whose cells may receive a power-up.
+   * @param[in] posPlayer1 Starting position of player 1 (never gets a power-up).
+   * @param[in] posPlayer2 Starting position of player 2 (never gets a power-up).
+   * @param[in] treasure Treasure position (never gets a power-up).
+   * @param[in,out] random Random number generator, shared with the rest of the
+   *                       setup so that the same seed produces the same maze.
+   *
+   * @note The cells are visited in a fixed order, and the second draw (which
+   *       power-up) only happens when the first one succeeds, which keeps the
+   *       result reproducible for a given generator state.
+   */
+  static void placePowerUp(Maze& maze, Position posPlayer1,Position posPlayer2, Position treasure,std::mt19937& random);
 
 
 };
