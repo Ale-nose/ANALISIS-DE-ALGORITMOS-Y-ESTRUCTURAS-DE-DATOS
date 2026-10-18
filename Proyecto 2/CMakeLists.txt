@@ -25,7 +25,15 @@ if(NOT MAZE_CORE_SOURCES)
 endif()
 
 add_library(maze_core STATIC ${MAZE_CORE_SOURCES})
-target_include_directories(maze_core PUBLIC ${CMAKE_SOURCE_DIR}/include)
+
+# Headers live in include/<module>/ and are included without the folder name
+# (e.g. #include "GameState.hpp"), so each module folder is an include path.
+target_include_directories(maze_core PUBLIC
+    ${CMAKE_SOURCE_DIR}/include
+    ${CMAKE_SOURCE_DIR}/include/config
+    ${CMAKE_SOURCE_DIR}/include/core
+    ${CMAKE_SOURCE_DIR}/include/game
+)
 
 # MazeCraze: Qt Widgets application (the only target that links Qt).
 find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Widgets)
@@ -35,7 +43,14 @@ file(GLOB_RECURSE MAZE_UI_SOURCES CONFIGURE_DEPENDS
     ${CMAKE_SOURCE_DIR}/src/ui/*.cpp
 )
 
-add_executable(MazeCraze src/main.cpp ${MAZE_UI_SOURCES})
+# UI headers are listed so AUTOMOC runs moc on the classes with Q_OBJECT,
+# since they live in include/ui and not next to their .cpp files.
+file(GLOB_RECURSE MAZE_UI_HEADERS CONFIGURE_DEPENDS
+    ${CMAKE_SOURCE_DIR}/include/ui/*.hpp
+)
+
+add_executable(MazeCraze src/main.cpp ${MAZE_UI_SOURCES} ${MAZE_UI_HEADERS})
+target_include_directories(MazeCraze PRIVATE ${CMAKE_SOURCE_DIR}/include/ui)
 target_link_libraries(MazeCraze PRIVATE maze_core Qt${QT_VERSION_MAJOR}::Widgets)
 
 # MazeCrazeTests: independent test executable (no Qt, no window).

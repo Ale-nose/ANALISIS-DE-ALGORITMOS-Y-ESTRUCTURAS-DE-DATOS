@@ -1,5 +1,3 @@
-
-
 # Salidas de compilacion
 *.pdf
 !assets/**/*.pdf
@@ -51,3 +49,13 @@ password/
 .DS_Store
 .vscode
 .so
+
+# CMake / Qt Creator
+build-*/
+cmake-build-*/
+CMakeLists.txt.user
+*_autogen/
+.idea/
+
+# Keep the final report
+!Proyecto 2/report/*.pdf
