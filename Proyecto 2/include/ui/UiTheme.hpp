@@ -9,34 +9,47 @@
  * Colors are hex strings ("#RRGGBB"), usable both in QSS and in QColor.
  */
 
-// Base palette (dark teal, inspired by the reference maze game)
-inline constexpr const char* COLOR_BACKGROUND = "#07161B";  // near-black teal
-inline constexpr const char* COLOR_PANEL = "#0E2B31";       // dark teal panel
-inline constexpr const char* COLOR_BORDER = "#1F6F78";      // muted teal border
-inline constexpr const char* COLOR_TEXT = "#E8F6F6";        // almost white
-inline constexpr const char* COLOR_TEXT_MUTED = "#7FA9AD";  // grayish teal
+// Team palette (5 colors chosen by the group)
+inline constexpr const char* PALETTE_FLORAL_WHITE = "#FFF8F0";
+inline constexpr const char* PALETTE_JASMINE = "#F4D06F";
+inline constexpr const char* PALETTE_ORANGE = "#FF8811";  // Princeton Orange
+inline constexpr const char* PALETTE_AQUA = "#9DD9D2";    // Pearl Aqua
+inline constexpr const char* PALETTE_INDIGO = "#392F5A";  // Space Indigo
+
+// Shades derived from Space Indigo, for depth (not part of the 5 colors)
+inline constexpr const char* PALETTE_INDIGO_DARK = "#2B2347";
+inline constexpr const char* PALETTE_INDIGO_LIGHT = "#5B4E8F";
+
+// Base palette (roles)
+inline constexpr const char* COLOR_BACKGROUND = PALETTE_INDIGO_DARK;
+inline constexpr const char* COLOR_PANEL = PALETTE_INDIGO;
+inline constexpr const char* COLOR_BORDER = PALETTE_INDIGO_LIGHT;
+inline constexpr const char* COLOR_TEXT = PALETTE_FLORAL_WHITE;
+inline constexpr const char* COLOR_TEXT_MUTED = PALETTE_AQUA;
 
 // Accents
-inline constexpr const char* COLOR_TITLE = "#5CE1E6";         // electric cyan
-inline constexpr const char* COLOR_ACCENT = "#5CE1E6";        // electric cyan
-inline constexpr const char* COLOR_BUTTON = "#3FBF6B";        // green
-inline constexpr const char* COLOR_BUTTON_HOVER = "#5ED688";  // light green
-inline constexpr const char* COLOR_BUTTON_TEXT = "#07161B";   // dark on green
+inline constexpr const char* COLOR_TITLE = PALETTE_JASMINE;
+inline constexpr const char* COLOR_ACCENT = PALETTE_AQUA;
+inline constexpr const char* COLOR_BUTTON = PALETTE_ORANGE;
+inline constexpr const char* COLOR_BUTTON_HOVER = PALETTE_JASMINE;
+inline constexpr const char* COLOR_BUTTON_TEXT = PALETTE_INDIGO;
 
 // Radio buttons and check boxes
-inline constexpr const char* COLOR_INDICATOR_BORDER = "#7FA9AD";  // visible edge
-inline constexpr const char* COLOR_INDICATOR_BG = "#07161B";      // empty fill
+inline constexpr const char* COLOR_INDICATOR_BORDER = PALETTE_AQUA;
+inline constexpr const char* COLOR_INDICATOR_BG = PALETTE_INDIGO_DARK;
 
 // Game elements
-inline constexpr const char* COLOR_PLAYER_1 = "#5CE1E6";     // cyan
-inline constexpr const char* COLOR_PLAYER_2 = "#FF5C8A";     // pink
-inline constexpr const char* COLOR_TREASURE = "#FFC857";     // soft gold
-inline constexpr const char* COLOR_MUD = "#9C6B3F";          // brown
-inline constexpr const char* COLOR_FOG = "#8A9BA0";          // gray
-inline constexpr const char* COLOR_PORTAL = "#A56BFF";       // purple
-inline constexpr const char* COLOR_POWER_UP = "#9BE564";     // lime green
-inline constexpr const char* COLOR_SHIELD_TILE = "#6C9EFF";  // soft blue
-inline constexpr const char* COLOR_WALL = "#1E6F77";         // teal block
+inline constexpr const char* COLOR_PLAYER_1 = PALETTE_AQUA;
+inline constexpr const char* COLOR_PLAYER_2 = PALETTE_ORANGE;
+inline constexpr const char* COLOR_TREASURE = PALETTE_JASMINE;
+inline constexpr const char* COLOR_WALL = PALETTE_FLORAL_WHITE;
+// Not in the palette: these need to stay recognizable (mud = brown,
+// fog = gray), so they are tinted to blend with the indigo background.
+inline constexpr const char* COLOR_MUD = "#B8723A";          // warm brown
+inline constexpr const char* COLOR_FOG = "#9B96B0";          // lavender gray
+inline constexpr const char* COLOR_PORTAL = "#B79CFF";       // light violet
+inline constexpr const char* COLOR_POWER_UP = "#eb759d";     // pink
+inline constexpr const char* COLOR_SHIELD_TILE = "#7AA2FF";  // periwinkle
 
 // Typography
 inline constexpr const char* UI_FONT_FAMILY = "Segoe UI";

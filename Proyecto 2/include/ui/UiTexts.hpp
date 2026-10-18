@@ -18,3 +18,9 @@ inline constexpr const char* TEXT_GENERATOR_DFS = "Deep-Sector Probe (long, wind
 inline constexpr const char* TEXT_GENERATOR_BFS = "Broad-Wave Scan (shorter paths)";
 inline constexpr const char* TEXT_FOG = "Enable Fog of War";
 inline constexpr const char* TEXT_START = "START";
+
+// Board texts: short letters drawn on the power-up badges and Shield Tiles
+inline constexpr const char* TEXT_BOARD_JUMP_WALL = "J";
+inline constexpr const char* TEXT_BOARD_DOUBLE_PLAY = "D";
+inline constexpr const char* TEXT_BOARD_CONTROL_ENEMY = "C";
+inline constexpr const char* TEXT_BOARD_SHIELD_TILE = "S";

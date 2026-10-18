@@ -12,14 +12,11 @@ int main(int argc, char* argv[]) {
 
   StartWindow startWindow;
   QObject::connect(&startWindow, &StartWindow::gameStartRequested,
-                   [](const GameOptions& options) {
-                     qDebug() << "mode:" << static_cast<int>(options.mode)
-                              << "generator:"
-                              << static_cast<int>(options.generator)
-                              << "fog:" << options.fogEnabled
-                              << "seed:" << options.seed;
-                   });
+    [](const GameOptions& options) {
+      qDebug() << "mode:" << static_cast<int>(options.mode)
+      << "generator:" << static_cast<int>(options.generator) << "fog:" 
+      << options.fogEnabled << "seed:" << options.seed;
+    });
   startWindow.show();
-
   return app.exec();
 }
