@@ -24,3 +24,8 @@ inline constexpr const char* TEXT_BOARD_JUMP_WALL = "J";
 inline constexpr const char* TEXT_BOARD_DOUBLE_PLAY = "D";
 inline constexpr const char* TEXT_BOARD_CONTROL_ENEMY = "C";
 inline constexpr const char* TEXT_BOARD_SHIELD_TILE = "S";
+
+// Error texts (%1 = rows and %2 = columns)
+inline constexpr const char* TEXT_ERROR_BOARD_DOES_NOT_FIT = 
+  "The %1 x %2 maze does not fit on this screen. Choose smaller dimensions and "
+  "try again.";

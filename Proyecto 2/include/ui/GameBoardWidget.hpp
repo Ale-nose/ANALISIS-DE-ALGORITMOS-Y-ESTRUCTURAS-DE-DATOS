@@ -43,6 +43,20 @@ class GameBoardWidget : public QWidget {
    */
   QSize minimumSizeHint() const override;
 
+  /**
+   * @brief Largest whole cell size that lets every row and column fit inside
+   * the given area without deforming the grid.
+   * @param availableSize Area reserved for the grid (margins already removed).
+   * @return Cell side in pixels, 0 if not even one pixel per cell fits.
+   */
+  int calculateCellSize(QSize availableSize) const;
+
+  /**
+   * @brief Size of the maze in cells.
+   * @return A QSize where width is the number of columns and height the rows.
+   */
+  QSize gridSize() const;
+
  protected:
   /**
    * @brief Draws the whole board: background, cells, treasure and players.

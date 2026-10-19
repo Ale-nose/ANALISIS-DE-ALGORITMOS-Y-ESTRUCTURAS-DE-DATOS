@@ -10,7 +10,7 @@
  */
 
 // Board colors
-inline constexpr const char* COLOR_BOARD_BACKGROUND = "#2B2347";  // dark indigo
+inline constexpr const char* COLOR_BOARD_BACKGROUND = PALETTE_INDIGO_DARK;
 inline constexpr const char* COLOR_CELL_FLOOR = PALETTE_INDIGO;
 inline constexpr const char* COLOR_ICON_OUTLINE = COLOR_BOARD_BACKGROUND;
 inline constexpr const char* COLOR_ICON_TEXT = PALETTE_INDIGO;      // on bright icons
@@ -42,3 +42,7 @@ inline constexpr double BOARD_PORTAL_LABEL_RATIO = 0.24;  // font size
 
 // Letters and numbers drawn inside icons
 inline constexpr double BOARD_LABEL_RATIO = 0.32;  // font size
+
+// Screen space the window cannot use (title bar and HUD)
+inline constexpr int BOARD_SCREEN_RESERVED_WIDTH = 40;
+inline constexpr int BOARD_SCREEN_RESERVED_HEIGHT = 160;
