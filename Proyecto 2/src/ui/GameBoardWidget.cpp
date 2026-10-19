@@ -133,18 +133,28 @@ QSize GameBoardWidget::minimumSizeHint() const {
     , state_.maze.rows() * BOARD_MIN_CELL_SIZE + 2 * BOARD_MARGIN);
 }
 
+int GameBoardWidget::calculateCellSize(QSize availableSize) const {
+  // Integer division rounds down, which gives the biggest whole size that fits
+  const int widthPerCell = availableSize.width() / state_.maze.cols();
+  const int heightPerCell = availableSize.height() / state_.maze.rows();
+  // The smaller of the two limits keeps the cells square
+  return std::max(0, std::min(widthPerCell, heightPerCell));
+}
+
+QSize GameBoardWidget::gridSize() const {
+  return QSize(state_.maze.cols(), state_.maze.rows());
+}
+
 void GameBoardWidget::updateBoardLayout() {
   const Maze& maze = state_.maze;
-  const int availableWidth = width() - 2 * BOARD_MARGIN;
-  const int availableHeight = height() - 2 * BOARD_MARGIN;
+  // Available area for the grid (subtracting margins from both sides)
+  const QSize gridArea(width() - 2 * BOARD_MARGIN, height() - 2 * BOARD_MARGIN);
 
-  // Find the tightest constraint (width vs height) to guarantee square cells.
-  // std::max(1, ...) prevents division by zero or negative sizing errors.
-  cellSize_ = std::max(1, std::min(availableWidth / maze.cols(), availableHeight 
-    / maze.rows()));
+  // std::max to avoid a zero-size cell while the window is being resized
+  cellSize_ = std::max(1, calculateCellSize(gridArea));
 
-  // Calculate the leftover empty space on the window and divide by 2 
-  // to perfectly center the board horizontally and vertically.
+  // Centers the grid by halving the leftover space: (Window Size - Grid Size) / 2
+  // to leave equal margins on all sides
   boardOrigin_ = QPoint((width() - cellSize_ * maze.cols()) / 2, (height() 
     - cellSize_ * maze.rows()) / 2);
 }
