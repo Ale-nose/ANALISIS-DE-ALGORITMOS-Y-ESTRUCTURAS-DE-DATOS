@@ -31,8 +31,8 @@ int main() {
     int rows = size;
     int cols = size * 2;
 
-    auto dfs = MazeGenerator::generate(rows, cols, GenerationAlgorithm::DFS, EXTRA_EDGE_PROB, rng);
-    auto bfs = MazeGenerator::generate(rows, cols, GenerationAlgorithm::BFS, EXTRA_EDGE_PROB, rng);
+    GenerationResult dfs = MazeGenerator::generate(rows, cols, GenerationAlgorithm::DFS, EXTRA_EDGE_PROB, rng);
+    GenerationResult bfs = MazeGenerator::generate(rows, cols, GenerationAlgorithm::BFS, EXTRA_EDGE_PROB, rng);
 
     printGeneration("GenerateDFS", dfs, rows, cols);
     printGeneration("GenerateBFS", bfs, rows, cols);
@@ -40,9 +40,9 @@ int main() {
     Position start{0, 0};
     Position goal{rows - 1, cols - 1};
 
-    auto bfsPath = findPathBfs(dfs.maze, start, goal);
-    auto dijkstra = findPathDijkstra(dfs.maze, start, goal);
-    auto astar = findPathAStar(dfs.maze, start, goal, false);
+    SearchResult bfsPath = findPathBfs(dfs.maze, start, goal);
+    SearchResult dijkstra = findPathDijkstra(dfs.maze, start, goal);
+    SearchResult astar = findPathAStar(dfs.maze, start, goal, false);
 
     printSearch("SearchBFS", bfsPath, rows, cols);
     printSearch("Dijkstra", dijkstra, rows, cols);

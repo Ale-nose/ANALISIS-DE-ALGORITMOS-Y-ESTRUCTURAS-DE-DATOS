@@ -40,18 +40,21 @@ void compareGenerationAlgorithms(int rows, int cols, double extraEdgeProb) {
 
   std::cout << "DFS path cost: " << dfsPath.metrics.pathCost << std::endl;
   std::cout << "BFS path cost: " << bfsPath.metrics.pathCost << std::endl;
+  std::cout << std::endl;
 
   std::cout << "DFS generation metrics:" << std::endl;
-  std::cout << "Visited nodes: " << dfsResult.metrics.visitedNodes << std::endl;
-  std::cout << "Created edges: " << dfsResult.metrics.createdEdges << std::endl;
-  std::cout << "Extra edges: " << dfsResult.metrics.extraEdges << std::endl;
-  std::cout << "CPU time: " << dfsResult.metrics.cpuTimeMs << std::endl;
+  std::cout << "  Visited nodes: " << dfsResult.metrics.visitedNodes << std::endl;
+  std::cout << "  Created edges: " << dfsResult.metrics.createdEdges << std::endl;
+  std::cout << "  Extra edges: " << dfsResult.metrics.extraEdges << std::endl;
+  std::cout << "  CPU time: " << dfsResult.metrics.cpuTimeMs << std::endl;
+  std::cout << std::endl;
 
   std::cout << "BFS generation metrics:" << std::endl;
-  std::cout << "Visited nodes: " << bfsResult.metrics.visitedNodes << std::endl;
-  std::cout << "Created edges: " << bfsResult.metrics.createdEdges << std::endl;
-  std::cout << "Extra edges: " << bfsResult.metrics.extraEdges << std::endl;
-  std::cout << "CPU time: " << bfsResult.metrics.cpuTimeMs << std::endl;
+  std::cout << "  Visited nodes: " << bfsResult.metrics.visitedNodes << std::endl;
+  std::cout << "  Created edges: " << bfsResult.metrics.createdEdges << std::endl;
+  std::cout << "  Extra edges: " << bfsResult.metrics.extraEdges << std::endl;
+  std::cout << "  CPU time: " << bfsResult.metrics.cpuTimeMs << std::endl;
+  std::cout << std::endl;
 
   
   const std::string filename = "data/maze_comparison.csv";
