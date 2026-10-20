@@ -83,6 +83,29 @@ private:
    */
   void applyMudPenalty();
 
+  /**
+   * @brief Finds the other cell of a portal pair.
+   *
+   * Scans the maze for a cell with the same portal identifier that is not
+   * the origin cell.
+   *
+   * @param portalID Identifier shared by both cells of the pair.
+   * @param origin Cell of the portal that has just been entered.
+   * @return The position of the paired portal, or the position made of
+   *         DEFAULT_COORDINATES if there is none.
+   */
+  Position findPairPortal(int portalID, Position origin) const;
+
+  /**
+   * @brief Teleports the active player to the paired portal.
+   *
+   * Does nothing if the player's cell has no portal or if its pair cannot be
+   * found. Otherwise both portals are removed from the maze and the player
+   * is moved to the paired cell without spending any extra action. Since the
+   * destination portal is removed too, it never triggers a second teleport.
+   */
+  void activatePortal();
+
   public:
   /**
    * @brief Creates an engine that manages the given match.

@@ -32,3 +32,6 @@ inline constexpr int DEFAULT_COORDINATES = -1;
 inline constexpr int NUM_PLAYERS = 2;
 inline constexpr int ACTIONS_PER_TURN = 1;
 inline constexpr unsigned int DEFAULT_SEED = 1u;
+
+// default portalID
+inline constexpr int PORTAL_ID = -1;

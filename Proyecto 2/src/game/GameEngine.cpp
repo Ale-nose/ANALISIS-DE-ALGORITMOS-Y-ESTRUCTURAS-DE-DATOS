@@ -156,3 +156,34 @@ void GameEngine::applyMudPenalty() {
   current.pendingMudActions += MUD_COST -1; // uses MUD_COST - 1 since enetring mud counts as the first action
 
 }
+
+Position GameEngine::findPairPortal(int portalID, Position origin) const {
+  Position positionIt = {DEFAULT_COORDINATES,DEFAULT_COORDINATES};
+
+  for (int i = 0;i < int(gameState.maze.rows()); i++ ) {
+    for (int j = 0;j < int(gameState.maze.cols()); j++ ) {
+      positionIt.row = i;
+      positionIt.col = j;
+      if((gameState.maze.cellAt(positionIt).portalID == portalID)&& !(positionIt == origin)) {
+        return positionIt;
+      }
+    }
+  }
+  return Position{DEFAULT_COORDINATES,DEFAULT_COORDINATES};
+}
+
+void GameEngine::activatePortal() {
+  PlayerState& current = gameState.players[gameState.currentPlayer];
+  if (gameState.maze.cellAt(current.position).portalID == PORTAL_ID) { //default ID for portals when they dont exists
+    return;
+  }
+  Position destiny = findPairPortal(gameState.maze.cellAt(current.position).portalID, current.position);
+  if (destiny.col == DEFAULT_COORDINATES || destiny.row == DEFAULT_COORDINATES) { //as long as either is the default
+    //theres no valid portal
+    return;
+  }
+  gameState.maze.cellAt(current.position).portalID = PORTAL_ID;
+  gameState.maze.cellAt(destiny).portalID = PORTAL_ID;
+  current.position = destiny;
+
+}
