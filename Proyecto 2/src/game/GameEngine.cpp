@@ -35,7 +35,11 @@ bool GameEngine::submitAction(const Action& action){
   switch (action.type)
   {
   case ActionType::MOVE :{
-    return movePlayer(action.direction);
+    bool result = movePlayer(action.direction);
+    if (result) {
+      this->finishAction();
+    }
+    return result;
 
   } case ActionType::JUMP_WALL : {
     return false;
@@ -68,4 +72,43 @@ bool GameEngine::movePlayer(Direction directionToMove) {
 const GameState& GameEngine::state() const {
 
   return this->gameState;
+}
+
+void GameEngine::beginTurn() {
+  if(gameState.players[gameState.currentPlayer].skipNextTurn) {
+    gameState.players[gameState.currentPlayer].skipNextTurn = false;
+    this->advanceTurn();
+    return;
+  }
+
+   while(gameState.players[gameState.currentPlayer].pendingMudActions > 0 && gameState.actionsLeft > 0) {
+    gameState.actionsLeft--;
+    gameState.players[gameState.currentPlayer].pendingMudActions --;
+  }
+  if (gameState.actionsLeft == 0) {
+    this->advanceTurn();
+
+  }
+}
+
+void GameEngine::finishAction() {
+  gameState.actionsLeft--;
+
+  if(gameState.gameOver) {
+    gameState.stats.turnsPlayed++;
+    gameState.turnCount++;
+    return;
+  } 
+
+  if(gameState.actionsLeft == 0) {
+    gameState.stats.turnsPlayed++;
+    gameState.turnCount++;
+    GameEngine::advanceTurn();
+  }
+}
+
+void GameEngine::advanceTurn () {
+  gameState.currentPlayer = (gameState.currentPlayer + 1) % NUM_PLAYERS;
+  gameState.actionsLeft = ACTIONS_PER_TURN;
+  GameEngine::beginTurn();
 }

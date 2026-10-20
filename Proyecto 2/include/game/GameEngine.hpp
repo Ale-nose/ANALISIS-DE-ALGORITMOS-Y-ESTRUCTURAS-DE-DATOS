@@ -24,8 +24,37 @@ private:
    */
   Position newPos (Position pos, Direction dir) const ;
   GameState gameState;
+
+  /**
+   * @brief Prepares the turn of the player that has just received it.
+   *
+   * If the player is marked to lose the turn, the mark is cleared and the
+   * turn passes to the other player. Otherwise, the pending mud actions are
+   * paid one by one with the actions available this turn, and the turn passes
+   * if none are left. Mud actions that cannot be paid stay pending for the
+   * next turn.
+   */
+  void beginTurn();
+
+  /**
+   * @brief Consumes one action of the active player after an accepted move.
+   *
+   * If actions remain (for example after a Double Play), the same player
+   * acts again. When none remain, the turn counters are updated and, if the
+   * match is not over, the turn passes to the other player.
+   */
+  void finishAction();
+
+  /**
+   * @brief Passes the turn to the other player.
+   *
+   * Switches the active player, gives them the actions of a regular turn
+   * and then lets beginTurn() resolve lost turns and pending mud actions.
+   */
+  void advanceTurn();
+
   
-public:
+  public:
   /**
    * @brief Creates an engine that manages the given match.
    *
@@ -34,7 +63,7 @@ public:
   explicit GameEngine(GameState gameStateArg);
 
   ~GameEngine() = default;
-
+  
   /**
    * @brief Executes one action requested by a player or by the AI.
    *
@@ -65,11 +94,20 @@ public:
    * @return true if the player moved, false if the move was illegal.
    */
   bool movePlayer(Direction directionToMove);
-
+  
   /**
    * @brief Gives access to the current state of the match.
    *
    * @return Reference to the game state.
    */
   const GameState& state() const;
+
+  /**
+   * @brief Gives the index of the player whose turn it is.
+   *
+   * @return PLAYER_1 or PLAYER_2.
+   */
+  inline int currentPlayer() const {
+    return gameState.currentPlayer;
+  }
 };
