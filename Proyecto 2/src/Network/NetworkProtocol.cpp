@@ -2,10 +2,12 @@
 #include "NetworkProtocol.hpp"
 
 #include <cstdint>
+#include <cstdlib>
 #include <stdexcept>
 #include <utility>
 
 #include <QByteArray>
+#include <QJsonArray>
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QJsonParseError>
@@ -13,6 +15,8 @@
 #include <QString>
 
 #include "GameAction.hpp"
+#include "GameConfig.hpp"
+#include "GameState.hpp"
 
 QJsonObject readJsonObject(const std::string& message) {
   if (message.empty() || message.size() > MAX_NETWORK_MESSAGE_SIZE) {
@@ -82,10 +86,10 @@ std::string serializeStartMessage(int playerId) {
 std::string serializeActionMessage(const Action& action) {
   QString kind;
   switch (action.type) {
-    case ActionType::Move:
+    case ActionType::MOVE:
       kind = QStringLiteral("MOVE");
       break;
-    case ActionType::JumpWall:
+    case ActionType::JUMP_WALL:
       kind = QStringLiteral("JUMP_WALL");
       break;
     default: throw std::invalid_argument("Unknown action type");
@@ -166,9 +170,9 @@ Action parseActionMessage(const std::string& message) {
   Action action{};
   QString kind = data.value("kind").toString();
   if (kind == QStringLiteral("MOVE")) {
-    action.type = ActionType::Move;
+    action.type = ActionType::MOVE;
   } else if (kind == QStringLiteral("JUMP_WALL")) {
-    action.type = ActionType::JumpWall;
+    action.type = ActionType::JUMP_WALL;
   } else {
     throw std::invalid_argument("Unknown action type");
   }
@@ -213,4 +217,100 @@ std::vector<std::string> extractNetworkMessages(std::string& receiveBuffer) {
 
   receiveBuffer.erase(0, offset);
   return messages;
+}
+
+GameView createGameView(const GameState& state, int clientId) {
+  if (clientId != PLAYER_1 && clientId != PLAYER_2) {
+    throw std::invalid_argument("Invalid client ID");
+  }
+
+  const Position viewer = state.players[clientId].position;
+  if (state.options.fogEnabled && !state.maze.isInside(viewer)) {
+    throw std::invalid_argument("Viewer position is outside the maze");
+  }
+
+  GameView view{};
+  view.currentPlayer = state.currentPlayer;
+  view.gameOver = state.gameOver;
+  view.winner = state.winner;
+
+  for (int row = 0; row < state.maze.rows(); ++row) {
+    for (int col = 0; col < state.maze.cols(); ++col) {
+      const Position position{row, col};
+      const int distance = std::abs(viewer.row - row) + std::abs(viewer.col - col);
+      if (!state.options.fogEnabled || distance <= FOG_RADIUS) {
+        view.visibleCells.push_back({position, state.maze.cellAt(position)});
+      }
+    }
+  }
+
+  for (int playerId = 0; playerId < NUM_PLAYERS; ++playerId) {
+    const Position position = state.players[playerId].position;
+    const int distance = std::abs(viewer.row - position.row) + std::abs(viewer.col - position.col);
+    const bool visible = state.maze.isInside(position)
+      && (!state.options.fogEnabled || playerId == clientId || distance <= FOG_RADIUS);
+    view.players[playerId].visible = visible;
+    view.players[playerId].position = visible ? position : Position{-1, -1};
+  }
+
+  return view;
+}
+
+static QJsonObject positionToJson(Position position) {
+  QJsonObject result;
+  result["row"] = position.row;
+  result["col"] = position.col;
+  return result;
+}
+
+static QJsonObject cellToJson(const Cell& cell) {
+  QJsonArray walls;
+  for (bool closed : cell.walls) {
+    walls.append(closed);
+  }
+
+  QJsonObject result;
+  result["terrain"] = static_cast<int>(cell.terrain);
+  result["powerUp"] = static_cast<int>(cell.powerUp);
+  result["special"] = static_cast<int>(cell.special);
+  result["portalID"] = cell.portalID;
+  result["walls"] = walls;
+  return result;
+}
+
+std::string serializeGameView(const GameView& view) {
+  QJsonArray visibleCells;
+  for (const VisibleCell& cell : view.visibleCells) {
+    QJsonObject item;
+    item["position"] = positionToJson(cell.position);
+    item["contents"] = cellToJson(cell.contents);
+    visibleCells.append(item);
+  }
+
+  QJsonArray players;
+  for (const PlayerPublicView& player : view.players) {
+    QJsonObject item;
+    item["visible"] = player.visible;
+    if (player.visible) {
+      item["position"] = positionToJson(player.position);
+    }
+    players.append(item);
+  }
+
+  QJsonObject gameView;
+  gameView["visibleCells"] = visibleCells;
+  gameView["players"] = players;
+  gameView["currentPlayer"] = view.currentPlayer;
+  gameView["gameOver"] = view.gameOver;
+  gameView["winner"] = view.winner;
+
+  QJsonObject message;
+  message["type"] = QStringLiteral("STATE");
+  message["view"] = gameView;
+
+  std::string json = writeJsonObject(message);
+  if (json.size() > MAX_NETWORK_MESSAGE_SIZE) {
+    throw std::length_error("GameView message exceeds the maximum size");
+  }
+  return json;
 }
