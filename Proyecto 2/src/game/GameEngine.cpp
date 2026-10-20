@@ -27,27 +27,30 @@ Position GameEngine::newPos(Position pos, Direction dir) const {
     Position newPosition {pos.row, pos.col - 1};
     return newPosition;
   }
-}
-return pos ;
+  }
+  return pos ;
 }
 
 bool GameEngine::submitAction(const Action& action){
+  bool result = false;
   switch (action.type)
   {
   case ActionType::MOVE :{
-    bool result = movePlayer(action.direction);
+     result = movePlayer(action.direction);
     if (result) {
       this->finishAction();
     }
     return result;
 
   } case ActionType::JUMP_WALL : {
-    return false;
+     result = useJumpWall(action.direction);
+     if(result) {
+      this->finishAction();
+      return result;
+     }
   }
-  
-  }
-
-  return false;
+}
+  return result;
 }
 
 bool GameEngine::canMove(Direction directionToCheck) const {
@@ -111,4 +114,24 @@ void GameEngine::advanceTurn () {
   gameState.currentPlayer = (gameState.currentPlayer + 1) % NUM_PLAYERS;
   gameState.actionsLeft = ACTIONS_PER_TURN;
   GameEngine::beginTurn();
+}
+
+bool GameEngine::useJumpWall(Direction jumpDir) {
+  PlayerState& current = gameState.players[currentPlayer()];
+
+  if(gameState.gameOver) {
+    return false;
+  }
+  if(current.jumpWalls <= 0) {
+    return false;
+
+  }
+  Position destiny = newPos(current.position, jumpDir);
+  if (!gameState.maze.isInside(destiny)) {
+    return false;
+  }
+
+  current.jumpWalls--;
+  current.position = destiny;
+  return true;
 }

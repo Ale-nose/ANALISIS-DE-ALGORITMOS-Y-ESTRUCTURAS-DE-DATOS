@@ -110,4 +110,18 @@ private:
   inline int currentPlayer() const {
     return gameState.currentPlayer;
   }
+
+  /**
+   * @brief Moves the active player through a wall using one Jump Wall.
+   *
+   * The jump is accepted only if the match is not over, the player has at
+   * least one Jump Wall and the destination is inside the maze. The wall is
+   * not opened: it stays closed for later moves. One Jump Wall is spent,
+   * even if there was already an open passage between both cells.
+   *
+   * @param jumpDir Direction of the jump.
+   * @return true if the player jumped, false if the action was rejected. A
+   *         rejected action does not change the state.
+   */
+  bool useJumpWall(Direction jumpDir);
 };
