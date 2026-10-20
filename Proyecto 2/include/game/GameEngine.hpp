@@ -16,15 +16,15 @@ private:
  * @brief Computes the cell next to a position in a given direction.
  *
  * Row 0 is the top row of the maze, so UP decreases the row and DOWN
-   * increases it. The result is not checked against the maze bounds.
-   *
+ * increases it. The result is not checked against the maze bounds.
+ *
    * @param pos Starting cell.
    * @param dir Direction of the step.
    * @return The adjacent cell in that direction.
    */
   Position newPos (Position pos, Direction dir) const ;
   GameState gameState;
-
+  
   /**
    * @brief Prepares the turn of the player that has just received it.
    *
@@ -53,7 +53,7 @@ private:
    */
   void advanceTurn();
 
-    /**
+  /**
    * @brief Grants the active player one extra action in the current turn.
    *
    * Called when a Double Play power-up is collected. The effect stacks if
@@ -63,7 +63,26 @@ private:
   inline void doublePlay() {
     gameState.actionsLeft++;
   }
+  /**
+   * @brief Makes the opponent lose their next turn.
+   *
+   * Called when a Control Enemy power-up is collected by the active player.
+   * If the opponent has a shield, one shield is spent and the turn is not
+   * lost. Otherwise the opponent is marked to skip their next turn, and
+   * beginTurn() clears the mark when that turn would start.
+   */
+  void applyControlEnemy();
   
+   /**
+   * @brief Records the extra actions that entering a mud cell costs.
+   *
+   * Called when the active player enters a mud cell. The move that entered
+   * already counts as the first action, so MUD_COST - 1 actions are added to
+   * the pending mud actions. They are paid by finishAction() with the actions
+   * that remain in the turn, and by beginTurn() in the following turns.
+   */
+  void applyMudPenalty();
+
   public:
   /**
    * @brief Creates an engine that manages the given match.
@@ -134,16 +153,6 @@ private:
    *         rejected action does not change the state.
    */
   bool useJumpWall(Direction jumpDir);
-
-  /**
-   * @brief Makes the opponent lose their next turn.
-   *
-   * Called when a Control Enemy power-up is collected by the active player.
-   * If the opponent has a shield, one shield is spent and the turn is not
-   * lost. Otherwise the opponent is marked to skip their next turn, and
-   * beginTurn() clears the mark when that turn would start.
-   */
-  void applyControlEnemy();
 
 
 };

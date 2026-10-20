@@ -103,6 +103,11 @@ void GameEngine::finishAction() {
     return;
   } 
 
+    while(gameState.players[gameState.currentPlayer].pendingMudActions > 0 && gameState.actionsLeft > 0) {
+    gameState.actionsLeft--;
+    gameState.players[gameState.currentPlayer].pendingMudActions --;
+  }
+
   if(gameState.actionsLeft == 0) {
     gameState.stats.turnsPlayed++;
     gameState.turnCount++;
@@ -144,4 +149,10 @@ void GameEngine::applyControlEnemy() {
     return;
   }
   enemy.skipNextTurn = true;
+}
+
+void GameEngine::applyMudPenalty() {
+  PlayerState& current = gameState.players[gameState.currentPlayer];
+  current.pendingMudActions += MUD_COST -1; // uses MUD_COST - 1 since enetring mud counts as the first action
+
 }
