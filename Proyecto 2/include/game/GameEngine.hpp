@@ -12,10 +12,10 @@
 class GameEngine
 {
 private:
-  /**
-   * @brief Computes the cell next to a position in a given direction.
-   *
-   * Row 0 is the top row of the maze, so UP decreases the row and DOWN
+/**
+ * @brief Computes the cell next to a position in a given direction.
+ *
+ * Row 0 is the top row of the maze, so UP decreases the row and DOWN
    * increases it. The result is not checked against the maze bounds.
    *
    * @param pos Starting cell.
@@ -35,7 +35,7 @@ private:
    * next turn.
    */
   void beginTurn();
-
+  
   /**
    * @brief Consumes one action of the active player after an accepted move.
    *
@@ -53,6 +53,16 @@ private:
    */
   void advanceTurn();
 
+    /**
+   * @brief Grants the active player one extra action in the current turn.
+   *
+   * Called when a Double Play power-up is collected. The effect stacks if
+   * several are collected, and it must run before finishAction() spends the
+   * action of the move that picked the power-up up.
+   */
+  inline void doublePlay() {
+    gameState.actionsLeft++;
+  }
   
   public:
   /**
@@ -124,4 +134,16 @@ private:
    *         rejected action does not change the state.
    */
   bool useJumpWall(Direction jumpDir);
+
+  /**
+   * @brief Makes the opponent lose their next turn.
+   *
+   * Called when a Control Enemy power-up is collected by the active player.
+   * If the opponent has a shield, one shield is spent and the turn is not
+   * lost. Otherwise the opponent is marked to skip their next turn, and
+   * beginTurn() clears the mark when that turn would start.
+   */
+  void applyControlEnemy();
+
+
 };

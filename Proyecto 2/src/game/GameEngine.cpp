@@ -135,3 +135,13 @@ bool GameEngine::useJumpWall(Direction jumpDir) {
   current.position = destiny;
   return true;
 }
+
+void GameEngine::applyControlEnemy() {
+  int enemyInd = (gameState.currentPlayer + 1) % NUM_PLAYERS;
+  PlayerState& enemy = gameState.players[enemyInd];
+  if (enemy.shieldCount > 0) {
+    enemy.shieldCount --;
+    return;
+  }
+  enemy.skipNextTurn = true;
+}
