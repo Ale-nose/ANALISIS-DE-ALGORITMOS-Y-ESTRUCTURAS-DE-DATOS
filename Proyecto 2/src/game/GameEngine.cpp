@@ -69,6 +69,7 @@ bool GameEngine::movePlayer(Direction directionToMove) {
   }
   this->gameState.players[this->gameState.currentPlayer].position = newPos(this->gameState.players
     [this->gameState.currentPlayer].position,directionToMove);
+    resolveCellEntry();
   return true;
 }
 
@@ -138,6 +139,7 @@ bool GameEngine::useJumpWall(Direction jumpDir) {
 
   current.jumpWalls--;
   current.position = destiny;
+  resolveCellEntry();
   return true;
 }
 
@@ -187,3 +189,58 @@ void GameEngine::activatePortal() {
   current.position = destiny;
 
 }
+
+void GameEngine::collectPowerup() {
+  PlayerState& current = gameState.players[gameState.currentPlayer];
+
+  switch (gameState.maze.cellAt(current.position).powerUp)
+  {
+  case  PowerUpType::CONTROL_ENEMY : {
+    GameEngine::applyControlEnemy();
+    break;
+  }
+   case  PowerUpType::DOUBLE_PLAY : {
+    GameEngine::doublePlay();
+    break;
+  }
+   case  PowerUpType::JUMP_WALL : {
+    current.jumpWalls++;
+    break;
+  }
+  default:
+    break;
+  }
+  if ( gameState.maze.cellAt(current.position).powerUp != PowerUpType::NONE) {
+    gameState.stats.powerUpsCollected++;
+  }
+  gameState.maze.cellAt(current.position).powerUp = PowerUpType::NONE;
+}
+
+void GameEngine::collectShieldTile() {
+  PlayerState& current = gameState.players[gameState.currentPlayer];
+  if (gameState.maze.cellAt(current.position).special == SpecialCellType::SHIELD_TILE) {
+    current.shieldCount++;
+    gameState.maze.cellAt(current.position).special = SpecialCellType::NONE;
+    
+  }
+}
+void GameEngine::checkWinner() {
+  PlayerState& current = gameState.players[gameState.currentPlayer];
+  bool isWinner = (current.position == gameState.treasure);
+  if (isWinner) {
+    gameState.winner = gameState.currentPlayer;
+    gameState.gameOver = true;
+  }
+}
+
+void GameEngine::resolveCellEntry() {
+  PlayerState& current = gameState.players[gameState.currentPlayer];
+  activatePortal();
+  collectPowerup();
+  collectShieldTile();
+  if (gameState.maze.cellAt(current.position).terrain == TerrainType::MUD) {
+    applyMudPenalty();
+  }
+  checkWinner();
+}
+
