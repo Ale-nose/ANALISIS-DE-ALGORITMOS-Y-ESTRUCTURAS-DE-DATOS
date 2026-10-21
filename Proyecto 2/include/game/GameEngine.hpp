@@ -106,6 +106,47 @@ private:
    */
   void activatePortal();
 
+  /**
+   * @brief Collects the power-up in the cell of the active player.
+   *
+   * Jump Wall adds one Jump Wall to the player, Double Play grants an extra
+   * action in the current turn and Control Enemy makes the opponent lose the
+   * next turn unless they have a shield. A collected power-up is counted in
+   * the statistics and removed from the cell, so it cannot be collected
+   * twice. Does nothing if the cell has no power-up.
+   */
+  void collectPowerup();
+
+  /**
+   * @brief Collects the shield tile in the cell of the active player.
+   *
+   * If the cell holds a shield tile, the player gets one shield and the
+   * tile is removed from the cell, so it cannot be collected twice.
+   */
+  void collectShieldTile();
+
+  /**
+   * @brief Applies everything that happens when the active player arrives
+   *        at a cell.
+   *
+   * The effects are resolved in a fixed order: portal (at most once),
+   * power-up, shield tile, mud penalty and, finally, the victory check. Each
+   * step reads the cell where the player stands at that moment, so after a
+   * portal the remaining effects come from the destination cell. It must run
+   * after the player has moved and before finishAction() is called.
+   */
+  void resolveCellEntry();
+
+  /**
+   * @brief Ends the match if the active player stands on the treasure.
+   *
+   * Stores the active player as the winner and marks the match as over. It
+   * is the last step of resolveCellEntry(), so a portal that lands on the
+   * treasure also wins.
+   */
+  void checkWinner();
+
+  
   public:
   /**
    * @brief Creates an engine that manages the given match.
@@ -176,6 +217,16 @@ private:
    *         rejected action does not change the state.
    */
   bool useJumpWall(Direction jumpDir);
+
+
+  /**
+   * @brief Tells whether the match has ended.
+   *
+   * @return true if a player has reached the treasure, false otherwise.
+   */
+  inline bool isGameOver() const {
+    return gameState.gameOver;
+  }
 
 
 };
