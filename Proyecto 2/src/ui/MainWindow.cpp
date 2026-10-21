@@ -76,6 +76,9 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent) {
 
   connect(startWindow_, &StartWindow::gameStartRequested, this
     , &MainWindow::startMatch);
+  // TODO (Ashley): Connect the existing Host/Join requests to
+  // NetworkServer and NetworkClient. Handle network signals to update the
+  // displayed state, connection status, turns and game-over information.
 
   resize(startWindow_->sizeHint());
 }
@@ -122,6 +125,9 @@ void MainWindow::keyPressEvent(QKeyEvent* event) {
 }
 
 void MainWindow::submitPlayerAction(const Action& action) {
+  // TODO (Ashley): When online, send actions through
+  // NetworkClient::sendAction() instead of modifying the local GameEngine.
+  // Keep the existing local-game behavior unchanged.
   if (!engine_) {
     return;
   }

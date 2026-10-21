@@ -17,8 +17,13 @@ struct PlayerPublicView {
 };
 
 struct GameView {
+  int rows = 0;
+  int cols = 0;
+  Position treasure{-1, -1};
+
   std::vector<VisibleCell> visibleCells;
   std::array<PlayerPublicView, 2> players{};
+
   int currentPlayer = 0;
   bool gameOver = false;
   int winner = -1;
