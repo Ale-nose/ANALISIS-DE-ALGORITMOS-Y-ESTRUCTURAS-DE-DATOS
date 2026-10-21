@@ -31,3 +31,16 @@ inline constexpr const char* TEXT_ERROR_BOARD_DOES_NOT_FIT =
   "try again.";
 inline constexpr const char* TEXT_ERROR_MAP_GENERATION =
   "The maze could not be generated. Please try again.";
+
+// HUD
+inline constexpr const char* TEXT_HUD_PLAYER_1 = "Player 1";
+inline constexpr const char* TEXT_HUD_PLAYER_2 = "Player 2";
+inline constexpr const char* TEXT_HUD_AI = "AI";
+inline constexpr const char* TEXT_HUD_TURN = "Turn: %1";
+inline constexpr const char* TEXT_HUD_ACTIONS = "Actions left: %1";
+inline constexpr const char* TEXT_HUD_JUMP_WALLS = "Jump Walls: %1";
+inline constexpr const char* TEXT_HUD_SHIELDS = "Shields: %1";
+inline constexpr const char* TEXT_HUD_MUD = "Stuck in mud: %1 pending actions";
+inline constexpr const char* TEXT_HUD_OPPONENT_SKIPS = 
+  "The opponent will lose their next turn";
+inline constexpr const char* TEXT_HUD_HIDDEN = "?";

@@ -10,6 +10,7 @@
  
 class GameBoardWidget;
 class GameEngine;
+class HudWidget;
 class QKeyEvent;
 class QStackedWidget;
 class StartWindow;
@@ -78,6 +79,8 @@ class MainWindow : public QMainWindow {
 
   QStackedWidget* pages_;
   StartWindow* startWindow_;
+  QWidget* gamePage_;  // board + hud
   GameBoardWidget* boardWidget_;
+  HudWidget* hudWidget_;
   std::unique_ptr<GameEngine> engine_;
 };

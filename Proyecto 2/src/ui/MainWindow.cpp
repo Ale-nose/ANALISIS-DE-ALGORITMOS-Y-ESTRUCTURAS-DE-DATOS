@@ -3,6 +3,7 @@
  
 #include <QCoreApplication>
 #include <QGuiApplication>
+#include <QHBoxLayout>
 #include <QKeyEvent>
 #include <QMessageBox>
 #include <QScreen>
@@ -16,6 +17,8 @@
 #include "GameBoardWidget.hpp"
 #include "GameEngine.hpp"
 #include "GameSetup.hpp"
+#include "HudTheme.hpp"
+#include "HudWidget.hpp"
 #include "StartWindow.hpp"
 #include "UiControls.hpp"
 #include "UiTexts.hpp"
@@ -56,14 +59,24 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent) {
 
   startWindow_ = new StartWindow;
   boardWidget_ = new GameBoardWidget;
+  hudWidget_ = new HudWidget;
+
+  // Match page: the board on the left and the HUD panel on the right
+  gamePage_ = new QWidget;
+  auto* gameLayout = new QHBoxLayout(gamePage_);
+  gameLayout->setContentsMargins(0, 0, 0, 0);
+  gameLayout->setSpacing(0);
+  gameLayout->addWidget(boardWidget_, 1);
+  gameLayout->addWidget(hudWidget_);
 
   pages_ = new QStackedWidget(this);
   pages_->addWidget(startWindow_);
-  pages_->addWidget(boardWidget_);
+  pages_->addWidget(gamePage_);
   setCentralWidget(pages_);
 
   connect(startWindow_, &StartWindow::gameStartRequested, this
     , &MainWindow::startMatch);
+
   resize(startWindow_->sizeHint());
 }
 
@@ -77,21 +90,24 @@ void MainWindow::startMatch(const GameOptions& options) {
     return;
   }
 
-  refreshView();
+  refreshView();  // the board needs the state before measure the grid
   if (!validateBoardFits()) {
     QCoreApplication::exit(EXIT_FAILURE);
     return;
   }
 
-  // Start with the preferred size but never bigger than the screen
-  resize(boardWidget_->sizeHint().boundedTo(availableScreenSize()));
-  pages_->setCurrentWidget(boardWidget_);
+  // Start with the preferred size (board + hud) but never bigger than the screen
+  const QSize boardHint = boardWidget_->sizeHint();
+  resize(QSize(boardHint.width() + HUD_WIDTH, boardHint.height())
+    .boundedTo(availableScreenSize()));
+  pages_->setCurrentWidget(gamePage_);
+
   setFocus();  // so the window, not a hidden menu button, receives the keys
 }
 
 void MainWindow::keyPressEvent(QKeyEvent* event) {
   Direction direction = Direction::DOWN;
-  const bool playing = engine_ && pages_->currentWidget() == boardWidget_;
+  const bool playing = engine_ && pages_->currentWidget() == gamePage_;
 
   if (!playing || !directionFromKey(event->key(), direction)) {
     QMainWindow::keyPressEvent(event);
@@ -122,7 +138,10 @@ void MainWindow::refreshView() {
 
   boardWidget_->setGameState(engine_->state());
   boardWidget_->update();
-   // TODO: update the HUD, the between-turns screen and the victory screen.
+  hudWidget_->updateFromState(engine_->state());
+  // TODO: between-turns screen and victory screen. In local Fog of War, call
+  // hudWidget_->setPrivateInfoHidden(true) when the turn changes and false
+  // when the next player confirms the turn screen.
 }
 
 QSize MainWindow::availableScreenSize() const {
@@ -145,6 +164,7 @@ bool MainWindow::validateBoardFits() {
   }
 
   const QSize grid = boardWidget_->gridSize();  // width = cols, height = row
+  
   QMessageBox::critical(this, TEXT_WINDOW_TITLE
     , QString::fromLatin1(TEXT_ERROR_BOARD_DOES_NOT_FIT).arg(grid.height())
     .arg(grid.width()));
