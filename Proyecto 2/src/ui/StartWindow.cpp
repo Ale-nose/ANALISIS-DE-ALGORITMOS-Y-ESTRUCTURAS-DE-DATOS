@@ -35,6 +35,7 @@ StartWindow::StartWindow(QWidget* parent) : QWidget(parent) {
   setWindowTitle(TEXT_WINDOW_TITLE);
   setMinimumWidth(UI_WINDOW_MIN_WIDTH);
   setStyleSheet(buildStyleSheet());
+  setAttribute(Qt::WA_StyledBackground, true);
 
   auto* title = new QLabel(TEXT_TITLE);
   title->setObjectName("titleLabel");

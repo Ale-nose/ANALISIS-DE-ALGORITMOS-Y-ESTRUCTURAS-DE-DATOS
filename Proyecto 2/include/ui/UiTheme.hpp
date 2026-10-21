@@ -4,6 +4,10 @@
 #include <QString>
 
 /**
+ * TODO: SEPARAR RESPONSABILIDADES, SACAR EL MENU PARA OTRO ARCHIVO
+ */
+
+/**
  * @brief Every color, font and size of the user interface lives here to make
  * it easier to restyle the game. Visible texts live in UiTexts.hpp.
  * Colors are hex strings ("#RRGGBB"), usable both in QSS and in QColor.
