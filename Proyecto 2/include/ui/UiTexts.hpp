@@ -29,3 +29,5 @@ inline constexpr const char* TEXT_BOARD_SHIELD_TILE = "S";
 inline constexpr const char* TEXT_ERROR_BOARD_DOES_NOT_FIT = 
   "The %1 x %2 maze does not fit on this screen. Choose smaller dimensions and "
   "try again.";
+inline constexpr const char* TEXT_ERROR_MAP_GENERATION =
+  "The maze could not be generated. Please try again.";

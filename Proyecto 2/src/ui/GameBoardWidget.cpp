@@ -134,6 +134,8 @@ QSize GameBoardWidget::minimumSizeHint() const {
 }
 
 int GameBoardWidget::calculateCellSize(QSize availableSize) const {
+  if (state_.maze.cols() == 0 || state_.maze.rows() == 0) return 0;
+  
   // Integer division rounds down, which gives the biggest whole size that fits
   const int widthPerCell = availableSize.width() / state_.maze.cols();
   const int heightPerCell = availableSize.height() / state_.maze.rows();
