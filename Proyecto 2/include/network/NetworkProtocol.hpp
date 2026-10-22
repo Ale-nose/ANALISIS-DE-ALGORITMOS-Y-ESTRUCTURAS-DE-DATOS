@@ -36,3 +36,4 @@ std::vector<std::string> extractNetworkMessages(std::string& receiveBuffer);
 
 GameView createGameView(const GameState& state, int clientId);
 std::string serializeGameView(const GameView& view);
+GameView deserializeGameView(const std::string& message);

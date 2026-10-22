@@ -77,6 +77,8 @@ class MainWindow : public QMainWindow {
    */
   QSize availableScreenSize() const;
 
+  // TODO (Ashley): Add NetworkServer and NetworkClient ownership,
+  // plus online-mode and connection state needed by MainWindow.
   QStackedWidget* pages_;
   StartWindow* startWindow_;
   QWidget* gamePage_;  // board + hud

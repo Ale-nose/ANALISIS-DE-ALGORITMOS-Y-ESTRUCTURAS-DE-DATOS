@@ -35,6 +35,10 @@ target_include_directories(maze_core PUBLIC
     ${CMAKE_SOURCE_DIR}/include/game
 )
 
+# TODO (Ashley): Add Qt Network to find_package and link
+# Qt::Network. Include src/Network/*.cpp and include/network/*.hpp
+# in the MazeCraze target so the networking module is compiled.
+
 # MazeCraze: Qt Widgets application (the only target that links Qt).
 find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Widgets)
 find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Widgets)

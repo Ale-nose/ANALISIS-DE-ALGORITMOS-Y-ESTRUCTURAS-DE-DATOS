@@ -5,6 +5,9 @@
 #include <QHostAddress>
 #include <QTcpServer>
 #include <QTcpSocket>
+#include <QByteArray>
+#include <QJsonDocument>
+#include <QJsonObject>
 
 #include "GameAction.hpp"
 #include "GameEngine.hpp"
@@ -71,11 +74,21 @@ void NetworkServer::receiveFrom(int clientId) {
       NetworkMessageType type = parseNetworkMessageType(message);
 
       if (type == NetworkMessageType::Hello && !ready_[clientId] && !started_) {
+        const QJsonObject hello = QJsonDocument::fromJson(QByteArray::fromStdString(message)).object();
+
+        if (!hello.value("version").isDouble() || hello.value("version").toInt(-1) != NETWORK_PROTOCOL_VERSION) {
+          throw std::runtime_error("Unsupported protocol version");
+        }
+
         ready_[clientId] = true;
-        sendTo(clientId, serializeStartMessage(clientId));
 
         if (ready_[0] && ready_[1]) {
           started_ = true;
+
+          for (int id = 0; id < 2; ++id) {
+            sendTo(id, serializeStartMessage(id));
+          }
+
           broadcastState();
         }
       } else if (type == NetworkMessageType::Action && started_ && ready_[clientId]) {
