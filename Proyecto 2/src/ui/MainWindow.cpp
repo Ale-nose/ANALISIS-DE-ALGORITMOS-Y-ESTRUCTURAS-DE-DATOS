@@ -12,6 +12,8 @@
 #include <cstdlib>
 #include <stdexcept>
 #include <utility>
+#include <QPoint>
+#include <QRect>
  
 #include "BoardTheme.hpp"
 #include "GameBoardWidget.hpp"
@@ -22,6 +24,7 @@
 #include "StartWindow.hpp"
 #include "UiControls.hpp"
 #include "UiTexts.hpp"
+#include "TurnHandoffDialog.hpp"
 
 namespace {
   /**
@@ -131,9 +134,21 @@ void MainWindow::submitPlayerAction(const Action& action) {
   if (!engine_) {
     return;
   }
-  if (engine_->submitAction(action)) {
-    refreshView();
+
+  const int previousPlayer = engine_->currentPlayer();
+  if (!engine_->submitAction(action)) {
+    return;  // rejected: nothing changed
   }
+
+  // In a local match cover the board before it is redrawn for the next
+  // player, so they never see the previous player's view
+  const GameState& state = engine_->state();
+  const bool localMatch = state.options.mode == GameMode::LOCAL_TWO_PLAYERS;
+  if (localMatch && !state.gameOver && engine_->currentPlayer() != previousPlayer) {
+    showTurnHandoff();
+  }
+
+  refreshView();
   // TODO: if it is the AI's turn (single player), run it here.
 }
 
@@ -145,9 +160,21 @@ void MainWindow::refreshView() {
   boardWidget_->setGameState(engine_->state());
   boardWidget_->update();
   hudWidget_->updateFromState(engine_->state());
-  // TODO: between-turns screen and victory screen. In local Fog of War, call
-  // hudWidget_->setPrivateInfoHidden(true) when the turn changes and false
-  // when the next player confirms the turn screen.
+}
+
+void MainWindow::showTurnHandoff() {
+  const char* name = engine_->currentPlayer() == PLAYER_1 ? TEXT_HUD_PLAYER_1
+    : TEXT_HUD_PLAYER_2;
+
+  TurnHandoffDialog dialog(QString::fromLatin1(name), this);
+
+  // Cover the whole game area, and hide the board while the dialog is open
+  // so no part of the maze can show through
+  QWidget* area = centralWidget();
+  dialog.setGeometry(QRect(area->mapToGlobal(QPoint(0, 0)), area->size()));
+  gamePage_->setVisible(false);
+  dialog.exec();
+  gamePage_->setVisible(true);
 }
 
 QSize MainWindow::availableScreenSize() const {
