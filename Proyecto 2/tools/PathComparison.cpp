@@ -8,18 +8,29 @@
 #include "Maze.hpp"
 #include "Pathfinding.hpp"
 
+/**
+ * @brief Represents a single benchmark record comparing pathfinding algorithms.
+ */
 struct PathComparisonRow {
-  std::string algorithm;
-  int rows;
-  int cols;
-  std::size_t steps;
-  int visitedNodes;
-  int pathCost;
-  double cpuTimeMs;
+  std::string algorithm;   ///< Name of the evaluated algorithm (BFS, Dijkstra, A*).
+  int rows;                ///< Total rows in the evaluated maze grid.
+  int cols;                ///< Total columns in the evaluated maze grid.
+  std::size_t steps;       ///< Number of movement transitions in the found path.
+  int visitedNodes;        ///< Total vertices explored during the search.
+  int pathCost;            ///< Accumulated movement cost along the path.
+  double cpuTimeMs;        ///< Search duration in milliseconds.
 };
 
+/// In-memory storage for path comparison benchmark records
 static std::vector<PathComparisonRow> comparisonRows;
 
+/**
+ * @brief Executes BFS, Dijkstra, and A* on a maze and logs comparative metrics.
+ * @param maze Maze instance containing the graph layout and terrain costs.
+ * @param start Origin position coordinate.
+ * @param goal Destination position coordinate.
+ * @throws std::runtime_error If any algorithm fails or if optimal path costs differ.
+ */
 void comparePathAlgorithms(const Maze& maze, Position start, Position goal) {
   SearchResult bfsResult = findPathBfs(maze, start, goal);
   SearchResult dijkstraResult = findPathDijkstra(maze, start, goal);
@@ -74,6 +85,11 @@ void comparePathAlgorithms(const Maze& maze, Position start, Position goal) {
   comparisonRows.push_back(aStarRow);
 }
 
+/**
+ * @brief Exports accumulated path comparison metrics into a CSV file.
+ * @param filename Target filesystem path for the output CSV.
+ * @return true if the file was written successfully, false otherwise.
+ */
 bool exportPathComparison(const std::string& filename) {
   std::ofstream file(filename);
 
@@ -93,6 +109,10 @@ bool exportPathComparison(const std::string& filename) {
   return file.good();
 }
 
+/**
+ * @brief Benchmarks algorithm behavior on a dual-path layout with mud penalties.
+ * @throws std::runtime_error If Dijkstra fails to beat BFS cost or if CSV export fails.
+ */
 void compareMudScenario() {
   Maze maze(2, 5);
 

@@ -8,13 +8,28 @@
 #include "MazeGenerator.hpp"
 #include "Pathfinding.hpp"
 
-inline constexpr int SEED = 42;
+inline constexpr int SEED = 42; ///< Default random seed used for benchmark repeatability.
 
+/**
+ * @brief Prints structural maze metrics, such as the total dead ends count.
+ * @param maze Maze instance to inspect.
+ */
 void analyzeMazeGeneration(const Maze& maze) {
   int deadEnds = maze.countDeadEnds();
   std::cout << "Dead ends: " << deadEnds << std::endl;
 }
 
+/**
+ * @brief Compares DFS and BFS maze generation characteristics and writes metrics to a CSV file.
+ *
+ * Evaluates dead ends, generation metrics, and Dijkstra path costs between opposite corners
+ * for both algorithms using identical dimensions and edge probabilities.
+ *
+ * @param rows Number of rows in the test maze.
+ * @param cols Number of columns in the test maze.
+ * @param extraEdgeProb Probability of opening additional interior walls [0.0, 1.0].
+ * @throws std::runtime_error If pathfinding fails or if the output file cannot be accessed.
+ */
 void compareGenerationAlgorithms(int rows, int cols, double extraEdgeProb) {
   std::mt19937 dfsRng(SEED);
   std::mt19937 bfsRng(SEED);

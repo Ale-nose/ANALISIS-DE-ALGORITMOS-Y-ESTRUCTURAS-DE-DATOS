@@ -21,9 +21,31 @@ struct SearchResult {
   SearchMetrics metrics;
   SearchTrace trace;
 };
-//TODO: add doxygen comments for both algorthms
+
+/**
+ * @brief Finds the shortest or lowest-cost path between two cells using Dijkstra's algorithm.
+ *
+ * Explores the maze graph by priority of accumulated cost, accounting for varying terrain
+ * entry costs such as mud.
+ *
+ * @param maze Maze grid to search.
+ * @param start Starting cell coordinate.
+ * @param goal Target destination cell coordinate.
+ * @return SearchResult containing path validity, ordered coordinates, and performance metrics.
+ */
 struct SearchResult findPathDijkstra(const Maze& maze, Position start, Position goal);
 
+/**
+ * @brief Finds a path between two cells using Breadth-First Search (BFS).
+ *
+ * Traverses the maze level by level, finding a path with the minimal number of steps
+ * without accounting for edge weights or terrain costs.
+ *
+ * @param maze Maze grid to search.
+ * @param start Starting cell coordinate.
+ * @param goal Target destination cell coordinate.
+ * @return SearchResult containing path validity, ordered coordinates, and evaluated metrics.
+ */
 struct SearchResult findPathBfs(const Maze& maze, Position start, Position goal);
 
 

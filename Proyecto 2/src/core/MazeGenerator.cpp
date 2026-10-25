@@ -19,15 +19,18 @@ GenerationResult MazeGenerator::generateDfs(int rows, int cols, std::mt19937& rn
   std::vector<bool> visited(rows * cols, false);
   std::stack<Position> pending;
 
+  // Start DFS exploration from the top-left cell (0, 0)
   Position start{0, 0};
   visited[0] = true;
   metrics.visitedNodes = 1;
   pending.push(start);
 
+  // Main DFS loop using an explicit stack
   while (!pending.empty()) {
     Position current = pending.top();
     std::vector<Direction> availableDirections;
 
+    // Check all four adjacent directions for unvisited neighbors
     for (auto direction : {Direction::UP, Direction::DOWN, Direction::LEFT, Direction::RIGHT}) {
       Position next = current;
 
@@ -55,11 +58,13 @@ GenerationResult MazeGenerator::generateDfs(int rows, int cols, std::mt19937& rn
       }
     }
 
+    // Backtrack if no unvisited neighbors are available
     if (availableDirections.empty()) {
       pending.pop();
       continue;
     }
 
+    // Randomly choose one unvisited neighbor to advance
     std::uniform_int_distribution<std::size_t> dist(0, availableDirections.size() - 1);
     std::size_t randomIndex = dist(rng);
     Direction selectedDirection = availableDirections[randomIndex];
@@ -75,6 +80,7 @@ GenerationResult MazeGenerator::generateDfs(int rows, int cols, std::mt19937& rn
       next.col++;
     }
 
+    // Carve passage and mark newly visited cell
     maze.openPassage(current, selectedDirection);
 
     int index = next.row * cols + next.col;
@@ -88,6 +94,7 @@ GenerationResult MazeGenerator::generateDfs(int rows, int cols, std::mt19937& rn
 
   std::clock_t endTime = std::clock();
 
+  // Compute CPU execution time in milliseconds
   metrics.cpuTimeMs = 1000.0 * (endTime - startTime) / CLOCKS_PER_SEC;
 
   return GenerationResult{std::move(maze), metrics};
@@ -101,11 +108,13 @@ GenerationResult MazeGenerator::generateBfs(int rows, int cols, std::mt19937& rn
   std::vector<bool> visited(rows * cols, false);
   std::queue<Position> pending;
 
+  // Start randomized BFS spanning tree from (0, 0)
   Position start{0, 0};
   visited[0] = true;
   metrics.visitedNodes = 1;
   pending.push(start);
 
+  // Expand maze frontier level by level
   while (!pending.empty()) {
     Position current = pending.front();
     pending.pop();
@@ -113,6 +122,7 @@ GenerationResult MazeGenerator::generateBfs(int rows, int cols, std::mt19937& rn
     std::array<Direction, 4> directions =
       {Direction::UP, Direction::DOWN, Direction::LEFT, Direction::RIGHT};
     
+    // Shuffle neighbor visit order to randomize branching
     std::shuffle(directions.begin(), directions.end(), rng);
 
     for (auto direction : {Direction::UP, Direction::DOWN, Direction::LEFT, Direction::RIGHT}) {
@@ -128,16 +138,19 @@ GenerationResult MazeGenerator::generateBfs(int rows, int cols, std::mt19937& rn
         next.col++;
       }
 
+      // Skip coordinates outside bounds
       if (maze.isInside(next) == false) {
         continue;
       }
 
       int index = next.row * cols + next.col;
 
+      // Skip already visited cells
       if (visited[index] == true) {
         continue;
       }
 
+      // Open passage to unvisited neighbor and enqueue it
       maze.openPassage(current, direction);
       visited[index] = true;
       metrics.visitedNodes++;
@@ -147,6 +160,7 @@ GenerationResult MazeGenerator::generateBfs(int rows, int cols, std::mt19937& rn
   }
   std::clock_t endTime = std::clock();
 
+  // Compute CPU execution time in milliseconds
   metrics.cpuTimeMs = 1000.0 * (endTime - startTime) / CLOCKS_PER_SEC;
 
   return GenerationResult{std::move(maze), metrics};
@@ -162,8 +176,10 @@ int MazeGenerator::addExtraPassages(Maze& maze, double probability, std::mt19937
   int rows = maze.rows();
   int cols = maze.cols();
 
+  // Bernoulli distribution for deciding wall removal
   std::bernoulli_distribution shouldOpen(probability);
 
+  // Iterate over unique internal wall candidates (RIGHT and DOWN to avoid duplicates)
   for (int row = 0; row < rows; row++) {
     for (int col = 0; col < cols; col++) {
       Position current{row, col};
@@ -177,14 +193,17 @@ int MazeGenerator::addExtraPassages(Maze& maze, double probability, std::mt19937
           next.row++;
         }
 
+        // Skip outer boundaries
         if (maze.isInside(next) == false) {
           continue;
         }
 
+        // Skip walls that are already open
         if (maze.hasPassage(current, next) == true) {
           continue;
         }
 
+        // Open closed wall based on probability
         if (shouldOpen(rng)) {
           maze.openPassage(current, direction);
           addedPassages++;
@@ -203,6 +222,7 @@ GenerationResult MazeGenerator::generate(
 
   std::optional<GenerationResult> result;
 
+  // Generate base spanning tree using chosen algorithm
   if (algorithm == GenerationAlgorithm::DFS) {
     result = generateDfs(rows, cols, rng);
   } else if (algorithm == GenerationAlgorithm::BFS) {
@@ -215,8 +235,10 @@ GenerationResult MazeGenerator::generate(
 
   std::clock_t startTime = std::clock();
 
+  // Introduce loops and alternative paths
   int added = addExtraPassages(generated.maze, extraEdgeProb, rng);
 
+  // Update edge counts with newly created passages
   generated.metrics.extraEdges += added;
   generated.metrics.createdEdges += added;
 
@@ -224,6 +246,7 @@ GenerationResult MazeGenerator::generate(
 
   double extraTimeMs = 1000.0 * (endTime - startTime) / CLOCKS_PER_SEC;
 
+  // Accumulate extra passage computation time into overall CPU time
   generated.metrics.cpuTimeMs += extraTimeMs;
 
   return generated;

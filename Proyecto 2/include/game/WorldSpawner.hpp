@@ -110,7 +110,4 @@ class WorldSpawner {
    *       reproducible for a given generator state and standard library.
    */
   static void placePortal(Maze& maze, Position posPlayer1,Position posPlayer2, Position treasure,std::mt19937& random);
-
-
-
 };
