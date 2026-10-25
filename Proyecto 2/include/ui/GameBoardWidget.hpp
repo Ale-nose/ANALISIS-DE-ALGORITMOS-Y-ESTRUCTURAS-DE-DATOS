@@ -5,6 +5,7 @@
 #include <QRect>
 #include <QSize>
 #include <QWidget>
+#include <vector>
 
 #include "GameState.hpp"
 
@@ -30,6 +31,20 @@ class GameBoardWidget : public QWidget {
    * @param state Current state of the match.
    */
   void setGameState(const GameState& state);
+
+  /**
+   * @brief Sets the player whose point of view the board shows. That player
+   * is always drawn, even under fog.
+   * @param playerIndex PLAYER_1 or PLAYER_2.
+   */
+  void setViewer(int playerIndex);
+
+  /**
+   * @brief Sets the cells the viewer can see. It is only used when Fog of War
+   * is enabled in the state options.
+   * @param visible Positions of the visible cells.
+   */
+  void setVisibleCells(const std::vector<Position>& visible);
 
   /**
    * @brief Comfortable size: BOARD_PREFERRED_CELL_SIZE per cell plus margins.
@@ -98,8 +113,25 @@ class GameBoardWidget : public QWidget {
    * @note Players whose position is outside the maze bounds are skipped.
    */
   void drawPlayers(QPainter& painter) const;
+
+  /**
+   * @brief Paints an opaque fog block over a cell, hiding walls, treasure,
+   * power-ups and portals.
+   * @param painter Painter already active on this widget.
+   * @param position Row and column of the hidden cell.
+   */
+  void drawFog(QPainter& painter, Position position) const;
+
+  /**
+   * @brief Tells whether a cell must be drawn.
+   * @param position Row and column of the cell.
+   * @return True if the cell is visible to the viewer.
+   */
+  bool isCellVisible(Position position) const;
  
   GameState state_;
+  int viewer_ = PLAYER_1;
+  std::vector<Position> visibleCells_;
   int cellSize_ = 0;
   QPoint boardOrigin_;
 };

@@ -14,6 +14,7 @@
 #include <utility>
 #include <QPoint>
 #include <QRect>
+#include <vector>
  
 #include "BoardTheme.hpp"
 #include "GameBoardWidget.hpp"
@@ -27,6 +28,31 @@
 #include "TurnHandoffDialog.hpp"
 
 namespace {
+  /**
+   * @brief TEMPORARY
+   * Returns every cell within FOG_RADIUS steps of the player, counting rows
+   * plus columns. Remove it when Issue 30 is merged.
+   * @param state Current match state.
+   * @param player PLAYER_1 or PLAYER_2.
+   * @return Positions of the visible cells.
+   */
+  std::vector<Position> visibleCellsAround(const GameState& state, int player) {
+    std::vector<Position> visible;
+    const Position center = state.players[player].position;
+    const int rows = static_cast<int>(state.maze.rows());
+    const int cols = static_cast<int>(state.maze.cols());
+
+    for (int row = 0; row < rows; ++row) {
+      for (int col = 0; col < cols; ++col) {
+        if (std::abs(row - center.row) + std::abs(col - center.col)
+            <= FOG_RADIUS) {
+          visible.push_back(Position{row, col});
+        }
+      }
+    }
+    return visible;
+  }
+
   /**
    * @brief Converts a pressed key into a movement direction.
    * @param key Qt key code (arrows or WASD).
@@ -157,9 +183,14 @@ void MainWindow::refreshView() {
     return;
   }
 
-  boardWidget_->setGameState(engine_->state());
+  const GameState& state = engine_->state();
+  boardWidget_->setGameState(state);
+  boardWidget_->setViewer(state.currentPlayer);
+  // TODO (Issue 30): use engine_->visibleCells(state.currentPlayer) instead.
+  boardWidget_->setVisibleCells(visibleCellsAround(state, state.currentPlayer));
   boardWidget_->update();
-  hudWidget_->updateFromState(engine_->state());
+  hudWidget_->updateFromState(state);
+  // TODO: victory screen.
 }
 
 void MainWindow::showTurnHandoff() {
@@ -188,7 +219,7 @@ QSize MainWindow::availableScreenSize() const {
 bool MainWindow::validateBoardFits() {
   // Area left for the grid once the board margins are removed
   const QSize available = availableScreenSize();
-  const QSize gridArea(available.width() - 2 * BOARD_MARGIN
+    const QSize gridArea(available.width() - HUD_WIDTH - 2 * BOARD_MARGIN
     , available.height() - 2 * BOARD_MARGIN);
   
   // The maze fits if cells can be at least as big as the readable minimum

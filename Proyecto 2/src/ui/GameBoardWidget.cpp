@@ -123,6 +123,33 @@ void GameBoardWidget::setGameState(const GameState& state) {
   update();          // Triggers a full repaint using the new state
 }
 
+void GameBoardWidget::setViewer(int playerIndex) {
+  viewer_ = playerIndex;
+  update();
+}
+
+void GameBoardWidget::setVisibleCells(const std::vector<Position>& visible) {
+  visibleCells_ = visible;
+  update();
+}
+
+bool GameBoardWidget::isCellVisible(Position position) const {
+  // Always true if Fog of War is off.
+  if (!state_.options.fogEnabled) {
+    return true;
+  }
+
+  return std::find(visibleCells_.begin(), visibleCells_.end(), position)
+    != visibleCells_.end();
+}
+
+void GameBoardWidget::drawFog(QPainter& painter, Position position) const {
+  // Opaque block: nothing of the cell underneath is drawn.
+  painter.setPen(Qt::NoPen);
+  painter.setBrush(toColor(COLOR_FOG));
+  painter.drawRect(cellRect(position));
+}
+
 QSize GameBoardWidget::sizeHint() const {
   return QSize(state_.maze.cols() * BOARD_PREFERRED_CELL_SIZE + 2 * BOARD_MARGIN
     , state_.maze.rows() * BOARD_PREFERRED_CELL_SIZE + 2 * BOARD_MARGIN);
@@ -176,15 +203,30 @@ void GameBoardWidget::paintEvent(QPaintEvent* event) {
 
   updateBoardLayout();
   
-  // Layer 1: Base grid (Floor, walls, static tiles)
+  // Layer 1a: opaque fog over every cell the viewer cannot see, it goes first
+  // so it never covers the walls of a visible cell
   for (int row = 0; row < state_.maze.rows(); ++row) {
     for (int col = 0; col < state_.maze.cols(); ++col) {
-      drawCell(painter, Position{row, col});
+      const Position position{row, col};
+
+      if (!isCellVisible(position)) {
+        drawFog(painter, position);
+      }
+    }
+  }
+
+  // Layer 1b: base grid (floor, walls, static tiles) of the visible cells
+  for (int row = 0; row < state_.maze.rows(); ++row) {
+    for (int col = 0; col < state_.maze.cols(); ++col) {
+      const Position position{row, col};
+
+      if (isCellVisible(position)) {
+        drawCell(painter, position);
+      }
     }
   }
 
   // Layer 2: Dynamic entities (Treasure and Players go above every cell)
-  // TODO: (Fog of War issue) draw the fog layer after drawPlayers.
   drawTreasure(painter);
   drawPlayers(painter);
 }
@@ -272,6 +314,10 @@ void GameBoardWidget::drawTreasure(QPainter& painter) const {
     return;
   }
 
+  if (!isCellVisible(state_.treasure)) {
+    return;  // hidden by the fog
+  }
+
   // Bind the diamond strictly to the treasure's cell dimensions
   const QRectF box = centered(cellRect(state_.treasure), BOARD_TREASURE_RATIO);
   const double outlineWidth = std::max(BOARD_MIN_OUTLINE_WIDTH, cellSize_ 
@@ -290,6 +336,11 @@ void GameBoardWidget::drawPlayers(QPainter& painter) const {
     const Position position = state_.players[player].position;
     if (!state_.maze.isInside(position)) {
       continue;  // not placed yet (default position is -1, -1)
+    }
+
+    // Under fog the viewer is always seen, the rival only if close enough
+    if (player != viewer_ && !isCellVisible(position)) {
+      continue;
     }
 
     const QRectF area = cellRect(position);
