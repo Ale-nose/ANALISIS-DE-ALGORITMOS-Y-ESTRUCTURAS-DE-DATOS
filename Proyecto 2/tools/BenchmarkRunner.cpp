@@ -7,6 +7,13 @@
 #include "MazeGenerator.hpp"
 #include "Pathfinding.hpp"
 
+/**
+ * @brief Outputs maze generation metrics in CSV format.
+ * @param name Label identifying the generation algorithm used.
+ * @param result Generation result containing the generated maze and execution metrics.
+ * @param rows Total number of rows in the tested grid.
+ * @param cols Total number of columns in the tested grid.
+ */
 void printGeneration(const char* name, const GenerationResult& result, int rows, int cols) {
   const auto& metrics = result.metrics;
 
@@ -14,6 +21,13 @@ void printGeneration(const char* name, const GenerationResult& result, int rows,
   std::cout << metrics.createdEdges << "," << metrics.extraEdges << ",," << metrics.cpuTimeMs << '\n';
 }
 
+/**
+ * @brief Outputs pathfinding search metrics in CSV format.
+ * @param name Label identifying the pathfinding algorithm evaluated.
+ * @param result Search result containing path status, cost, and execution metrics.
+ * @param rows Total number of rows in the evaluated maze grid.
+ * @param cols Total number of columns in the evaluated maze grid.
+ */
 void printSearch(const char* name, const SearchResult& result, int rows, int cols) {
   const auto& metrics = result.metrics;
 
@@ -21,6 +35,10 @@ void printSearch(const char* name, const SearchResult& result, int rows, int col
   std::cout << metrics.pathCost << "," << metrics.cpuTimeMs << '\n';
 }
 
+/**
+ * @brief Benchmark executable comparing performance and metrics of maze generation and search algorithms.
+ * @return Exit status 0 on successful benchmark execution.
+ */
 int main() {
   std::mt19937 rng(42);
 
