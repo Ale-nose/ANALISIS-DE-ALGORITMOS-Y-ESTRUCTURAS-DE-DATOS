@@ -225,5 +225,17 @@ private:
     return gameState.gameOver;
   }
 
+    /**
+   * @brief Lists the cells that a player can see under Fog of War.
+   *
+   * Includes every cell of the maze within FOG_RADIUS of the player, the
+   * cell of the player included. It does not check whether fog is enabled:
+   * the interface decides whether to apply it. The AI sees the whole maze
+   * and does not use this method.
+   *
+   * @param playerIndex Index of the player whose view is requested.
+   * @return The visible cells, in row order.
+   */
+  std::vector<Position> visibleCells(int playerIndex) const;
 
 };
