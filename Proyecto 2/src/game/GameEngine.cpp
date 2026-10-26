@@ -3,6 +3,7 @@
 #include <utility>
 
 #include "GameEngine.hpp"
+#include "Visibility.hpp"
 
 GameEngine::GameEngine(GameState gameStateArg): gameState(std::move(gameStateArg))
 { 
@@ -242,5 +243,18 @@ void GameEngine::resolveCellEntry() {
     applyMudPenalty();
   }
   checkWinner();
+}
+
+std::vector<Position> GameEngine::visibleCells (int playerIndex) const {
+  std::vector<Position> cellsVisibleToPlayer;
+  for(int i = 0; i < gameState.maze.rows(); i++) {
+      for(int j = 0; j < gameState.maze.cols(); j++) {
+        Position current = {i,j};
+        if(isCellVisible(gameState.players[playerIndex].position,current)) {
+          cellsVisibleToPlayer.push_back(current);
+        }
+      }
+    }
+  return cellsVisibleToPlayer;
 }
 
