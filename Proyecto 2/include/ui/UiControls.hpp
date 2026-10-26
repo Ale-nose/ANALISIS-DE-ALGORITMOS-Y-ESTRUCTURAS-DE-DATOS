@@ -8,3 +8,6 @@
  * holding this modifier while pressing a direction uses a Jump Wall instead.
  */
 inline constexpr Qt::KeyboardModifier JUMP_WALL_MODIFIER = Qt::ShiftModifier;
+
+// AI turns: pause before each AI action so the human can follow the match
+inline constexpr int AI_ACTION_DELAY_MS = 600;
