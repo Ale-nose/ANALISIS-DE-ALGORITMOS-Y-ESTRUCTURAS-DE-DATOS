@@ -44,3 +44,7 @@ inline constexpr const char* TEXT_HUD_MUD = "Stuck in mud: %1 pending actions";
 inline constexpr const char* TEXT_HUD_OPPONENT_SKIPS = 
   "The opponent will lose their next turn";
 inline constexpr const char* TEXT_HUD_HIDDEN = "?";
+
+// Turn handoff screen (local two-player matches)
+inline constexpr const char* TEXT_HANDOFF_MESSAGE = "Pass the computer to";
+inline constexpr const char* TEXT_HANDOFF_READY = "Ready";

@@ -64,6 +64,12 @@ class MainWindow : public QMainWindow {
   void refreshView();
 
   /**
+   * @brief Covers the board with the turn handoff screen until the next
+   * player presses Ready. Only used in local two-player matches.
+   */
+  void showTurnHandoff();
+
+  /**
    * @brief Checks that every cell of the maze fits on the screen at a
    * readable size.
    * @return True if the maze fits; false if it does not.
