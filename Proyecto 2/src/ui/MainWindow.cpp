@@ -15,6 +15,8 @@
 #include <QPoint>
 #include <QRect>
 #include <vector>
+#include <QTimer>
+#include <random>
  
 #include "BoardTheme.hpp"
 #include "GameBoardWidget.hpp"
@@ -29,28 +31,29 @@
 
 namespace {
   /**
-   * @brief TEMPORARY
-   * Returns every cell within FOG_RADIUS steps of the player, counting rows
-   * plus columns. Remove it when Issue 30 is merged.
-   * @param state Current match state.
-   * @param player PLAYER_1 or PLAYER_2.
-   * @return Positions of the visible cells.
+   * @brief TEMPORARY 
+   * stand-in for AIController::chooseAction (Issue 28).
+   * Picks a random direction among the legal moves. Remove it when Issue 28
+   * is merged.
+   * @param engine Engine of the match, used to ask which moves are legal.
+   * @param rng Random generator.
+   * @return A Move action; if no move is legal, a default action that the
+   * engine will reject.
    */
-  std::vector<Position> visibleCellsAround(const GameState& state, int player) {
-    std::vector<Position> visible;
-    const Position center = state.players[player].position;
-    const int rows = static_cast<int>(state.maze.rows());
-    const int cols = static_cast<int>(state.maze.cols());
-
-    for (int row = 0; row < rows; ++row) {
-      for (int col = 0; col < cols; ++col) {
-        if (std::abs(row - center.row) + std::abs(col - center.col)
-            <= FOG_RADIUS) {
-          visible.push_back(Position{row, col});
-        }
+  Action chooseRandomMove(const GameEngine& engine, std::mt19937& rng) {
+    std::vector<Direction> legal;
+    for (Direction direction : {Direction::UP, Direction::DOWN,
+                                Direction::LEFT, Direction::RIGHT}) {
+      if (engine.canMove(direction)) {
+        legal.push_back(direction);
       }
     }
-    return visible;
+
+    Action action;  // Move by default
+    if (!legal.empty()) {
+      action.direction = legal[rng() % legal.size()];
+    }
+    return action;
   }
 
   /**
@@ -117,6 +120,7 @@ MainWindow::~MainWindow() = default;
 void MainWindow::startMatch(const GameOptions& options) {
   try {
     engine_ = std::make_unique<GameEngine>(GameSetup::createGame(options));
+    aiRng_.seed(options.seed);
   } catch (const std::runtime_error&) {
     QMessageBox::warning(this, TEXT_WINDOW_TITLE, TEXT_ERROR_MAP_GENERATION);
     return;
@@ -135,6 +139,7 @@ void MainWindow::startMatch(const GameOptions& options) {
   pages_->setCurrentWidget(gamePage_);
 
   setFocus();  // so the window, not a hidden menu button, receives the keys
+  scheduleAiTurn();
 }
 
 void MainWindow::keyPressEvent(QKeyEvent* event) {
@@ -157,8 +162,8 @@ void MainWindow::submitPlayerAction(const Action& action) {
   // TODO (Ashley): When online, send actions through
   // NetworkClient::sendAction() instead of modifying the local GameEngine.
   // Keep the existing local-game behavior unchanged.
-  if (!engine_) {
-    return;
+  if (!engine_ || isAiTurn()) {
+    return;  // the human cannot play while it is the AI's turn
   }
 
   const int previousPlayer = engine_->currentPlayer();
@@ -175,7 +180,7 @@ void MainWindow::submitPlayerAction(const Action& action) {
   }
 
   refreshView();
-  // TODO: if it is the AI's turn (single player), run it here.
+  scheduleAiTurn();
 }
 
 void MainWindow::refreshView() {
@@ -184,13 +189,45 @@ void MainWindow::refreshView() {
   }
 
   const GameState& state = engine_->state();
+  const int viewer = state.options.mode == GameMode::SINGLE_PLAYER ? PLAYER_1 
+    : state.currentPlayer;
+
   boardWidget_->setGameState(state);
-  boardWidget_->setViewer(state.currentPlayer);
-  // TODO (Issue 30): use engine_->visibleCells(state.currentPlayer) instead.
-  boardWidget_->setVisibleCells(visibleCellsAround(state, state.currentPlayer));
+  boardWidget_->setViewer(viewer);
+  boardWidget_->setVisibleCells(engine_->visibleCells(viewer));
   boardWidget_->update();
   hudWidget_->updateFromState(state);
+
   // TODO: victory screen.
+}
+
+bool MainWindow::isAiTurn() const {
+  return engine_ && !engine_->isGameOver()
+    && engine_->state().options.mode == GameMode::SINGLE_PLAYER
+    && engine_->currentPlayer() == PLAYER_2;
+}
+
+void MainWindow::scheduleAiTurn() {
+  if (!isAiTurn()) {
+    return;
+  }
+  QTimer::singleShot(AI_ACTION_DELAY_MS, this, &MainWindow::runAiTurn);
+}
+
+void MainWindow::runAiTurn() {
+  // The state may have changed while the timer was waiting
+  if (!isAiTurn()) {
+    return;
+  }
+
+  // TODO (Issue 28): use AIController::chooseAction(engine_->state(), aiRng_)
+  const Action action = chooseRandomMove(*engine_, aiRng_);
+  if (!engine_->submitAction(action)) {
+    return;  // rejected: stop here instead of retrying forever
+  }
+
+  refreshView();
+  scheduleAiTurn();  // acts again only while it still has the turn
 }
 
 void MainWindow::showTurnHandoff() {

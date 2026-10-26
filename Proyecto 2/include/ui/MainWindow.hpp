@@ -4,6 +4,7 @@
 #include <QMainWindow>
 #include <QSize>
 #include <memory>
+#include <random>
 
 #include "GameAction.hpp"
 #include "GameState.hpp"
@@ -14,6 +15,11 @@ class HudWidget;
 class QKeyEvent;
 class QStackedWidget;
 class StartWindow;
+
+/**
+ * TODO: ver si se puede mostrar la pantalla para pasar al siguiente jugador luego
+ * de que se muestre la accion
+ */
 
 /**
  * @brief Main game window. It shows the start menu first; when the user
@@ -64,6 +70,25 @@ class MainWindow : public QMainWindow {
   void refreshView();
 
   /**
+   * @brief Tells whether the AI must act now: single player, match not over
+   * and it is player 2's turn.
+   * @return True if the next action belongs to the AI.
+   */
+  bool isAiTurn() const;
+
+  /**
+   * @brief Programs the next AI action with a timer, so the window keeps
+   * responding. Does nothing if it is not the AI's turn.
+   */
+  void scheduleAiTurn();
+
+  /**
+   * @brief Executes one AI action, redraws and schedules the next one while
+   * the AI still has the turn.
+   */
+  void runAiTurn();
+
+  /**
    * @brief Covers the board with the turn handoff screen until the next
    * player presses Ready. Only used in local two-player matches.
    */
@@ -91,4 +116,5 @@ class MainWindow : public QMainWindow {
   GameBoardWidget* boardWidget_;
   HudWidget* hudWidget_;
   std::unique_ptr<GameEngine> engine_;
+  std::mt19937 aiRng_;
 };
