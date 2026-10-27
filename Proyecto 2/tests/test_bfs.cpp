@@ -5,7 +5,7 @@
 
 #include "MazeGenerator.hpp"
 
-int main() {
+void testBfsGeneration() {
   // Seeded pseudorandom generator for deterministic maze creation
   std::mt19937 rng(42);
 
@@ -20,7 +20,6 @@ int main() {
 
   // Test boundary validation for adjacent positions
   std::cout << "Inside (0,1): " << result.maze.isInside({0, 1}) << std::endl;
-
   std::cout << "Inside (1,0): " << result.maze.isInside({1, 0}) << std::endl;
 
   // Spanning tree assertions: all 12 nodes visited, V-1 = 11 edges created, no loops
@@ -32,7 +31,5 @@ int main() {
   assert(result.maze.rows() == 3);
   assert(result.maze.cols() == 4);
 
-  std::cout << "All DFS tests passed!" << std::endl;
-
-  return 0;
+  std::cout << "All BFS generation tests passed!" << std::endl;
 }

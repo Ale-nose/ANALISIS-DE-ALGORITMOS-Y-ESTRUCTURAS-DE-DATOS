@@ -59,4 +59,19 @@ target_link_libraries(MazeCraze PRIVATE maze_core Qt${QT_VERSION_MAJOR}::Widgets
 
 # MazeCrazeTests: independent test executable (no Qt, no window).
 enable_testing()
-add_subdirectory(tests)
+add_executable(MazeCrazeTests
+    tests/TestMain.cpp
+    tests/CoreTests.cpp
+    tests/test_algorithm_metrics.cpp
+    tests/test_bfs.cpp
+    tests/test_bfs_pathfinding.cpp
+    tests/test_dfs.cpp
+    tests/test_start_positions.cpp
+)
+
+target_link_libraries(MazeCrazeTests PRIVATE maze_core)
+
+add_test(NAME MazeCrazeTests COMMAND MazeCrazeTests)
+
+add_executable(PathComparison tools/PathComparison.cpp)
+target_link_libraries(PathComparison PRIVATE maze_core)
