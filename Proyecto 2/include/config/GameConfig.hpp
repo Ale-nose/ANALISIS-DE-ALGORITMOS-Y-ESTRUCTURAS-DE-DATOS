@@ -35,3 +35,7 @@ inline constexpr unsigned int DEFAULT_SEED = 1u;
 
 // default portalID
 inline constexpr int PORTAL_ID = -1;
+
+//AI probability of using certain actions
+inline constexpr double JUMP_WALL_PROB = 0.429; // this number was chosen at random by picking a number between 400 and 600 
+
