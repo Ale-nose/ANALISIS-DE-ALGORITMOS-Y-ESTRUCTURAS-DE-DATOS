@@ -5,7 +5,7 @@
 
 #include "StartPositions.hpp"
 
-int main() {
+void testStartPositions() {
   // Seeded random engine to test reproducibility across iterations
   std::mt19937 rng(42);
 
@@ -28,5 +28,4 @@ int main() {
   }
 
   std::cout << "All start positions tests passed!\n";
-  return 0;
 }

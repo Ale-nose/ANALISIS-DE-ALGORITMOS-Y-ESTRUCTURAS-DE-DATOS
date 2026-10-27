@@ -1,0 +1,4 @@
+algorithm,rows,cols,steps,visitedNodes,pathCost,cpuTimeMs
+BFS,2,5,4,9,7,0.019
+Dijkstra,2,5,6,10,6,0.01
+A*,2,5,6,9,6,0.008

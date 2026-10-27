@@ -10,6 +10,8 @@
 #include "MazeGenerator.hpp"
 #include "Pathfinding.hpp"
 
+namespace {
+
 // Throws an exception if condition is false
 void require(bool condition, const std::string& message) {
   if (!condition) {
@@ -175,17 +177,12 @@ void testMudMetrics() {
   std::cout << "[PASS] Mud metrics\n";
 }
 
-int main() {
-  try {
-    // Run all metric validation suites
-    testGenerationMetrics();
-    testSearchMetrics();
-    testMudMetrics();
+}  // namespace
 
-    std::cout << "All algorithm metrics tests passed!\n";
-    return 0;
-  } catch (const std::exception& error) {
-    std::cerr << "[FAIL] " << error.what() << '\n';
-    return 1;
-  }
+// Entry point called by TestMain
+void testAlgorithmMetrics() {
+  testGenerationMetrics();
+  testSearchMetrics();
+  testMudMetrics();
+  std::cout << "All algorithm metrics tests passed!\n";
 }
