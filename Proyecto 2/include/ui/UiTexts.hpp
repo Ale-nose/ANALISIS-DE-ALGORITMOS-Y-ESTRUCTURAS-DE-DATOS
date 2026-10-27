@@ -48,3 +48,9 @@ inline constexpr const char* TEXT_HUD_HIDDEN = "?";
 // Turn handoff screen (local two-player matches)
 inline constexpr const char* TEXT_HANDOFF_MESSAGE = "Pass the computer to";
 inline constexpr const char* TEXT_HANDOFF_READY = "Ready";
+
+// Game over dialog (%1 = name of the winner)
+inline constexpr const char* TEXT_GAME_OVER_HEADING = "Game over";
+inline constexpr const char* TEXT_GAME_OVER_WINNER = "%1 wins!";
+inline constexpr const char* TEXT_GAME_OVER_NEW_GAME = "New game";
+inline constexpr const char* TEXT_GAME_OVER_QUIT = "Quit";

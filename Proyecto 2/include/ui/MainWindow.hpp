@@ -15,6 +15,7 @@ class HudWidget;
 class QKeyEvent;
 class QStackedWidget;
 class StartWindow;
+class AIController;
 
 /**
  * TODO: ver si se puede mostrar la pantalla para pasar al siguiente jugador luego
@@ -108,6 +109,12 @@ class MainWindow : public QMainWindow {
    */
   QSize availableScreenSize() const;
 
+  /**
+   * @brief Ends the match, shows the winner and lets the user start another
+   * game or quit.
+   */
+  void finishGame();
+
   // TODO (Ashley): Add NetworkServer and NetworkClient ownership,
   // plus online-mode and connection state needed by MainWindow.
   QStackedWidget* pages_;
@@ -117,4 +124,5 @@ class MainWindow : public QMainWindow {
   HudWidget* hudWidget_;
   std::unique_ptr<GameEngine> engine_;
   std::mt19937 aiRng_;
+  std::unique_ptr<AIController> aiController_;
 };

@@ -28,62 +28,40 @@
 #include "UiControls.hpp"
 #include "UiTexts.hpp"
 #include "TurnHandoffDialog.hpp"
+#include "AIController.hpp"
+#include "GameOverDialog.hpp"
 
 namespace {
-  /**
-   * @brief TEMPORARY 
-   * stand-in for AIController::chooseAction (Issue 28).
-   * Picks a random direction among the legal moves. Remove it when Issue 28
-   * is merged.
-   * @param engine Engine of the match, used to ask which moves are legal.
-   * @param rng Random generator.
-   * @return A Move action; if no move is legal, a default action that the
-   * engine will reject.
-   */
-  Action chooseRandomMove(const GameEngine& engine, std::mt19937& rng) {
-    std::vector<Direction> legal;
-    for (Direction direction : {Direction::UP, Direction::DOWN,
-                                Direction::LEFT, Direction::RIGHT}) {
-      if (engine.canMove(direction)) {
-        legal.push_back(direction);
-      }
-    }
 
-    Action action;  // Move by default
-    if (!legal.empty()) {
-      action.direction = legal[rng() % legal.size()];
-    }
-    return action;
+/**
+ * @brief Converts a pressed key into a movement direction.
+ * @param key Qt key code (arrows or WASD).
+ * @param direction Receives the direction when the key is a movement key.
+ * @return True if the key is a movement key, false otherwise.
+ */
+bool directionFromKey(int key, Direction& direction) {
+  switch (key){
+  case Qt::Key_Up:
+  case Qt::Key_W:
+    direction = Direction::UP;
+    return true;
+  case Qt::Key_Down:
+  case Qt::Key_S:
+    direction = Direction::DOWN;
+    return true;
+  case Qt::Key_Left:
+  case Qt::Key_A:
+    direction = Direction::LEFT;
+    return true;
+  case Qt::Key_Right:
+  case Qt::Key_D:
+    direction = Direction::RIGHT;
+    return true;
+  default:
+    return false;
   }
+}
 
-  /**
-   * @brief Converts a pressed key into a movement direction.
-   * @param key Qt key code (arrows or WASD).
-   * @param direction Receives the direction when the key is a movement key.
-   * @return True if the key is a movement key, false otherwise.
-   */
-  bool directionFromKey(int key, Direction& direction) {
-    switch (key){
-    case Qt::Key_Up:
-    case Qt::Key_W:
-      direction = Direction::UP;
-      return true;
-    case Qt::Key_Down:
-    case Qt::Key_S:
-      direction = Direction::DOWN;
-      return true;
-    case Qt::Key_Left:
-    case Qt::Key_A:
-      direction = Direction::LEFT;
-      return true;
-    case Qt::Key_Right:
-    case Qt::Key_D:
-      direction = Direction::RIGHT;
-      return true;
-    default:
-      return false;
-    }
-  }
 }  // namespace
 
 MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent) {
@@ -121,6 +99,7 @@ void MainWindow::startMatch(const GameOptions& options) {
   try {
     engine_ = std::make_unique<GameEngine>(GameSetup::createGame(options));
     aiRng_.seed(options.seed);
+    aiController_ = std::make_unique<AIController>();  // fresh path per match
   } catch (const std::runtime_error&) {
     QMessageBox::warning(this, TEXT_WINDOW_TITLE, TEXT_ERROR_MAP_GENERATION);
     return;
@@ -162,13 +141,20 @@ void MainWindow::submitPlayerAction(const Action& action) {
   // TODO (Ashley): When online, send actions through
   // NetworkClient::sendAction() instead of modifying the local GameEngine.
   // Keep the existing local-game behavior unchanged.
-  if (!engine_ || isAiTurn()) {
-    return;  // the human cannot play while it is the AI's turn
+  if (!engine_ || engine_->isGameOver() || isAiTurn()) {
+    return;  // no actions after the match is over or during the AI turn
   }
 
   const int previousPlayer = engine_->currentPlayer();
   if (!engine_->submitAction(action)) {
     return;  // rejected: nothing changed
+  }
+
+  // Show the final board and the winner
+  if (engine_->isGameOver()) {
+    refreshView();
+    finishGame();
+    return;
   }
 
   // In a local match cover the board before it is redrawn for the next
@@ -220,14 +206,19 @@ void MainWindow::runAiTurn() {
     return;
   }
 
-  // TODO (Issue 28): use AIController::chooseAction(engine_->state(), aiRng_)
-  const Action action = chooseRandomMove(*engine_, aiRng_);
+  const Action action = aiController_->chooseAction(engine_->state(), aiRng_);
   if (!engine_->submitAction(action)) {
     return;  // rejected: stop here instead of retrying forever
   }
 
   refreshView();
-  scheduleAiTurn();  // acts again only while it still has the turn
+
+  if (engine_->isGameOver()) {
+    finishGame();
+    return;
+  }
+
+  scheduleAiTurn();
 }
 
 void MainWindow::showTurnHandoff() {
@@ -271,4 +262,31 @@ bool MainWindow::validateBoardFits() {
     .arg(grid.width()));
 
   return false;
+}
+
+void MainWindow::finishGame() {
+  if (!engine_ || !engine_->isGameOver()) {
+    return;
+  }
+
+  const GameState& state = engine_->state();
+
+  // TODO (Issue 41): call GameLogger::writeLog(state, ...) here, once, with
+  // the same state.winner shown in the dialog, and show an error message if
+  // the writing fails. Do not log anywhere else.
+
+  const bool singlePlayer = state.options.mode == GameMode::SINGLE_PLAYER;
+  GameOverDialog dialog(singlePlayer, this);
+  dialog.showWinner(state.winner);
+
+  if (!dialog.newGameRequested()) {
+    close();
+    return;
+  }
+
+  // New game, back to the menu so the user can choose the options again
+  engine_.reset();
+  aiController_.reset();
+  pages_->setCurrentWidget(startWindow_);
+  resize(startWindow_->sizeHint());
 }

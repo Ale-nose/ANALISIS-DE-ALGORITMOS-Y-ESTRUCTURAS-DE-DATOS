@@ -8,10 +8,10 @@
  
 #include "HudTheme.hpp"
 #include "UiTexts.hpp"
-#include "UiTheme.hpp"
+#include "MenuTheme.hpp"
 
 namespace {
-
+  
 /**
  * @brief Name shown for a player. In single player mode the second player is
  * the AI.

@@ -9,8 +9,8 @@
  */
  
 // Colors
-inline constexpr const char* COLOR_HUD_PANEL = COLOR_PANEL;
-inline constexpr const char* COLOR_HUD_BORDER = COLOR_BORDER;
+inline constexpr const char* COLOR_HUD_PANEL = PALETTE_INDIGO;
+inline constexpr const char* COLOR_HUD_BORDER = PALETTE_INDIGO_LIGHT;
 inline constexpr const char* COLOR_HUD_NOTICE = PALETTE_JASMINE;
  
 // Sizes
