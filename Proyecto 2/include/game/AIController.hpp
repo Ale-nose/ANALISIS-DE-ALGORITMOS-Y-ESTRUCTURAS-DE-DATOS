@@ -3,6 +3,7 @@
 #pragma once
 
 #include <random>
+#include <optional>
 
 #include "GameState.hpp"
 #include "GameAction.hpp"
@@ -12,6 +13,8 @@
 class AIController {
 private:
   std::vector<Position> currentPath;
+  std::optional<SearchRecord> AIsearchRecord;
+  Position lastAIpos = {DEFAULT_COORDINATES,DEFAULT_COORDINATES};
 
   /**
    * @brief Gives the direction of the step between two adjacent cells.
@@ -55,13 +58,17 @@ public:
    */
   Action chooseAction(const GameState& state, std::mt19937& RNGesus);
 
-  /**
+   /**
    * @brief Computes the cheapest path from the AI to the treasure with A*.
    *
+   * The search is recorded so the game log can report it. The record is kept
+   * until takeLatestSearchRecord() collects it.
+   *
    * @param state Current state of the match.
+   * @param reason Why the path is being recomputed.
    * @return The search result, with the path and its metrics.
    */
-  SearchResult recalculatePath(const GameState& state);
+  SearchResult recalculatePath(const GameState& state, ReplanReason reason);
 
   /**
    * @brief Picks a random direction to spend a Jump Wall on.
@@ -75,6 +82,17 @@ public:
    * @return A JUMP_WALL action, or a MOVE action when no direction is valid.
    */
   Action chooseRandomJumpWall(const GameState& state, std::mt19937& RNGesus);
+
+    /**
+   * @brief Hands over the record of the last search, if there is one.
+   *
+   * The record is removed, so the same search is never reported twice. The
+   * caller passes it to GameEngine::recordAiSearch.
+   *
+   * @return The record of the last search, or no value when no search has
+   *         happened since the previous call.
+   */
+  std::optional<SearchRecord> takeLatestSearchRecord();
 
 
   ~AIController() = default;
