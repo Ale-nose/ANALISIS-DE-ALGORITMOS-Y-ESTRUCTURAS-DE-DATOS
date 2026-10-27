@@ -5,7 +5,7 @@
 
 #include "MazeGenerator.hpp"
 
-int main() {
+void testDfsGeneration() {
   // Seeded random engine to ensure deterministic generation
   std::mt19937 rng(42);
 
@@ -20,7 +20,6 @@ int main() {
 
   // Check boundary validity for test positions
   std::cout << "Inside (0,1): " << result.maze.isInside({0, 1}) << std::endl;
-
   std::cout << "Inside (1,0): " << result.maze.isInside({1, 0}) << std::endl;
 
   // Spanning tree assertions: all 12 cells visited, 11 edges created, no loops
@@ -33,6 +32,4 @@ int main() {
   assert(result.maze.cols() == 4);
 
   std::cout << "All DFS tests passed!" << std::endl;
-
-  return 0;
 }

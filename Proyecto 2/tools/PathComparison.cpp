@@ -71,17 +71,14 @@ void comparePathAlgorithms(const Maze& maze, Position start, Position goal) {
 
   PathComparisonRow bfsRow{"BFS", maze.rows(), maze.cols(), bfsSteps, bfsResult.metrics.visitedNodes,
     bfsResult.metrics.pathCost, bfsResult.metrics.cpuTimeMs};
-
   comparisonRows.push_back(bfsRow);
 
   PathComparisonRow dijkstraRow{"Dijkstra", maze.rows(), maze.cols(), dijkstraSteps,
     dijkstraResult.metrics.visitedNodes, dijkstraResult.metrics.pathCost, dijkstraResult.metrics.cpuTimeMs};
-
   comparisonRows.push_back(dijkstraRow);
 
   PathComparisonRow aStarRow{"A*", maze.rows(), maze.cols(), aStarSteps, aStarResult.metrics.visitedNodes,
     aStarResult.metrics.pathCost, aStarResult.metrics.cpuTimeMs};
-
   comparisonRows.push_back(aStarRow);
 }
 
@@ -142,5 +139,20 @@ void compareMudScenario() {
 
   if (!exportPathComparison("data/path_comparison.csv")) {
     throw std::runtime_error("Could not export path comparison CSV");
+  }
+}
+
+/**
+ * @brief Main entry point for path comparison executable.
+ * @return Exit status 0 on success, 1 on failure.
+ */
+int main() {
+  try {
+    compareMudScenario();
+    std::cout << "[INFO] Path comparison successfully exported to data/path_comparison.csv\n";
+    return 0;
+  } catch (const std::exception& e) {
+    std::cerr << "[ERROR] " << e.what() << '\n';
+    return 1;
   }
 }

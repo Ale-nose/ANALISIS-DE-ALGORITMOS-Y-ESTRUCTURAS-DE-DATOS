@@ -4,7 +4,7 @@
 
 #include "Pathfinding.hpp"
 
-int main() {
+void testBfsPathfinding() {
   // Test 1: Straight path in a 1x4 horizontal corridor
   Maze maze(1, 4);
 
@@ -77,6 +77,4 @@ int main() {
   assert(dijkstra.metrics.pathCost == 6);
 
   std::cout << "All BFS pathfinding tests passed!\n";
-
-  return 0;
 }
