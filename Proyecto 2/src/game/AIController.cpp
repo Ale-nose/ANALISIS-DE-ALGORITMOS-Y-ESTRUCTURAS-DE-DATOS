@@ -9,6 +9,9 @@
 Action AIController::chooseAction(const GameState& state, std::mt19937& RNGesus){
   const PlayerState& AI = state.players[PLAYER_2];
   Position AIPos = AI.position;
+  Position prevPos = lastAIpos;
+  lastAIpos = AIPos;
+
   int foundAt = -1;
   for (std::size_t i = 0; i < currentPath.size(); ++i) {
     if (currentPath[i] == AIPos){
@@ -17,7 +20,13 @@ Action AIController::chooseAction(const GameState& state, std::mt19937& RNGesus)
     }
   }
   if (foundAt == -1) {
-    currentPath = recalculatePath(state).path;
+    if (currentPath.empty()) {
+      currentPath = recalculatePath(state,ReplanReason::START).path;
+    } else if(manhattanDistance(AIPos, prevPos) != 1) {
+      currentPath = recalculatePath(state,ReplanReason::PORTAL).path;
+    } else {
+      currentPath = recalculatePath(state,ReplanReason::BLOCKED_ROUTE).path;
+    }
     foundAt = 0;
   }
   if (static_cast<std::size_t>(foundAt + 1) >= currentPath.size()) {
@@ -57,8 +66,13 @@ Direction AIController::nextDirections (Position nextPos, Position currentPos) c
  }
 
 
-SearchResult AIController::recalculatePath (const GameState& state) {
-  return findPathAStar(state.maze, state.players[PLAYER_2].position, state.treasure);
+SearchResult AIController::recalculatePath (const GameState& state,ReplanReason reason) {
+  SearchResult result = findPathAStar(state.maze, state.players[PLAYER_2].position, state.treasure);
+  SearchRecord tempRecord;
+  tempRecord.reason = reason;
+  tempRecord.metrics = result.metrics;
+  AIsearchRecord.emplace(tempRecord);
+  return result;
  }
 
 Position AIController::neighbor(Position pos, Direction dir) const{
@@ -102,3 +116,13 @@ Action AIController::chooseRandomJumpWall(const GameState& state, std::mt19937& 
   std::uniform_int_distribution<int> move(0, int(validDirs.size()) - 1);
   return Action {ActionType::JUMP_WALL,validDirs[move(RNGesus)]};
  }
+
+
+std::optional<SearchRecord> AIController::takeLatestSearchRecord() {
+  if (AIsearchRecord.has_value()) {
+    SearchRecord record = AIsearchRecord.value();
+    AIsearchRecord.reset();
+    return record;
+  }
+return std::nullopt;
+}

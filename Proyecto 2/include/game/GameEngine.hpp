@@ -238,4 +238,17 @@ private:
    */
   std::vector<Position> visibleCells(int playerIndex) const;
 
+  /**
+   * @brief Stores a search performed by the AI in the match statistics.
+   *
+   * The interface collects the record with
+   * AIController::takeLatestSearchRecord and passes it here, so the game log
+   * can report how many times the AI planned, why, and what each search
+   * cost.
+   *
+   * @param record Record of the search, with its algorithm, reason and
+   *               metrics.
+   */
+  void recordAiSearch(const SearchRecord& record);
+
 };

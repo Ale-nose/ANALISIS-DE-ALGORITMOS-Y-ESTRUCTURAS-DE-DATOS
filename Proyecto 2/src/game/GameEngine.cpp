@@ -258,3 +258,7 @@ std::vector<Position> GameEngine::visibleCells (int playerIndex) const {
   return cellsVisibleToPlayer;
 }
 
+void GameEngine::recordAiSearch(const SearchRecord& record) {
+  this->gameState.stats.searches.push_back(record);
+  this->gameState.stats.aiReplans.push_back(record.reason);
+}
