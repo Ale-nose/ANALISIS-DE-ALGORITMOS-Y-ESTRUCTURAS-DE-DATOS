@@ -10,7 +10,7 @@
 #include <random>
 
 #include "UiTexts.hpp"
-#include "UiTheme.hpp"
+#include "MenuTheme.hpp"
 
 namespace {
 

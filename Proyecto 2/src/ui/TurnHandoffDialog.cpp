@@ -6,7 +6,7 @@
 #include <QVBoxLayout>
  
 #include "UiTexts.hpp"
-#include "UiTheme.hpp"
+#include "MenuTheme.hpp"
 
 TurnHandoffDialog::TurnHandoffDialog(const QString& playerName, QWidget* parent)
   : QDialog(parent, Qt::Dialog | Qt::FramelessWindowHint) {
