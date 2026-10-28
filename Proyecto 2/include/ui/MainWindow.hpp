@@ -18,11 +18,6 @@ class StartWindow;
 class AIController;
 
 /**
- * TODO: ver si se puede mostrar la pantalla para pasar al siguiente jugador luego
- * de que se muestre la accion
- */
-
-/**
  * @brief Main game window. It shows the start menu first; when the user
  * presses START it creates the match, hands it to a GameEngine and shows the
  * board. Keyboard input is translated into actions for the engine, and the
@@ -115,11 +110,24 @@ class MainWindow : public QMainWindow {
    */
   void finishGame();
 
+  /**
+   * @brief Draws only the board from one player's point of view.
+   * @param viewer PLAYER_1 or PLAYER_2.
+   */
+  void drawBoard(int viewer);
+
+  /**
+   * @brief Called after the move preview: covers the board with the handoff
+   * screen and then shows the next player's view.
+   */
+  void finishHandoff();
+
   // TODO (Ashley): Add NetworkServer and NetworkClient ownership,
   // plus online-mode and connection state needed by MainWindow.
+  bool handoffPending_ = false;  ///< True while the move preview is waiting
   QStackedWidget* pages_;
   StartWindow* startWindow_;
-  QWidget* gamePage_;  // board + hud
+  QWidget* gamePage_;            ///< board + hud
   GameBoardWidget* boardWidget_;
   HudWidget* hudWidget_;
   std::unique_ptr<GameEngine> engine_;

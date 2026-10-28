@@ -141,7 +141,7 @@ void MainWindow::submitPlayerAction(const Action& action) {
   // TODO (Ashley): When online, send actions through
   // NetworkClient::sendAction() instead of modifying the local GameEngine.
   // Keep the existing local-game behavior unchanged.
-  if (!engine_ || engine_->isGameOver() || isAiTurn()) {
+  if (!engine_ || engine_->isGameOver() || isAiTurn() || handoffPending_) {
     return;  // no actions after the match is over or during the AI turn
   }
 
@@ -157,16 +157,35 @@ void MainWindow::submitPlayerAction(const Action& action) {
     return;
   }
 
-  // In a local match cover the board before it is redrawn for the next
-  // player, so they never see the previous player's view
-  const GameState& state = engine_->state();
-  const bool localMatch = state.options.mode == GameMode::LOCAL_TWO_PLAYERS;
-  if (localMatch && !state.gameOver && engine_->currentPlayer() != previousPlayer) {
-    showTurnHandoff();
+  // In a local match, first show the result of the move to the player who
+  // made it, and cover the board only after a short pause
+  const bool localMatch = engine_->state().options.mode 
+    == GameMode::LOCAL_TWO_PLAYERS;
+
+  if (localMatch && engine_->currentPlayer() != previousPlayer) {
+    drawBoard(previousPlayer);
+    handoffPending_ = true;
+
+    QTimer::singleShot(HANDOFF_PREVIEW_DELAY_MS, this
+      ,&MainWindow::finishHandoff);
+    return;
   }
 
   refreshView();
   scheduleAiTurn();
+}
+
+void MainWindow::finishHandoff() {
+  if (engine_ && !engine_->isGameOver()) {
+    showTurnHandoff();
+  }
+  handoffPending_ = false;
+}
+
+void MainWindow::drawBoard(int viewer) {
+  boardWidget_->setGameState(engine_->state());
+  boardWidget_->setViewer(viewer);
+  boardWidget_->setVisibleCells(engine_->visibleCells(viewer));
 }
 
 void MainWindow::refreshView() {
@@ -175,16 +194,11 @@ void MainWindow::refreshView() {
   }
 
   const GameState& state = engine_->state();
-  const int viewer = state.options.mode == GameMode::SINGLE_PLAYER ? PLAYER_1 
-    : state.currentPlayer;
+  const int viewer = state.options.mode == GameMode::SINGLE_PLAYER
+    ? PLAYER_1 : state.currentPlayer;
 
-  boardWidget_->setGameState(state);
-  boardWidget_->setViewer(viewer);
-  boardWidget_->setVisibleCells(engine_->visibleCells(viewer));
-  boardWidget_->update();
+  drawBoard(viewer);
   hudWidget_->updateFromState(state);
-
-  // TODO: victory screen.
 }
 
 bool MainWindow::isAiTurn() const {
@@ -233,6 +247,7 @@ void MainWindow::showTurnHandoff() {
   dialog.setGeometry(QRect(area->mapToGlobal(QPoint(0, 0)), area->size()));
   gamePage_->setVisible(false);
   dialog.exec();
+  refreshView();
   gamePage_->setVisible(true);
 }
 

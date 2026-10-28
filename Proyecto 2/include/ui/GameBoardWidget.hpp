@@ -167,6 +167,7 @@ class GameBoardWidget : public QWidget {
   QSvgRenderer doublePlayRenderer_;
   QSvgRenderer controlEnemyRenderer_;
   QSvgRenderer fogRenderer_;
+  QSvgRenderer mudRenderer_;
  
   // The fog is drawn once per cell size and reused for every hidden cell
   QPixmap fogPixmap_;

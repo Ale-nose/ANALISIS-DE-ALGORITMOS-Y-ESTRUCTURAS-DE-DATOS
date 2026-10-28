@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128">
+  <!-- Charco principal -->
+  <path d="M 28 42 C 20 26, 48 16, 68 22 C 92 14, 114 34, 106 58 C 116 80, 96 108, 70 104 C 46 112, 16 96, 22 70 C 14 58, 22 48, 28 42 Z" fill="#5C3D28" stroke="#232B32" stroke-width="4" stroke-linejoin="round" />
+  <!-- Capa interna más oscura -->
+  <path d="M 38 50 C 34 38, 56 30, 72 34 C 90 30, 100 46, 94 62 C 100 78, 84 94, 66 92 C 48 96, 30 84, 34 66 Z" fill="#472E1E" />
+  <!-- Burbujas y brillos del pantano -->
+  <circle cx="52" cy="54" r="6" fill="#6E4B32" stroke="#382315" stroke-width="2" />
+  <circle cx="78" cy="72" r="8" fill="#6E4B32" stroke="#382315" stroke-width="2" />
+  <circle cx="48" cy="78" r="4" fill="#6E4B32" />
+  <path d="M 42 40 Q 56 34 68 38" stroke="#7D563C" stroke-width="3" stroke-linecap="round" fill="none" />
+  <!-- Salpicaduras exteriores -->
+  <circle cx="18" cy="48" r="4" fill="#5C3D28" stroke="#232B32" stroke-width="2" />
+  <circle cx="108" cy="88" r="5" fill="#5C3D28" stroke="#232B32" stroke-width="2" />
+</svg>

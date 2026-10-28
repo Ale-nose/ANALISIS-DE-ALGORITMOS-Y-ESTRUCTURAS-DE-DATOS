@@ -11,5 +11,6 @@
     <file>double_play.svg</file>
     <file>control_enemy.svg</file>
     <file>fog.svg</file>
+    <file>mud.svg</file>
   </qresource>
 </RCC>

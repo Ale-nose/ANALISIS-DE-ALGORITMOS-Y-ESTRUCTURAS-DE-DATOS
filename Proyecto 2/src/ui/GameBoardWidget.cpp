@@ -106,6 +106,7 @@ GameBoardWidget::GameBoardWidget(QWidget* parent) : QWidget(parent) {
   loadSprite(doublePlayRenderer_, ASSET_DOUBLE_PLAY);
   loadSprite(controlEnemyRenderer_, ASSET_CONTROL_ENEMY);
   loadSprite(fogRenderer_, ASSET_FOG);
+  loadSprite(mudRenderer_, ASSET_MUD);
 }
 
 void GameBoardWidget::setGameState(const GameState& state) {
@@ -241,19 +242,26 @@ void GameBoardWidget::drawCell(QPainter& painter, Position position) {
   const Cell& cell = state_.maze.cellAt(position);
   const QRectF area = cellRect(position);
 
-  // Floor: flat color based on the terrain type
+  // Floor: flat color, mud is an image drawn on top of it
   painter.setPen(Qt::NoPen);
-  painter.setBrush(toColor(cell.terrain == TerrainType::MUD ? COLOR_MUD
-    : COLOR_CELL_FLOOR));
+  painter.setBrush(toColor(COLOR_CELL_FLOOR));
   painter.drawRect(area);
 
-  // Portal: image with the paired ID on top. It goes first because it is the
-  // biggest image, so a power-up or a tile in the same cell stays visible.
+  if (cell.terrain == TerrainType::MUD) {
+    drawSprite(painter, mudRenderer_, area, BOARD_MUD_RATIO);
+  }
+
+  // Portal: image with the paired ID on a dark badge so the number is readable
   if (cell.portalID >= 0) {
     drawSprite(painter, portalRenderer_, area, BOARD_PORTAL_RATIO);
-    drawLabel(painter, centered(area, BOARD_PORTAL_RATIO)
-      , QString::number(cell.portalID), toColor(COLOR_PORTAL_LABEL), cellSize_
-      * BOARD_PORTAL_LABEL_RATIO);
+
+    painter.setPen(Qt::NoPen);
+    painter.setBrush(toColor(COLOR_PORTAL_BADGE));
+    painter.drawEllipse(centered(area, BOARD_PORTAL_BADGE_RATIO));
+
+    drawLabel(painter, centered(area, BOARD_PORTAL_BADGE_RATIO)
+      , QString::number(cell.portalID), toColor(COLOR_PORTAL_LABEL)
+      , cellSize_ * BOARD_PORTAL_LABEL_RATIO);
   }
 
   // Shield Tile

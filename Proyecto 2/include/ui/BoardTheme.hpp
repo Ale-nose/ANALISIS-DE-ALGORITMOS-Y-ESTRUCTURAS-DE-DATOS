@@ -15,6 +15,7 @@ inline constexpr const char* COLOR_BOARD_BACKGROUND = PALETTE_INDIGO_DARK;
 inline constexpr const char* COLOR_CELL_FLOOR = PALETTE_INDIGO;
 inline constexpr const char* COLOR_ACTIVE_PLAYER_RING = PALETTE_FLORAL_WHITE;
 inline constexpr const char* COLOR_PORTAL_LABEL = PALETTE_FLORAL_WHITE;
+inline constexpr const char* COLOR_PORTAL_BADGE = PALETTE_INDIGO_DARK;
 
 // Board size (the images need room to stay readable)
 inline constexpr int BOARD_MARGIN = 16;
@@ -34,7 +35,9 @@ inline constexpr double BOARD_TREASURE_RATIO = 0.80;
 inline constexpr double BOARD_POWER_UP_RATIO = 0.75;
 inline constexpr double BOARD_SHIELD_RATIO = 0.75;
 inline constexpr double BOARD_PORTAL_RATIO = 0.90;
-inline constexpr double BOARD_PORTAL_LABEL_RATIO = 0.24;  // font size
+inline constexpr double BOARD_MUD_RATIO = 0.95;
+inline constexpr double BOARD_PORTAL_BADGE_RATIO = 0.46;
+inline constexpr double BOARD_PORTAL_LABEL_RATIO = 0.28;
 
 // Screen space the window cannot use (title bar and window frame)
 inline constexpr int BOARD_SCREEN_RESERVED_WIDTH = 40;
