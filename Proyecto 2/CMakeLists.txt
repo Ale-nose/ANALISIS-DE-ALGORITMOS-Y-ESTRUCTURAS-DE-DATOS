@@ -62,6 +62,7 @@ enable_testing()
 add_executable(MazeCrazeTests
     tests/TestMain.cpp
     tests/CoreTests.cpp
+    tests/GameTests.cpp
     tests/test_algorithm_metrics.cpp
     tests/test_bfs.cpp
     tests/test_bfs_pathfinding.cpp
@@ -75,3 +76,6 @@ add_test(NAME MazeCrazeTests COMMAND MazeCrazeTests)
 
 add_executable(PathComparison tools/PathComparison.cpp)
 target_link_libraries(PathComparison PRIVATE maze_core)
+
+add_executable(MazeAnalysis tools/MazeAnalysis.cpp)
+target_link_libraries(MazeAnalysis PRIVATE maze_core)
