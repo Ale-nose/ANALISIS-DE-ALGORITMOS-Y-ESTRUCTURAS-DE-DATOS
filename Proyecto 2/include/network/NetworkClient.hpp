@@ -4,14 +4,19 @@
 #include <cstdint>
 #include <string>
 #include <QObject>
+#include <QTcpSocket>   // <-- Cambiado para tener la clase completa
+#include <QString>
 
-class QTcpSocket;
+#include "GameView.hpp"
+
 struct Action;
 
 /**
  * @brief Manages the client-side TCP connection and communication with the game server.
  */
 class NetworkClient : public QObject {
+  Q_OBJECT
+
  private:
   QTcpSocket* socket_ = nullptr;        ///< TCP socket handling network I/O.
   std::string receiveBuffer_;           ///< Stream buffer for incoming framed network data.
@@ -19,6 +24,7 @@ class NetworkClient : public QObject {
   std::string lastError_;               ///< Last error message reported by the server or socket.
   std::string gameOverMessage_;         ///< Outcome message received upon match conclusion.
   int playerId_ = -1;                   ///< Assigned player index for this client (0 or 1).
+  bool gameOver_ = false;
 
   /**
    * @brief Parses and processes complete delimited messages from the receive buffer.
@@ -85,4 +91,11 @@ class NetworkClient : public QObject {
   inline std::string gameOverMessage() const {
     return gameOverMessage_;
   }
+
+ signals:
+  void connectionClosed();
+  void errorReceived(const QString& error);
+  void startReceived(int playerId);
+  void gameViewReceived(const GameView& view);
+  void gameOverReceived(int winner);
 };

@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128">
+  <!-- Muro pequeño de piedra en la base -->
+  <rect x="24" y="88" width="80" height="20" rx="3" fill="#465362" stroke="#232B32" stroke-width="4" />
+  <line x1="50" y1="88" x2="50" y2="108" stroke="#232B32" stroke-width="3" />
+  <line x1="78" y1="88" x2="78" y2="108" stroke="#232B32" stroke-width="3" />
+  <!-- Bota medieval de cuero -->
+  <path d="M 46 34 H 74 L 70 62 L 92 68 C 98 70, 98 80, 90 80 H 42 V 64 Z" fill="#8A5232" stroke="#232B32" stroke-width="4" stroke-linejoin="round" />
+  <!-- Doblez superior de la bota -->
+  <path d="M 42 30 H 78 L 74 44 H 44 Z" fill="#A86844" stroke="#232B32" stroke-width="4" stroke-linejoin="round" />
+  <!-- Suela y hebilla dorada -->
+  <rect x="40" y="76" width="54" height="6" rx="2" fill="#3D2618" stroke="#232B32" stroke-width="3" />
+  <rect x="64" y="54" width="10" height="8" rx="2" fill="#E0B43B" stroke="#232B32" stroke-width="2" />
+  <!-- Ala blanca lateral -->
+  <path d="M 48 48 C 26 46, 18 28, 30 22 C 26 32, 36 34, 44 34 C 30 26, 34 14, 46 18 C 44 26, 50 32, 56 38 Z" fill="#E8EEF2" stroke="#232B32" stroke-width="4" stroke-linejoin="round" />
+</svg>

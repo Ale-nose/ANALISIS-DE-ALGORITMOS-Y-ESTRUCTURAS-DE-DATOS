@@ -31,6 +31,8 @@ inline constexpr const char* TEXT_ERROR_BOARD_DOES_NOT_FIT =
   "try again.";
 inline constexpr const char* TEXT_ERROR_MAP_GENERATION =
   "The maze could not be generated. Please try again.";
+inline constexpr const char* TEXT_ERROR_GAME_LOG =
+  "The game log could not be saved to %1.";
 
 // HUD
 inline constexpr const char* TEXT_HUD_PLAYER_1 = "Player 1";

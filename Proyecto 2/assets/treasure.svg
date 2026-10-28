@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128">
+  <ellipse cx="64" cy="106" rx="46" ry="10" fill="#000000" opacity="0.25" />
+  <!-- Base de madera del cofre -->
+  <rect x="20" y="54" width="88" height="46" rx="6" fill="#7A4928" stroke="#232B32" stroke-width="4" />
+  <line x1="20" y1="70" x2="108" y2="70" stroke="#543018" stroke-width="3" />
+  <line x1="20" y1="84" x2="108" y2="84" stroke="#543018" stroke-width="3" />
+  <!-- Tapa curva del cofre -->
+  <path d="M 20 54 C 20 28, 108 28, 108 54 Z" fill="#8F5732" stroke="#232B32" stroke-width="4" stroke-linejoin="round" />
+  <!-- Bandas de oro/bronce -->
+  <rect x="30" y="36" width="12" height="64" rx="2" fill="#E0B43B" stroke="#232B32" stroke-width="4" />
+  <rect x="86" y="36" width="12" height="64" rx="2" fill="#E0B43B" stroke="#232B32" stroke-width="4" />
+  <rect x="18" y="50" width="92" height="8" rx="2" fill="#E0B43B" stroke="#232B32" stroke-width="4" />
+  <!-- Cerradura central -->
+  <rect x="54" y="46" width="20" height="22" rx="4" fill="#F4CE5E" stroke="#232B32" stroke-width="4" />
+  <circle cx="64" cy="55" r="3" fill="#232B32" />
+  <path d="M 62 56 L 60 63 H 68 L 66 56 Z" fill="#232B32" />
+</svg>

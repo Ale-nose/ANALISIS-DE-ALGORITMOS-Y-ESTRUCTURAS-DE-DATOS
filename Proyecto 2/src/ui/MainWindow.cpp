@@ -17,7 +17,9 @@
 #include <vector>
 #include <QTimer>
 #include <random>
- 
+#include <string>
+#include <optional>
+
 #include "BoardTheme.hpp"
 #include "GameBoardWidget.hpp"
 #include "GameEngine.hpp"
@@ -30,6 +32,7 @@
 #include "TurnHandoffDialog.hpp"
 #include "AIController.hpp"
 #include "GameOverDialog.hpp"
+#include "GameLogger.hpp"
 
 namespace {
 
@@ -141,7 +144,7 @@ void MainWindow::submitPlayerAction(const Action& action) {
   // TODO (Ashley): When online, send actions through
   // NetworkClient::sendAction() instead of modifying the local GameEngine.
   // Keep the existing local-game behavior unchanged.
-  if (!engine_ || engine_->isGameOver() || isAiTurn()) {
+  if (!engine_ || engine_->isGameOver() || isAiTurn() || handoffPending_) {
     return;  // no actions after the match is over or during the AI turn
   }
 
@@ -157,16 +160,35 @@ void MainWindow::submitPlayerAction(const Action& action) {
     return;
   }
 
-  // In a local match cover the board before it is redrawn for the next
-  // player, so they never see the previous player's view
-  const GameState& state = engine_->state();
-  const bool localMatch = state.options.mode == GameMode::LOCAL_TWO_PLAYERS;
-  if (localMatch && !state.gameOver && engine_->currentPlayer() != previousPlayer) {
-    showTurnHandoff();
+  // In a local match, first show the result of the move to the player who
+  // made it, and cover the board only after a short pause
+  const bool localMatch = engine_->state().options.mode 
+    == GameMode::LOCAL_TWO_PLAYERS;
+
+  if (localMatch && engine_->currentPlayer() != previousPlayer) {
+    drawBoard(previousPlayer);
+    handoffPending_ = true;
+
+    QTimer::singleShot(HANDOFF_PREVIEW_DELAY_MS, this
+      ,&MainWindow::finishHandoff);
+    return;
   }
 
   refreshView();
   scheduleAiTurn();
+}
+
+void MainWindow::finishHandoff() {
+  if (engine_ && !engine_->isGameOver()) {
+    showTurnHandoff();
+  }
+  handoffPending_ = false;
+}
+
+void MainWindow::drawBoard(int viewer) {
+  boardWidget_->setGameState(engine_->state());
+  boardWidget_->setViewer(viewer);
+  boardWidget_->setVisibleCells(engine_->visibleCells(viewer));
 }
 
 void MainWindow::refreshView() {
@@ -175,16 +197,11 @@ void MainWindow::refreshView() {
   }
 
   const GameState& state = engine_->state();
-  const int viewer = state.options.mode == GameMode::SINGLE_PLAYER ? PLAYER_1 
-    : state.currentPlayer;
+  const int viewer = state.options.mode == GameMode::SINGLE_PLAYER
+    ? PLAYER_1 : state.currentPlayer;
 
-  boardWidget_->setGameState(state);
-  boardWidget_->setViewer(viewer);
-  boardWidget_->setVisibleCells(engine_->visibleCells(viewer));
-  boardWidget_->update();
+  drawBoard(viewer);
   hudWidget_->updateFromState(state);
-
-  // TODO: victory screen.
 }
 
 bool MainWindow::isAiTurn() const {
@@ -207,6 +224,14 @@ void MainWindow::runAiTurn() {
   }
 
   const Action action = aiController_->chooseAction(engine_->state(), aiRng_);
+
+  // Hand the search (if the AI planned) to the engine for the game log
+  const std::optional<SearchRecord> record =
+    aiController_->takeLatestSearchRecord();
+  if (record.has_value()) {
+    engine_->recordAiSearch(*record);
+  }
+
   if (!engine_->submitAction(action)) {
     return;  // rejected: stop here instead of retrying forever
   }
@@ -233,6 +258,7 @@ void MainWindow::showTurnHandoff() {
   dialog.setGeometry(QRect(area->mapToGlobal(QPoint(0, 0)), area->size()));
   gamePage_->setVisible(false);
   dialog.exec();
+  refreshView();
   gamePage_->setVisible(true);
 }
 
@@ -271,9 +297,13 @@ void MainWindow::finishGame() {
 
   const GameState& state = engine_->state();
 
-  // TODO (Issue 41): call GameLogger::writeLog(state, ...) here, once, with
-  // the same state.winner shown in the dialog, and show an error message if
-  // the writing fails. Do not log anywhere else.
+  // Write the game log once, with the same state shown in the dialog
+  const std::string logFile = GameLogger::makeLogFilename();
+  if (!GameLogger::writeLog(state, logFile)) {
+    QMessageBox::warning(this, TEXT_WINDOW_TITLE
+      , QString::fromLatin1(TEXT_ERROR_GAME_LOG)
+      .arg(QString::fromStdString(logFile)));
+  }
 
   const bool singlePlayer = state.options.mode == GameMode::SINGLE_PLAYER;
   GameOverDialog dialog(singlePlayer, this);

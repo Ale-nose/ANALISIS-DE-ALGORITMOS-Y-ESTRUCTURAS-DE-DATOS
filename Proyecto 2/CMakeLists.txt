@@ -33,29 +33,31 @@ target_include_directories(maze_core PUBLIC
     ${CMAKE_SOURCE_DIR}/include/config
     ${CMAKE_SOURCE_DIR}/include/core
     ${CMAKE_SOURCE_DIR}/include/game
+    ${CMAKE_SOURCE_DIR}/include/logging
 )
 
-# TODO (Ashley): Add Qt Network to find_package and link
-# Qt::Network. Include src/Network/*.cpp and include/network/*.hpp
-# in the MazeCraze target so the networking module is compiled.
-
 # MazeCraze: Qt Widgets application (the only target that links Qt).
-find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Widgets)
-find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Widgets)
+find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Widgets Svg Network)
+find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Widgets Svg Network)
 
 file(GLOB_RECURSE MAZE_UI_SOURCES CONFIGURE_DEPENDS
     ${CMAKE_SOURCE_DIR}/src/ui/*.cpp
+    ${CMAKE_SOURCE_DIR}/src/Network/*.cpp
 )
 
 # UI headers are listed so AUTOMOC runs moc on the classes with Q_OBJECT,
 # since they live in include/ui and not next to their .cpp files.
 file(GLOB_RECURSE MAZE_UI_HEADERS CONFIGURE_DEPENDS
     ${CMAKE_SOURCE_DIR}/include/ui/*.hpp
+    ${CMAKE_SOURCE_DIR}/include/network/*.hpp
 )
 
-add_executable(MazeCraze src/main.cpp ${MAZE_UI_SOURCES} ${MAZE_UI_HEADERS})
-target_include_directories(MazeCraze PRIVATE ${CMAKE_SOURCE_DIR}/include/ui)
-target_link_libraries(MazeCraze PRIVATE maze_core Qt${QT_VERSION_MAJOR}::Widgets)
+add_executable(MazeCraze src/main.cpp assets/assets.qrc ${MAZE_UI_SOURCES} ${MAZE_UI_HEADERS})
+target_include_directories(MazeCraze PRIVATE
+    ${CMAKE_SOURCE_DIR}/include/ui
+    ${CMAKE_SOURCE_DIR}/include/network
+)
+target_link_libraries(MazeCraze PRIVATE maze_core Qt${QT_VERSION_MAJOR}::Widgets Qt${QT_VERSION_MAJOR}::Svg Qt${QT_VERSION_MAJOR}::Network)
 
 # MazeCrazeTests: independent test executable (no Qt, no window).
 enable_testing()

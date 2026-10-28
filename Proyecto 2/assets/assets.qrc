@@ -1,0 +1,16 @@
+<RCC>
+  <qresource prefix="/assets">
+    <file>player1.svg</file>
+    <file>player1_shield.svg</file>
+    <file>player2.svg</file>
+    <file>player2_shield.svg</file>
+    <file>treasure.svg</file>
+    <file>portal.svg</file>
+    <file>shield_tile.svg</file>
+    <file>jump_wall.svg</file>
+    <file>double_play.svg</file>
+    <file>control_enemy.svg</file>
+    <file>fog.svg</file>
+    <file>mud.svg</file>
+  </qresource>
+</RCC>

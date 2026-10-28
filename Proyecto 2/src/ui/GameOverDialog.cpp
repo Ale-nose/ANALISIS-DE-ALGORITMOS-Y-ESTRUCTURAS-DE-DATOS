@@ -73,7 +73,7 @@ bool GameOverDialog::newGameRequested() const {
 }
 
 void GameOverDialog::reject() {
-  // Intentionally empty: only the two buttons close this dialog.
+  // Intentionally empty: only the two buttons close this dialog
 }
 
 void GameOverDialog::chooseNewGame() {
