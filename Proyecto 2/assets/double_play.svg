@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128">
+  <ellipse cx="64" cy="108" rx="28" ry="8" fill="#000000" opacity="0.25" />
+  
+  <!-- Medallón rúnico circular base (estilo piedra/metal medieval) -->
+  <circle cx="64" cy="64" r="44" fill="#5A6670" stroke="#232B32" stroke-width="4" />
+  <circle cx="64" cy="64" r="38" fill="#3B444B" stroke="#232B32" stroke-width="2" />
+  
+  <!-- Borde dorado brillante del emblema -->
+  <circle cx="64" cy="64" r="40" fill="none" stroke="#E0B43B" stroke-width="3" stroke-dasharray="8 4" />
+
+  <!-- Doble flecha circular de acción (simboliza repetir / sumar turno) -->
+  <path d="M 38 48 A 28 28 0 0 1 90 48" fill="none" stroke="#F4CE5E" stroke-width="5" stroke-linecap="round" />
+  <polygon points="90,40 100,48 88,54" fill="#F4CE5E" stroke="#232B32" stroke-width="2" />
+
+  <path d="M 90 80 A 28 28 0 0 1 38 80" fill="none" stroke="#F4CE5E" stroke-width="5" stroke-linecap="round" />
+  <polygon points="38,88 28,80 40,74" fill="#F4CE5E" stroke="#232B32" stroke-width="2" />
+
+  <!-- Símbolo central claro: "2x" (Doble Acción / Acciones Extra) -->
+  <text x="64" y="74" font-family="Georgia, serif" font-weight="bold" font-size="36" fill="#FFF6C2" text-anchor="middle" stroke="#232B32" stroke-width="1.5">2x</text>
+</svg>

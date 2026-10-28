@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128">
+  <!-- Sombra en el suelo -->
+  <ellipse cx="64" cy="108" rx="34" ry="12" fill="#000000" opacity="0.28" />
+  <!-- Capa carmesí -->
+  <path d="M 34 62 L 26 102 C 44 110, 84 110, 102 102 L 94 62 Z" fill="#7A1F24" stroke="#232B32" stroke-width="4" stroke-linejoin="round" />
+  <!-- Cuerpo y armadura oscura -->
+  <rect x="38" y="58" width="52" height="40" rx="12" fill="#5A6670" stroke="#232B32" stroke-width="4" />
+  <path d="M 48 58 V 98 H 80 V 58 Z" fill="#A62B32" stroke="#232B32" stroke-width="3" />
+  <!-- Hacha medieval en mano derecha -->
+  <rect x="96" y="30" width="6" height="58" rx="2" fill="#6E472B" stroke="#232B32" stroke-width="3" />
+  <path d="M 102 34 C 118 28, 122 52, 102 58 Z" fill="#ABB6BE" stroke="#232B32" stroke-width="4" stroke-linejoin="round" />
+  <!-- Escudo heráldico izquierdo -->
+  <path d="M 18 64 H 44 V 80 C 44 92, 31 98, 31 98 C 31 98, 18 92, 18 80 Z" fill="#A62B32" stroke="#232B32" stroke-width="4" stroke-linejoin="round" />
+  <path d="M 31 68 V 92 M 22 78 H 40" stroke="#D4AF37" stroke-width="3" />
+  <!-- Cuernos del yelmo -->
+  <path d="M 38 36 C 24 32, 20 18, 28 14 C 30 22, 34 26, 42 28 Z" fill="#D5CFC7" stroke="#232B32" stroke-width="4" stroke-linejoin="round" />
+  <path d="M 90 36 C 104 32, 108 18, 100 14 C 98 22, 94 26, 86 28 Z" fill="#D5CFC7" stroke="#232B32" stroke-width="4" stroke-linejoin="round" />
+  <!-- Yelmo de acero oscuro -->
+  <rect x="38" y="24" width="52" height="44" rx="16" fill="#687682" stroke="#232B32" stroke-width="4" />
+  <path d="M 42 46 H 86 V 60 C 86 66, 42 66, 42 60 Z" fill="#515D66" stroke="#232B32" stroke-width="3" />
+  <!-- Visera amenazante -->
+  <path d="M 46 40 L 62 44 L 46 48 Z M 82 40 L 66 44 L 82 48 Z" fill="#FF6B5B" />
+  <rect x="44" y="38" width="40" height="10" rx="3" fill="none" stroke="#232B32" stroke-width="4" />
+  <!-- Cresta roja -->
+  <path d="M 58 24 V 14 H 70 V 24 Z" fill="#D13B42" stroke="#232B32" stroke-width="3" />
+</svg>

@@ -1,9 +1,11 @@
 // Copyright Alejandro, Ashley y Kevin
 #pragma once
 
+#include <QPixmap>
 #include <QPoint>
 #include <QRect>
 #include <QSize>
+#include <QSvgRenderer>
 #include <QWidget>
 #include <vector>
 
@@ -14,14 +16,16 @@ class QPaintEvent;
 
 /**
  * @brief Widget that draws the maze, the players, the treasure and every game
- * element (mud, portals, power-ups and Shield Tiles).
- * @note It only reads the GameState it was given. Call setGameState every 
+ * element (mud, portals, power-ups and Shield Tiles) using the images of the
+ * assets folder.
+ * @note It only reads the GameState it was given. Call setGameState every
  * time the state changes to trigger a repaint.
  */
 class GameBoardWidget : public QWidget {
  public:
   /**
-   * @brief Creates an empty board that expands to fill its container.
+   * @brief Creates an empty board that expands to fill its container and
+   * loads the images.
    * @param parent Optional parent widget.
    */
   explicit GameBoardWidget(QWidget* parent = nullptr);
@@ -62,7 +66,7 @@ class GameBoardWidget : public QWidget {
    * @brief Largest whole cell size that lets every row and column fit inside
    * the given area without deforming the grid.
    * @param availableSize Area reserved for the grid (margins already removed).
-   * @return Cell side in pixels, 0 if not even one pixel per cell fits.
+   * @return Cell side in pixels (0 if the maze is empty or the area is too small).
    */
   int calculateCellSize(QSize availableSize) const;
 
@@ -94,6 +98,28 @@ class GameBoardWidget : public QWidget {
   QRect cellRect(Position position) const;
 
   /**
+   * @brief Tells whether a cell must be drawn.
+   * @param position Row and column of the cell.
+   * @return True if the cell is visible to the viewer.
+   */
+  bool isCellVisible(Position position) const;
+
+  /**
+   * @brief Image of a power-up.
+   * @param type Kind of power-up (not NONE).
+   * @return The renderer that draws that power-up.
+   */
+  QSvgRenderer& powerUpRenderer(PowerUpType type);
+
+  /**
+   * @brief Image of a player.
+   * @param player PLAYER_1 or PLAYER_2.
+   * @param shielded True to get the image with the shield aura.
+   * @return The renderer that draws that player.
+   */
+  QSvgRenderer& playerRenderer(int player, bool shielded);
+
+  /**
    * @brief Draws the base layer of a single cell: floor/mud, special tiles, 
    * power-ups, portals, and boundary walls.
    * @param painter Painter already active on this widget.
@@ -102,36 +128,46 @@ class GameBoardWidget : public QWidget {
   void drawCell(QPainter& painter, Position position);
 
   /**
-   * @brief Draws the treasure icon dynamically scaled to its cell.
-   * @param painter Painter already active on this widget.
-   */
-  void drawTreasure(QPainter& painter) const;
-
-  /**
-   * @brief Draws both players, marking the active one with an indicator ring.
-   * @param painter Painter already active on this widget.
-   * @note Players whose position is outside the maze bounds are skipped.
-   */
-  void drawPlayers(QPainter& painter) const;
-
-  /**
-   * @brief Paints an opaque fog block over a cell, hiding walls, treasure,
+   * @brief Draws the fog image over a hidden cell, hiding walls, treasure,
    * power-ups and portals.
    * @param painter Painter already active on this widget.
    * @param position Row and column of the hidden cell.
    */
-  void drawFog(QPainter& painter, Position position) const;
+  void drawFog(QPainter& painter, Position position);
 
   /**
-   * @brief Tells whether a cell must be drawn.
-   * @param position Row and column of the cell.
-   * @return True if the cell is visible to the viewer.
+   * @brief Draws the treasure image scaled to its cell, if it is visible.
+   * @param painter Painter already active on this widget.
    */
-  bool isCellVisible(Position position) const;
- 
+  void drawTreasure(QPainter& painter);
+
+  /**
+   * @brief Draws the players, marking the active one with a ring. Under fog
+   * the viewer is always drawn and the rival only if it is visible.
+   * @param painter Painter already active on this widget.
+   * @note Players whose position is outside the maze bounds are skipped.
+   */
+  void drawPlayers(QPainter& painter);
+
   GameState state_;
   int viewer_ = PLAYER_1;
   std::vector<Position> visibleCells_;
   int cellSize_ = 0;
   QPoint boardOrigin_;
+
+  // Images (loaded once in the constructor)
+  QSvgRenderer player1Renderer_;
+  QSvgRenderer player1ShieldRenderer_;
+  QSvgRenderer player2Renderer_;
+  QSvgRenderer player2ShieldRenderer_;
+  QSvgRenderer treasureRenderer_;
+  QSvgRenderer portalRenderer_;
+  QSvgRenderer shieldTileRenderer_;
+  QSvgRenderer jumpWallRenderer_;
+  QSvgRenderer doublePlayRenderer_;
+  QSvgRenderer controlEnemyRenderer_;
+  QSvgRenderer fogRenderer_;
+ 
+  // The fog is drawn once per cell size and reused for every hidden cell
+  QPixmap fogPixmap_;
 };

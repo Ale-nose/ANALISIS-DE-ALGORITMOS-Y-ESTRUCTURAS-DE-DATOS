@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128">
+  <ellipse cx="64" cy="108" rx="30" ry="8" fill="#000000" opacity="0.22" />
+  <!-- Borde exterior de hierro del escudo -->
+  <path d="M 28 24 H 100 V 62 C 100 88, 64 106, 64 106 C 64 106, 28 88, 28 62 Z" fill="#ABB6BE" stroke="#232B32" stroke-width="4" stroke-linejoin="round" />
+  <!-- Interior de madera y heráldica azul -->
+  <path d="M 36 32 H 92 V 60 C 92 80, 64 96, 64 96 C 64 96, 36 80, 36 60 Z" fill="#2B6592" stroke="#232B32" stroke-width="3" stroke-linejoin="round" />
+  <!-- Cruz dorada central -->
+  <path d="M 58 32 H 70 V 54 H 92 V 66 H 70 V 92 H 58 V 66 H 36 V 54 H 58 Z" fill="#E0B43B" stroke="#232B32" stroke-width="3" stroke-linejoin="round" />
+  <!-- Remaches -->
+  <circle cx="34" cy="30" r="2.5" fill="#232B32" />
+  <circle cx="94" cy="30" r="2.5" fill="#232B32" />
+  <circle cx="64" cy="60" r="5" fill="#F4CE5E" stroke="#232B32" stroke-width="2" />
+</svg>

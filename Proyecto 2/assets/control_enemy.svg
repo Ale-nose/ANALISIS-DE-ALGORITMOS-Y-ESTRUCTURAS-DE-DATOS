@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128">
+  <!-- Aura rojiza sutil de penalización -->
+  <circle cx="64" cy="64" r="42" fill="#A62B32" opacity="0.22" />
+  <!-- Eslabones centrales de la cadena -->
+  <rect x="52" y="48" width="24" height="12" rx="6" fill="none" stroke="#232B32" stroke-width="8" />
+  <rect x="52" y="48" width="24" height="12" rx="6" fill="none" stroke="#8C9BA5" stroke-width="3" />
+  <!-- Grillete izquierdo -->
+  <path d="M 46 62 C 38 48, 18 54, 20 72 C 22 88, 42 92, 48 78" fill="none" stroke="#232B32" stroke-width="12" stroke-linecap="round" />
+  <path d="M 46 62 C 38 48, 18 54, 20 72 C 22 88, 42 92, 48 78" fill="none" stroke="#8C9BA5" stroke-width="6" stroke-linecap="round" />
+  <rect x="42" y="60" width="14" height="20" rx="3" fill="#5A6670" stroke="#232B32" stroke-width="4" />
+  <!-- Grillete derecho -->
+  <path d="M 82 62 C 90 48, 110 54, 108 72 C 106 88, 86 92, 80 78" fill="none" stroke="#232B32" stroke-width="12" stroke-linecap="round" />
+  <path d="M 82 62 C 90 48, 110 54, 108 72 C 106 88, 86 92, 80 78" fill="none" stroke="#8C9BA5" stroke-width="6" stroke-linecap="round" />
+  <rect x="72" y="60" width="14" height="20" rx="3" fill="#5A6670" stroke="#232B32" stroke-width="4" />
+  <!-- Bola de hierro pesada abajo -->
+  <circle cx="64" cy="96" r="14" fill="#3B444B" stroke="#232B32" stroke-width="4" />
+  <circle cx="59" cy="91" r="4" fill="#687682" />
+</svg>
