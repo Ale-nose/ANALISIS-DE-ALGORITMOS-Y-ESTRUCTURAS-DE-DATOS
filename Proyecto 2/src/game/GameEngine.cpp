@@ -139,6 +139,7 @@ bool GameEngine::useJumpWall(Direction jumpDir) {
   }
 
   current.jumpWalls--;
+  gameState.stats.powerUpsUsed++;
   current.position = destiny;
   resolveCellEntry();
   return true;
@@ -189,6 +190,7 @@ void GameEngine::activatePortal() {
   gameState.maze.cellAt(destiny).portalID = PORTAL_ID;
   current.position = destiny;
 
+  gameState.stats.portalsUsed++;
 }
 
 void GameEngine::collectPowerup() {
@@ -198,10 +200,12 @@ void GameEngine::collectPowerup() {
   {
   case  PowerUpType::CONTROL_ENEMY : {
     GameEngine::applyControlEnemy();
+    gameState.stats.powerUpsUsed++;
     break;
   }
    case  PowerUpType::DOUBLE_PLAY : {
     GameEngine::doublePlay();
+    gameState.stats.powerUpsUsed++;
     break;
   }
    case  PowerUpType::JUMP_WALL : {

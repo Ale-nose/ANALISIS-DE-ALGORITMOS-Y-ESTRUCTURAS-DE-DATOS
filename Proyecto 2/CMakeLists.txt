@@ -33,6 +33,7 @@ target_include_directories(maze_core PUBLIC
     ${CMAKE_SOURCE_DIR}/include/config
     ${CMAKE_SOURCE_DIR}/include/core
     ${CMAKE_SOURCE_DIR}/include/game
+    ${CMAKE_SOURCE_DIR}/include/logging
 )
 
 # MazeCraze: Qt Widgets application (the only target that links Qt).

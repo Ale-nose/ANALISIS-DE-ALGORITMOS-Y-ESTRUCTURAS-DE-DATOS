@@ -17,7 +17,9 @@
 #include <vector>
 #include <QTimer>
 #include <random>
- 
+#include <string>
+#include <optional>
+
 #include "BoardTheme.hpp"
 #include "GameBoardWidget.hpp"
 #include "GameEngine.hpp"
@@ -30,6 +32,7 @@
 #include "TurnHandoffDialog.hpp"
 #include "AIController.hpp"
 #include "GameOverDialog.hpp"
+#include "GameLogger.hpp"
 
 namespace {
 
@@ -221,6 +224,14 @@ void MainWindow::runAiTurn() {
   }
 
   const Action action = aiController_->chooseAction(engine_->state(), aiRng_);
+
+  // Hand the search (if the AI planned) to the engine for the game log
+  const std::optional<SearchRecord> record =
+    aiController_->takeLatestSearchRecord();
+  if (record.has_value()) {
+    engine_->recordAiSearch(*record);
+  }
+
   if (!engine_->submitAction(action)) {
     return;  // rejected: stop here instead of retrying forever
   }
@@ -286,9 +297,13 @@ void MainWindow::finishGame() {
 
   const GameState& state = engine_->state();
 
-  // TODO (Issue 41): call GameLogger::writeLog(state, ...) here, once, with
-  // the same state.winner shown in the dialog, and show an error message if
-  // the writing fails. Do not log anywhere else.
+  // Write the game log once, with the same state shown in the dialog
+  const std::string logFile = GameLogger::makeLogFilename();
+  if (!GameLogger::writeLog(state, logFile)) {
+    QMessageBox::warning(this, TEXT_WINDOW_TITLE
+      , QString::fromLatin1(TEXT_ERROR_GAME_LOG)
+      .arg(QString::fromStdString(logFile)));
+  }
 
   const bool singlePlayer = state.options.mode == GameMode::SINGLE_PLAYER;
   GameOverDialog dialog(singlePlayer, this);
