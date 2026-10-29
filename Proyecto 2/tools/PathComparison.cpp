@@ -10,6 +10,10 @@
 #include "MazeGenerator.hpp"
 #include "Pathfinding.hpp"
 
+/// Extra edge probability used when generating the mazes of this benchmark,
+/// high enough to guarantee that alternative routes exist.
+static const double BENCHMARK_EXTRA_EDGE_PROB = 0.2;
+
 /**
  * @brief Represents a single benchmark record comparing pathfinding algorithms.
  */
@@ -29,6 +33,9 @@ static std::vector<PathComparisonRow> comparisonRows;
 
 /**
  * @brief Executes BFS, Dijkstra, and A* on a maze and logs comparative metrics.
+ *
+ * The three algorithms run on the very same maze, so any difference between
+ * the rows comes from the algorithm and not from the map.
  */
 void comparePathAlgorithms(const Maze& maze, Position start, Position goal, int seed, double mudRate) {
   SearchResult bfsResult = findPathBfs(maze, start, goal);
@@ -36,7 +43,8 @@ void comparePathAlgorithms(const Maze& maze, Position start, Position goal, int 
   SearchResult aStarResult = findPathAStar(maze, start, goal);
 
   if (!bfsResult.found || !dijkstraResult.found || !aStarResult.found) {
-    std::cerr << "[WARNING] Path not found for seed " << seed << "\n";
+    std::cerr << "[WARNING] Path not found for seed " << seed;
+    std::cerr << " on " << maze.rows() << "x" << maze.cols() << "\n";
     return;
   }
 
@@ -72,34 +80,42 @@ bool exportPathComparison(const std::string& filename) {
 }
 
 /**
- * @brief Generates exactly 27 rows of benchmark data: 3 seeds x 3 mud rates x 3 algorithms.
+ * @brief Generates the path comparison data set.
+ *
+ * Four square sizes, five seeds, three mud rates and three algorithms give
+ * 180 rows. The sizes let the report plot how the search time and the
+ * explored nodes grow with the number of cells, and the mud rates show when
+ * BFS stops being the cheapest route.
  */
 void runPathBenchmark() {
-  const int rows = 20;
-  const int cols = 20;
-  const std::vector<int> seeds = {42, 100, 314};
+  const std::vector<int> sizes = {10, 20, 30, 40};
+  const std::vector<int> seeds = {42, 100, 314, 7, 2026};
   const std::vector<double> mudRates = {0.0, 0.2, 0.5};
 
-  for (int seed : seeds) {
-    for (double mudRate : mudRates) {
-      std::mt19937 rng(seed);
-      // Generation with 0.2 extra edges to ensure multiple paths exist
-      GenerationResult gen = MazeGenerator::generate(rows, cols, GenerationAlgorithm::DFS, 0.2, rng);
-      Maze maze = gen.maze;
+  for (int size : sizes) {
+    for (int seed : seeds) {
+      for (double mudRate : mudRates) {
+        std::mt19937 rng(seed);
+        // The maze only depends on the seed and the size, so the three mud
+        // rates of a seed are applied over the very same maze
+        GenerationResult gen = MazeGenerator::generate(size, size, GenerationAlgorithm::DFS,
+          BENCHMARK_EXTRA_EDGE_PROB, rng);
+        Maze maze = gen.maze;
 
-      // Randomly apply mud across the maze based on mudRate
-      std::bernoulli_distribution dist(mudRate);
-      for (int r = 0; r < rows; ++r) {
-        for (int c = 0; c < cols; ++c) {
-          if (dist(rng)) {
-            maze.cellAt({r, c}).terrain = TerrainType::MUD;
+        // Randomly apply mud across the maze based on mudRate
+        std::bernoulli_distribution dist(mudRate);
+        for (int r = 0; r < size; ++r) {
+          for (int c = 0; c < size; ++c) {
+            if (dist(rng)) {
+              maze.cellAt({r, c}).terrain = TerrainType::MUD;
+            }
           }
         }
-      }
 
-      Position start{0, 0};
-      Position goal{rows - 1, cols - 1};
-      comparePathAlgorithms(maze, start, goal, seed, mudRate);
+        Position start{0, 0};
+        Position goal{size - 1, size - 1};
+        comparePathAlgorithms(maze, start, goal, seed, mudRate);
+      }
     }
   }
 
@@ -111,7 +127,8 @@ void runPathBenchmark() {
 int main() {
   try {
     runPathBenchmark();
-    std::cout << "[INFO] Path comparison: 27 rows generated in data/path_comparison.csv\n";
+    std::cout << "[INFO] Path comparison: " << comparisonRows.size();
+    std::cout << " rows generated in data/path_comparison.csv\n";
     return 0;
   } catch (const std::exception& e) {
     std::cerr << "[ERROR] " << e.what() << '\n';
