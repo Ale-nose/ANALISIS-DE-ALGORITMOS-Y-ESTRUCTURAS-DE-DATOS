@@ -81,3 +81,9 @@ target_link_libraries(PathComparison PRIVATE maze_core)
 
 add_executable(MazeAnalysis tools/MazeAnalysis.cpp)
 target_link_libraries(MazeAnalysis PRIVATE maze_core)
+
+add_executable(BenchmarkRunner tools/BenchmarkRunner.cpp)
+target_link_libraries(BenchmarkRunner PRIVATE maze_core)
+
+add_executable(IntegrationTests tests/IntegrationTests.cpp)
+target_link_libraries(IntegrationTests PRIVATE maze_core)

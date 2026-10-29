@@ -4,7 +4,7 @@
 #include <cstdint>
 #include <string>
 #include <QObject>
-#include <QTcpSocket>   // <-- Cambiado para tener la clase completa
+#include <QTcpSocket>
 #include <QString>
 
 #include "GameView.hpp"
