@@ -11,8 +11,17 @@
 
 /**
  * @brief Compares DFS and BFS maze generation characteristics and writes metrics to CSV.
+ *
+ * Both generators receive the same seed, so the two rows of a combination
+ * describe the same experiment run with a different algorithm.
+ *
+ * @param file Open CSV file the rows are appended to.
+ * @param rows Rows of the generated maze.
+ * @param cols Columns of the generated maze.
+ * @param extraEdgeProb Probability of opening each remaining internal wall.
+ * @param seed Seed shared by both generators.
  */
-void compareGenerationAlgorithms(int rows, int cols, double extraEdgeProb, int seed) {
+void compareGenerationAlgorithms(std::ofstream& file, int rows, int cols, double extraEdgeProb, int seed) {
   std::mt19937 dfsRng(seed);
   std::mt19937 bfsRng(seed);
 
@@ -26,24 +35,9 @@ void compareGenerationAlgorithms(int rows, int cols, double extraEdgeProb, int s
   SearchResult bfsPath = findPathDijkstra(bfsResult.maze, start, goal);
 
   if (!dfsPath.found || !bfsPath.found) {
-    std::cerr << "[WARNING] Path not found for seed " << seed << "\n";
+    std::cerr << "[WARNING] Path not found for seed " << seed;
+    std::cerr << " on " << rows << "x" << cols << "\n";
     return;
-  }
-
-  const std::string filename = "data/maze_comparison.csv";
-
-  std::ifstream previousFile(filename, std::ios::binary | std::ios::ate);
-  bool writeHeader = !previousFile.is_open() || previousFile.tellg() == std::streampos(0);
-  previousFile.close();
-
-  std::ofstream file(filename, std::ios::app);
-  if (!file.is_open()) {
-    throw std::runtime_error("Could not open CSV file");
-  }
-
-  if (writeHeader) {
-    file << "seed,algorithm,rows,cols,extraEdgeProb,deadEnds,pathCost,";
-    file << "visitedNodes,createdEdges,extraEdges,cpuTimeMs\n";
   }
 
   auto writeRow = [&](const char* algorithm, const GenerationResult& result, const SearchResult& path) {
@@ -57,23 +51,41 @@ void compareGenerationAlgorithms(int rows, int cols, double extraEdgeProb, int s
   writeRow("BFS", bfsResult, bfsPath);
 }
 
+/**
+ * @brief Generates the maze comparison data set.
+ *
+ * Four square sizes, five seeds and three extra edge probabilities give
+ * 120 rows. The sizes let the report plot how the generation time and the
+ * explored nodes grow with the number of cells.
+ *
+ * @return Exit status 0 when the CSV was written.
+ */
 int main() {
-  const int rows = 20;
-  const int cols = 20;
-  const std::vector<int> seeds = {42, 100, 314};
+  const std::vector<int> sizes = {10, 20, 30, 40};
+  const std::vector<int> seeds = {42, 100, 314, 7, 2026};
   const std::vector<double> extraProbs = {0.0, 0.2, 0.5};
 
-  // Clear the file on every run to guarantee exactly 18 rows
-  std::ofstream clearFile("data/maze_comparison.csv", std::ios::trunc);
-  clearFile.close();
+  // The file is truncated on every run so the data set is always complete
+  std::ofstream file("data/maze_comparison.csv", std::ios::trunc);
+  if (!file.is_open()) {
+    std::cerr << "[ERROR] Could not open data/maze_comparison.csv\n";
+    return 1;
+  }
+
+  file << "seed,algorithm,rows,cols,extraEdgeProb,deadEnds,pathCost,";
+  file << "visitedNodes,createdEdges,extraEdges,cpuTimeMs\n";
 
   try {
-    for (int seed : seeds) {
-      for (double prob : extraProbs) {
-        compareGenerationAlgorithms(rows, cols, prob, seed);
+    for (int size : sizes) {
+      for (int seed : seeds) {
+        for (double prob : extraProbs) {
+          compareGenerationAlgorithms(file, size, size, prob, seed);
+        }
       }
     }
-    std::cout << "[INFO] Maze comparison: 18 rows generated in data/maze_comparison.csv\n";
+    std::cout << "[INFO] Maze comparison: ";
+    std::cout << sizes.size() * seeds.size() * extraProbs.size() * 2;
+    std::cout << " rows generated in data/maze_comparison.csv\n";
   } catch (const std::exception& e) {
     std::cerr << "[ERROR] " << e.what() << '\n';
     return 1;
