@@ -19,6 +19,7 @@
 #include <random>
 #include <string>
 #include <optional>
+#include <QStatusBar>
 
 #include "BoardTheme.hpp"
 #include "GameBoardWidget.hpp"
@@ -33,6 +34,8 @@
 #include "AIController.hpp"
 #include "GameOverDialog.hpp"
 #include "GameLogger.hpp"
+#include "GameView.hpp"
+#include "OnlineSession.hpp"
 
 namespace {
 
@@ -99,9 +102,18 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent) {
 
   connect(startWindow_, &StartWindow::gameStartRequested, this
     , &MainWindow::startMatch);
-  // TODO (Ashley): Connect the existing Host/Join requests to
-  // NetworkServer and NetworkClient. Handle network signals to update the
-  // displayed state, connection status, turns and game-over information.
+  
+  // Extra: Network
+  connect(startWindow_, &StartWindow::hostRequested, this, &MainWindow::startHosting);
+  connect(startWindow_, &StartWindow::joinRequested, this, &MainWindow::joinMatch);
+
+  online_ = new OnlineSession(this);
+  connect(online_, &OnlineSession::playerAssigned, this, &MainWindow::onPlayerAssigned);
+  connect(online_, &OnlineSession::viewReceived, this, &MainWindow::onViewReceived);
+  connect(online_, &OnlineSession::matchEnded, this, &MainWindow::onMatchEnded);
+  connect(online_, &OnlineSession::errorOccurred, this, &MainWindow::onSessionError);
+  connect(online_, &OnlineSession::notice, this, &MainWindow::onNotice);
+  connect(online_, &OnlineSession::connectionClosed, this, &MainWindow::onConnectionClosed);
 
   resize(startWindow_->sizeHint());
 }
@@ -109,6 +121,7 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent) {
 MainWindow::~MainWindow() = default;
 
 void MainWindow::startMatch(const GameOptions& options) {
+  hudWidget_->setPrivateInfoHidden(false);
   try {
     engine_ = std::make_unique<GameEngine>(GameSetup::createGame(options));
     aiRng_.seed(options.seed);
@@ -139,7 +152,8 @@ void MainWindow::startMatch(const GameOptions& options) {
 
 void MainWindow::keyPressEvent(QKeyEvent* event) {
   Direction direction = Direction::DOWN;
-  const bool playing = engine_ && pages_->currentWidget() == gamePage_;
+  const bool playing = (engine_ || onlineActive_) && pages_->currentWidget()
+    == gamePage_;
 
   if (!playing || !directionFromKey(event->key(), direction)) {
     QMainWindow::keyPressEvent(event);
@@ -154,9 +168,14 @@ void MainWindow::keyPressEvent(QKeyEvent* event) {
 }
 
 void MainWindow::submitPlayerAction(const Action& action) {
-  // TODO (Ashley): When online, send actions through
-  // NetworkClient::sendAction() instead of modifying the local GameEngine.
-  // Keep the existing local-game behavior unchanged.
+  // Extra: Network. Online: the server decides, so the window only sends the action
+  if (onlineActive_) {
+    if (onlineShown_ && !onlineEnded_) {
+      online_->sendAction(action);
+    }
+    return;
+  }
+
   if (!engine_ || engine_->isGameOver() || isAiTurn() || handoffPending_) {
     return;  // no actions after the match is over or during the AI turn
   }
@@ -319,12 +338,7 @@ void MainWindow::finishGame() {
   const GameState& state = engine_->state();
 
   // Write the game log once, with the same state shown in the dialog
-  const std::string logFile = GameLogger::makeLogFilename();
-  if (!GameLogger::writeLog(state, logFile)) {
-    QMessageBox::warning(this, TEXT_WINDOW_TITLE
-      , QString::fromLatin1(TEXT_ERROR_GAME_LOG)
-      .arg(QString::fromStdString(logFile)));
-  }
+  writeGameLog(state);
 
   const bool singlePlayer = state.options.mode == GameMode::SINGLE_PLAYER;
   GameOverDialog dialog(singlePlayer, this);
@@ -336,10 +350,7 @@ void MainWindow::finishGame() {
   }
 
   // New game, back to the menu so the user can choose the options again
-  engine_.reset();
-  aiController_.reset();
-  pages_->setCurrentWidget(startWindow_);
-  resize(startWindow_->sizeHint());
+  showMenu();
 }
 
 void MainWindow::toggleSearchView() {  
@@ -351,4 +362,129 @@ void MainWindow::toggleSearchView() {
   SearchResult result = findPathAStar(      
       state.maze, state.players[state.currentPlayer].position, state.treasure, true);  
   searchVisualizer_->playTrace(result.trace);
+}
+
+void MainWindow::writeGameLog(const GameState& state) {
+  const std::string logFile = GameLogger::makeLogFilename();
+  if (!GameLogger::writeLog(state, logFile)) {
+    QMessageBox::warning(this, TEXT_WINDOW_TITLE,
+        QString::fromLatin1(TEXT_ERROR_GAME_LOG)
+            .arg(QString::fromStdString(logFile)));
+  }
+}
+
+void MainWindow::showMenu() {
+  online_->close();
+  onlineActive_ = false;
+  startWindow_->setEnabled(true);
+  statusBar()->clearMessage();
+  hudWidget_->setPrivateInfoHidden(false);
+
+  engine_.reset();
+  aiController_.reset();
+  pages_->setCurrentWidget(startWindow_);
+  resize(startWindow_->sizeHint());
+}
+
+void MainWindow::beginOnline() {
+  onlineActive_ = true;
+  onlineShown_ = false;
+  onlineEnded_ = false;
+  localPlayerId_ = -1;
+  hudWidget_->setPrivateInfoHidden(true);  // the protocol does not send the counts
+  startWindow_->setEnabled(false);         // no second click while connecting
+  statusBar()->showMessage(TEXT_ONLINE_WAITING);
+}
+
+void MainWindow::startHosting(const GameOptions& options, quint16 port) {
+  beginOnline();
+  if (!online_->host(options, port)) {
+    QMessageBox::warning(this, TEXT_WINDOW_TITLE, TEXT_ERROR_ONLINE_START);
+    showMenu();
+  }
+}
+
+void MainWindow::joinMatch(const QString& address, quint16 port) {
+  beginOnline();
+  if (!online_->join(address.toStdString(), port)) {
+    QMessageBox::warning(this, TEXT_WINDOW_TITLE, TEXT_ERROR_ONLINE_START);
+    showMenu();
+  }
+}
+
+void MainWindow::onPlayerAssigned(int playerId) {
+  if (!onlineActive_) {
+    return;
+  }
+  localPlayerId_ = playerId;
+  const char* name = playerId == PLAYER_1 ? TEXT_HUD_PLAYER_1 : TEXT_HUD_PLAYER_2;
+  statusBar()->showMessage(QString::fromLatin1(TEXT_ONLINE_YOU_ARE)
+      .arg(QString::fromLatin1(name)));
+}
+
+void MainWindow::onViewReceived(const GameView& view) {
+  if (!onlineActive_) {
+    return;
+  }
+
+  boardWidget_->setGameView(view);
+  boardWidget_->setViewer(localPlayerId_);
+  hudWidget_->updateFromState(boardWidget_->state());
+
+  if (!onlineShown_) {
+    onlineShown_ = true;
+    if (!validateBoardFits()) {
+      showMenu();
+      return;
+    }
+    const QSize boardHint = boardWidget_->sizeHint();
+    resize(QSize(boardHint.width() + HUD_WIDTH, boardHint.height())
+      .boundedTo(availableScreenSize()));
+    pages_->setCurrentWidget(gamePage_);
+    setFocus();
+  }
+}
+
+void MainWindow::onMatchEnded(int winner) {
+  if (!onlineActive_ || onlineEnded_) {
+    return;
+  }
+  onlineEnded_ = true;
+
+  // Only the host has the final state, so only it writes the game log
+  const GameState* finalState = online_->authoritativeState();
+  if (finalState != nullptr) {
+    writeGameLog(*finalState);
+  }
+
+  GameOverDialog dialog(false, this);
+  dialog.showWinner(winner);
+  if (!dialog.newGameRequested()) {
+    close();
+    return;
+  }
+  showMenu();
+}
+
+void MainWindow::onSessionError(const QString& error) {
+  if (!onlineActive_ || onlineEnded_) {
+    return;
+  }
+  QMessageBox::warning(this, TEXT_WINDOW_TITLE
+    , QString::fromLatin1(TEXT_ERROR_ONLINE_CONNECTION).arg(error));
+  showMenu();
+}
+
+void MainWindow::onNotice(const QString& message) {
+  if (onlineActive_) {
+    statusBar()->showMessage(message, ONLINE_MESSAGE_MS);
+  }
+}
+
+void MainWindow::onConnectionClosed() {
+  if (!onlineActive_ || onlineEnded_) {
+    return;
+  }
+  QMessageBox::warning(this, TEXT_WINDOW_TITLE, TEXT_ERROR_ONLINE_CLOSED);
+  showMenu();
 }
