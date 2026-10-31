@@ -12,6 +12,8 @@ struct SearchTrace {
   std::vector<Position> opened;
   std::vector<Position> closed;
   std::vector<Position> path;
+  /** Extra: For each closed cell, how many entries of opened existed when it was closed. */
+  std::vector<std::size_t> openedCountAtClose;
 };
 
 // Pathfinding result

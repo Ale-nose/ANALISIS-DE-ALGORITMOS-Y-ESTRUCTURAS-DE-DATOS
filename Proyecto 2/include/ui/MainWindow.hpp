@@ -2,12 +2,15 @@
 #pragma once
 
 #include <QMainWindow>
+#include <QPushButton>
 #include <QSize>
 #include <memory>
 #include <random>
 
 #include "GameAction.hpp"
 #include "GameState.hpp"
+#include "AStarVisualizer.hpp"
+#include "Pathfinding.hpp"
  
 class GameBoardWidget;
 class GameEngine;
@@ -122,6 +125,12 @@ class MainWindow : public QMainWindow {
    */
   void finishHandoff();
 
+  /**
+   * @brief Extra: animated A* search visualizer: Toggles the animated A* 
+   * pathfinding search visualization on or off.
+   */
+  void toggleSearchView();
+
   // TODO (Ashley): Add NetworkServer and NetworkClient ownership,
   // plus online-mode and connection state needed by MainWindow.
   bool handoffPending_ = false;  ///< True while the move preview is waiting
@@ -133,4 +142,8 @@ class MainWindow : public QMainWindow {
   std::unique_ptr<GameEngine> engine_;
   std::mt19937 aiRng_;
   std::unique_ptr<AIController> aiController_;
+
+  // Extra: animated A* search visualizer
+  AStarVisualizer* searchVisualizer_;
+  QPushButton* searchButton_;
 };
