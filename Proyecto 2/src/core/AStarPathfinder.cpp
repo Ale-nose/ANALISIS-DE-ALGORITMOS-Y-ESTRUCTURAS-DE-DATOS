@@ -64,6 +64,8 @@ SearchResult findPathAStar(const Maze& maze, Position start, Position goal, bool
     Position currentPosition = toPosition(lesser);
     if (saveTrace) {
       result.trace.closed.push_back(currentPosition);
+       // Extra: animated A* search visualizer
+      result.trace.openedCountAtClose.push_back(result.trace.opened.size());
     }
 
     if (lesser == goalIndex) {

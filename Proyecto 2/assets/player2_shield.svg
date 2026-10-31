@@ -7,34 +7,29 @@
     </radialGradient>
   </defs>
 
-  <!-- Sombra con resplandor celeste -->
-  <ellipse cx="60" cy="104" rx="36" ry="8" fill="#7CE8FF" opacity="0.65" />
+  <ellipse cx="60" cy="104" rx="34" ry="8" fill="#7CE8FF" opacity="0.65" />
 
-  <!-- Hacha -->
-  <path d="M 92 32 C 108 32 108 62 92 62 Z" fill="#99A7B2" stroke="#222A30" stroke-width="4" stroke-linejoin="round" />
-  <rect x="89" y="28" width="6" height="66" rx="2" fill="#784416" stroke="#222A30" stroke-width="3.5" />
+  <!-- Espada -->
+  <path d="M 34 64 L 18 24 L 10 31 L 25 68 Z" fill="#BDC8D1" stroke="#222A30" stroke-width="4" stroke-linejoin="round" />
+  <rect x="21" y="63" width="18" height="6" rx="2" transform="rotate(-18 30 66)" fill="#DFB126" stroke="#222A30" stroke-width="3.5" />
 
   <!-- Capa y Torso -->
-  <path d="M 32 58 L 24 96 Q 60 104 96 96 L 88 58 Z" fill="#6E1414" stroke="#222A30" stroke-width="4" stroke-linejoin="round" />
-  <rect x="36" y="54" width="48" height="42" rx="10" fill="#54626F" stroke="#222A30" stroke-width="4" />
-  <rect x="44" y="56" width="32" height="40" fill="#A62424" stroke="#222A30" stroke-width="3" />
+  <path d="M 48 54 L 88 96 Q 62 103 34 95 L 40 54 Z" fill="#7A1F24" stroke="#222A30" stroke-width="4" stroke-linejoin="round" />
+  <rect x="40" y="54" width="38" height="40" rx="10" fill="#8D9CA8" stroke="#222A30" stroke-width="4" />
+  <rect x="42" y="56" width="22" height="38" fill="#A62B32" stroke="#222A30" stroke-width="3" />
 
-  <!-- Cuernos y Cresta -->
-  <path d="M 38 38 Q 16 32 22 14 Q 28 24 42 28 Z" fill="#DFD9C8" stroke="#222A30" stroke-width="4" stroke-linejoin="round" />
-  <path d="M 82 38 Q 104 32 98 14 Q 92 24 78 28 Z" fill="#DFD9C8" stroke="#222A30" stroke-width="4" stroke-linejoin="round" />
-  <rect x="54" y="13" width="12" height="12" fill="#B82929" stroke="#222A30" stroke-width="4" stroke-linejoin="round" />
+  <!-- Pluma y Casco -->
+  <path d="M 52 23 Q 50 10 66 11 Q 76 12 74 18 Q 65 22 56 23 Z" fill="#D13B42" stroke="#222A30" stroke-width="4" stroke-linejoin="round" />
+  <rect x="36" y="22" width="46" height="37" rx="15" fill="#9EACB7" stroke="#222A30" stroke-width="4" />
+  <path d="M 46 28 Q 58 25 70 28" fill="none" stroke="#CBD5DD" stroke-width="3.5" stroke-linecap="round" />
+  <path d="M 36 39 L 66 39 L 66 53 Q 50 58 36 53 Z" fill="#83929E" stroke="#222A30" stroke-width="3" stroke-linejoin="round" />
+  <rect x="35" y="38" width="20" height="6" rx="2" fill="#222A30" />
+  <rect x="41" y="31" width="6" height="21" rx="2" fill="#222A30" />
 
-  <!-- Casco y Ojos -->
-  <rect x="36" y="23" width="48" height="36" rx="14" fill="#687682" stroke="#222A30" stroke-width="4" />
-  <path d="M 40 42 L 80 42 L 80 55 Q 60 60 40 55 Z" fill="#525E68" stroke="#222A30" stroke-width="3.5" stroke-linejoin="round" />
-  <rect x="40" y="34" width="40" height="12" rx="3" fill="#434D56" stroke="#222A30" stroke-width="3.5" />
-  <polygon points="43,38 58,41 43,43" fill="#FF6655" />
-  <polygon points="77,38 62,41 77,43" fill="#FF6655" />
-
-  <!-- Escudo -->
-  <path d="M 17 60 L 41 60 L 41 76 Q 41 92 29 97 Q 17 92 17 76 Z" fill="#9E2020" stroke="#222A30" stroke-width="4" stroke-linejoin="round" />
-  <rect x="27" y="65" width="4" height="24" fill="#D9AC26" />
-  <rect x="21" y="72" width="16" height="4" fill="#D9AC26" />
+  <!-- Escudo redondo -->
+  <circle cx="58" cy="76" r="15" fill="#A62B32" stroke="#222A30" stroke-width="4" />
+  <circle cx="58" cy="76" r="9.5" fill="none" stroke="#9EACB7" stroke-width="3" />
+  <circle cx="58" cy="76" r="5" fill="#DFB126" stroke="#222A30" stroke-width="2.5" />
 
   <!-- Burbuja / Aura del Buff de Escudo -->
   <circle cx="60" cy="58" r="52" fill="url(#shieldAura)" stroke="#38F2FF" stroke-width="3.5" />

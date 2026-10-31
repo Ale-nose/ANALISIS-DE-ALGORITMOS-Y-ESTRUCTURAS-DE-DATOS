@@ -42,3 +42,8 @@ inline constexpr double BOARD_PORTAL_LABEL_RATIO = 0.28;
 // Screen space the window cannot use (title bar and window frame)
 inline constexpr int BOARD_SCREEN_RESERVED_WIDTH = 40;
 inline constexpr int BOARD_SCREEN_RESERVED_HEIGHT = 160;
+
+// Extra: animated A* search visualizer
+const QColor COLOR_SEARCH_OPENED(0x9D, 0xD9, 0xD2, 140);  // Pearl Aqua
+const QColor COLOR_SEARCH_CLOSED(0xF4, 0xD0, 0x6F, 170);  // Jasmine
+const QColor COLOR_SEARCH_PATH(0xFF, 0x88, 0x11, 200);    // Princeton Orange

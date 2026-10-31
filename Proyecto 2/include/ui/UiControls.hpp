@@ -14,3 +14,6 @@ inline constexpr int AI_ACTION_DELAY_MS = 600;
 
 // Time to see the move
 inline constexpr int HANDOFF_PREVIEW_DELAY_MS = 900;
+
+// Extra: animated A* search visualizer
+constexpr int SEARCH_STEP_INTERVAL_MS = 40;
