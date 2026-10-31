@@ -60,3 +60,15 @@ inline constexpr const char* TEXT_GAME_OVER_QUIT = "Quit";
 // Extra: animated A* search visualizer
 const QString TEXT_BUTTON_SHOW_SEARCH = QStringLiteral("Show A*");
 const QString TEXT_BUTTON_HIDE_SEARCH = QStringLiteral("Hide A*");
+
+// Extra: Network
+inline constexpr const char* TEXT_MODE_HOST = "Online: host a match";
+inline constexpr const char* TEXT_MODE_JOIN = "Online: join a match";
+inline constexpr const char* TEXT_GROUP_CONNECTION = "Connection";
+inline constexpr const char* TEXT_PLACEHOLDER_ADDRESS = "Host address";
+inline constexpr const char* TEXT_PORT_PREFIX = "Port: ";
+inline constexpr const char* TEXT_ONLINE_WAITING = "Waiting for the other player...";
+inline constexpr const char* TEXT_ONLINE_YOU_ARE = "You are %1";
+inline constexpr const char* TEXT_ERROR_ONLINE_START = "The online match could not be started. Check the address and the port.";
+inline constexpr const char* TEXT_ERROR_ONLINE_CONNECTION = "Connection error: %1";
+inline constexpr const char* TEXT_ERROR_ONLINE_CLOSED = "The connection was closed.";

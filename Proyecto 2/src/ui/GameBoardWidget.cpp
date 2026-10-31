@@ -10,10 +10,12 @@
 #include <QString>
 #include <algorithm>
 #include <cstddef>
+#include <utility>
  
 #include "BoardTheme.hpp"
 #include "UiAssets.hpp"
 #include "UiTheme.hpp"
+#include "GameView.hpp"
 
 namespace {
 /**
@@ -376,4 +378,34 @@ void GameBoardWidget::drawSearchOverlay(QPainter& painter) const {
   fillCells(searchOverlay_.opened, COLOR_SEARCH_OPENED);
   fillCells(searchOverlay_.closed, COLOR_SEARCH_CLOSED);
   fillCells(searchOverlay_.path, COLOR_SEARCH_PATH);
+}
+
+// Extra: Network
+void GameBoardWidget::setGameView(const GameView& view) {
+  GameState state;  // only what the server let this player see
+  state.maze = Maze(view.rows, view.cols);
+  state.options.mode = GameMode::ONLINE;
+  state.options.fogEnabled = true;  // hide every cell that was not received
+  state.options.rows = view.rows;
+  state.options.cols = view.cols;
+  state.treasure = view.treasure;
+  state.currentPlayer = view.currentPlayer;
+  state.gameOver = view.gameOver;
+  state.winner = view.winner;
+
+  std::vector<Position> visible;
+  visible.reserve(view.visibleCells.size());
+  for (const VisibleCell& cell : view.visibleCells) {
+    state.maze.cellAt(cell.position) = cell.contents;
+    visible.push_back(cell.position);
+  }
+  for (int id = 0; id < NUM_PLAYERS; ++id) {
+    // (-1, -1) if hidden
+    state.players[id].position = view.players[id].position;
+  }
+
+  state_ = std::move(state);
+  visibleCells_ = std::move(visible);
+  updateGeometry();
+  update();
 }
