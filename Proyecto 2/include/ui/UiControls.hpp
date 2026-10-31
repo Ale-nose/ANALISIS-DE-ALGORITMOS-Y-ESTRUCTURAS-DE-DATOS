@@ -17,3 +17,10 @@ inline constexpr int HANDOFF_PREVIEW_DELAY_MS = 900;
 
 // Extra: animated A* search visualizer
 constexpr int SEARCH_STEP_INTERVAL_MS = 40;
+
+// Extra: Network
+inline constexpr const char* ONLINE_DEFAULT_ADDRESS = "127.0.0.1";
+inline constexpr int ONLINE_DEFAULT_PORT = 5000;
+inline constexpr int ONLINE_PORT_MIN = 1024;
+inline constexpr int ONLINE_PORT_MAX = 65535;
+inline constexpr int ONLINE_MESSAGE_MS = 4000;  // how long a notice stays in the status bar

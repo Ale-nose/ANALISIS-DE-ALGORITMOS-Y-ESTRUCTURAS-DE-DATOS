@@ -13,6 +13,7 @@
 
 class QPainter;
 class QPaintEvent;
+struct GameView;
 
 /**
  * @brief Widget that draws the maze, the players, the treasure and every game
@@ -87,6 +88,22 @@ class GameBoardWidget : public QWidget {
   // EXTRA: animated A* search visualizer
   void setSearchOverlay(const SearchOverlay& overlay);
   void clearSearchOverlay();
+
+  // EXTRA: Network
+  /**
+   * @brief Draws the view an online server sent. Only the cells the server
+   * allowed this player to see are known; the rest is hidden by the fog.
+   * @param view Authorized view of the match.
+   */
+  void setGameView(const GameView& view);
+
+  /**
+   * @brief What the board is drawing now (used by the HUD).
+   * @return The state built from the last state or view received.
+   */
+  const GameState& state() const {
+    return state_;
+  }
 
  protected:
   /**

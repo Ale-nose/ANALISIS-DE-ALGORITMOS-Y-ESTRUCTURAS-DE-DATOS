@@ -19,6 +19,8 @@ class QKeyEvent;
 class QStackedWidget;
 class StartWindow;
 class AIController;
+class OnlineSession;
+struct GameView;
 
 /**
  * @brief Main game window. It shows the start menu first; when the user
@@ -126,13 +128,45 @@ class MainWindow : public QMainWindow {
   void finishHandoff();
 
   /**
-   * @brief Extra: animated A* search visualizer: Toggles the animated A* 
+   * @brief Extra: animated A* search visualizer. Toggles the animated A* 
    * pathfinding search visualization on or off.
    */
   void toggleSearchView();
 
-  // TODO (Ashley): Add NetworkServer and NetworkClient ownership,
-  // plus online-mode and connection state needed by MainWindow.
+  // Extra: Network
+    /** @brief Starts an online match as the host. */
+  void startHosting(const GameOptions& options, quint16 port);
+
+  /** @brief Joins an online match hosted at another address. */
+  void joinMatch(const QString& address, quint16 port);
+
+  /** @brief Prepares the window for an online match that is starting. */
+  void beginOnline();
+
+  /** @brief Remembers which player this window is. */
+  void onPlayerAssigned(int playerId);
+
+  /** @brief Draws the view sent by the server and shows the board. */
+  void onViewReceived(const GameView& view);
+
+  /** @brief Shows the winner when the online match ends. */
+  void onMatchEnded(int winner);
+
+  /** @brief Connection error before the match: warns and returns to the menu. */
+  void onSessionError(const QString& error);
+
+  /** @brief Shows a message of the match in the status bar. */
+  void onNotice(const QString& message);
+
+  /** @brief The connection closed: warns and returns to the menu. */
+  void onConnectionClosed();
+
+  /** @brief Writes the game log of a finished match, warning if it fails. */
+  void writeGameLog(const GameState& state);
+
+  /** @brief Drops the match and goes back to the start menu. */
+  void showMenu();
+
   bool handoffPending_ = false;  ///< True while the move preview is waiting
   QStackedWidget* pages_;
   StartWindow* startWindow_;
@@ -146,4 +180,11 @@ class MainWindow : public QMainWindow {
   // Extra: animated A* search visualizer
   AStarVisualizer* searchVisualizer_;
   QPushButton* searchButton_;
+
+  // Extra: Network
+  OnlineSession* online_;
+  bool onlineActive_ = false;  // an online match is starting or running
+  bool onlineShown_ = false;   // the first view was already drawn
+  bool onlineEnded_ = false;
+  int localPlayerId_ = -1;
 };
