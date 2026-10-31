@@ -56,3 +56,7 @@ inline constexpr const char* TEXT_GAME_OVER_HEADING = "Game over";
 inline constexpr const char* TEXT_GAME_OVER_WINNER = "%1 wins!";
 inline constexpr const char* TEXT_GAME_OVER_NEW_GAME = "New game";
 inline constexpr const char* TEXT_GAME_OVER_QUIT = "Quit";
+
+// Extra: animated A* search visualizer
+const QString TEXT_BUTTON_SHOW_SEARCH = QStringLiteral("Show A*");
+const QString TEXT_BUTTON_HIDE_SEARCH = QStringLiteral("Hide A*");

@@ -21,6 +21,14 @@ class QPaintEvent;
  * @note It only reads the GameState it was given. Call setGameState every
  * time the state changes to trigger a repaint.
  */
+
+// Extra: animated A* search visualizer
+struct SearchOverlay {
+  std::vector<Position> opened;
+  std::vector<Position> closed;
+  std::vector<Position> path;
+};
+
 class GameBoardWidget : public QWidget {
  public:
   /**
@@ -75,6 +83,10 @@ class GameBoardWidget : public QWidget {
    * @return A QSize where width is the number of columns and height the rows.
    */
   QSize gridSize() const;
+
+  // EXTRA: animated A* search visualizer
+  void setSearchOverlay(const SearchOverlay& overlay);
+  void clearSearchOverlay();
 
  protected:
   /**
@@ -149,6 +161,9 @@ class GameBoardWidget : public QWidget {
    */
   void drawPlayers(QPainter& painter);
 
+  // EXTRA: animated A* search visualizer
+  void drawSearchOverlay(QPainter& painter) const;
+
   GameState state_;
   int viewer_ = PLAYER_1;
   std::vector<Position> visibleCells_;
@@ -168,7 +183,9 @@ class GameBoardWidget : public QWidget {
   QSvgRenderer controlEnemyRenderer_;
   QSvgRenderer fogRenderer_;
   QSvgRenderer mudRenderer_;
- 
   // The fog is drawn once per cell size and reused for every hidden cell
   QPixmap fogPixmap_;
+
+  // EXTRA: animated A* search visualizer
+  SearchOverlay searchOverlay_;
 };

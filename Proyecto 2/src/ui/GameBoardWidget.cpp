@@ -235,6 +235,7 @@ void GameBoardWidget::paintEvent(QPaintEvent* event) {
 
   // Layer 2: Dynamic entities (Treasure and Players go above every cell)
   drawTreasure(painter);
+  drawSearchOverlay(painter);
   drawPlayers(painter);
 }
 
@@ -350,4 +351,29 @@ void GameBoardWidget::drawPlayers(QPainter& painter) {
     drawSprite(painter, playerRenderer(player, shielded), area
       , BOARD_PLAYER_RATIO);
   }
+}
+
+// EXTRA: animated A* search visualizer
+void GameBoardWidget::setSearchOverlay(const SearchOverlay& overlay) {
+  searchOverlay_ = overlay;
+  update();
+}
+
+void GameBoardWidget::clearSearchOverlay() {
+  searchOverlay_ = SearchOverlay{};
+  update();
+}
+
+// Extra: animated A* search visualizer
+void GameBoardWidget::drawSearchOverlay(QPainter& painter) const {
+  auto fillCells = [&](const std::vector<Position>& cells, const QColor& color) {
+    for (const Position& cell : cells) {
+      QRectF rect(boardOrigin_.x() + cell.col * cellSize_
+        , boardOrigin_.y() + cell.row * cellSize_, cellSize_, cellSize_);
+      painter.fillRect(rect, color);
+    }
+  };
+  fillCells(searchOverlay_.opened, COLOR_SEARCH_OPENED);
+  fillCells(searchOverlay_.closed, COLOR_SEARCH_CLOSED);
+  fillCells(searchOverlay_.path, COLOR_SEARCH_PATH);
 }

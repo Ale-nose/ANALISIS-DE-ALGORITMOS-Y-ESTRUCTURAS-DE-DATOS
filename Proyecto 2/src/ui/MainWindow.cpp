@@ -74,6 +74,16 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent) {
   boardWidget_ = new GameBoardWidget;
   hudWidget_ = new HudWidget;
 
+  // Extra: Initialize A* search visualizer and search button
+  searchVisualizer_ = new AStarVisualizer(boardWidget_, this);
+  searchButton_ = new QPushButton(TEXT_BUTTON_SHOW_SEARCH, this);
+  searchButton_->setFocusPolicy(Qt::NoFocus);
+  hudWidget_->layout()->addWidget(searchButton_);
+  connect(searchButton_, &QPushButton::clicked, this, &MainWindow::toggleSearchView);
+  connect(searchVisualizer_, &AStarVisualizer::finished, this, [this]() {  
+    searchButton_->setText(TEXT_BUTTON_HIDE_SEARCH);
+  });
+
   // Match page: the board on the left and the HUD panel on the right
   gamePage_ = new QWidget;
   auto* gameLayout = new QHBoxLayout(gamePage_);
@@ -107,6 +117,9 @@ void MainWindow::startMatch(const GameOptions& options) {
     QMessageBox::warning(this, TEXT_WINDOW_TITLE, TEXT_ERROR_MAP_GENERATION);
     return;
   }
+
+  // Extra: Hide search button if fog of war is enabled to prevent cheating
+  searchButton_->setVisible(!options.fogEnabled);
 
   refreshView();  // the board needs the state before measure the grid
   if (!validateBoardFits()) {
@@ -147,6 +160,10 @@ void MainWindow::submitPlayerAction(const Action& action) {
   if (!engine_ || engine_->isGameOver() || isAiTurn() || handoffPending_) {
     return;  // no actions after the match is over or during the AI turn
   }
+
+  // Extra: animated A* search visualizer
+  searchVisualizer_->stopAnimation(); 
+  searchButton_->setText(TEXT_BUTTON_SHOW_SEARCH);
 
   const int previousPlayer = engine_->currentPlayer();
   if (!engine_->submitAction(action)) {
@@ -222,6 +239,10 @@ void MainWindow::runAiTurn() {
   if (!isAiTurn()) {
     return;
   }
+
+  // Extra: animated A* search visualizer
+  searchVisualizer_->stopAnimation(); 
+  searchButton_->setText(TEXT_BUTTON_SHOW_SEARCH);
 
   const Action action = aiController_->chooseAction(engine_->state(), aiRng_);
 
@@ -319,4 +340,15 @@ void MainWindow::finishGame() {
   aiController_.reset();
   pages_->setCurrentWidget(startWindow_);
   resize(startWindow_->sizeHint());
+}
+
+void MainWindow::toggleSearchView() {  
+  if (searchVisualizer_->isRunning() || searchButton_->text() == TEXT_BUTTON_HIDE_SEARCH) {    
+    searchVisualizer_->stopAnimation();    
+    searchButton_->setText(TEXT_BUTTON_SHOW_SEARCH);    
+    return;  }  
+  const GameState& state = engine_->state();  
+  SearchResult result = findPathAStar(      
+      state.maze, state.players[state.currentPlayer].position, state.treasure, true);  
+  searchVisualizer_->playTrace(result.trace);
 }
