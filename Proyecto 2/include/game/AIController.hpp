@@ -18,9 +18,8 @@ public:
    *
    * RANDOM spends it on a random valid direction with probability
    * JUMP_WALL_PROB. GREEDY spends it only on the wall that saves the most
-   * path cost, and only when the saving reaches AI_JUMP_MIN_GAIN. RANDOM is
-   * kept so both policies can be measured against each other on the same
-   * seeds.
+   * path cost, and only when the saving reaches AI_JUMP_MIN_GAIN.
+   * RANDOM is the default
    */
   enum class JumpWallPolicy {
     RANDOM,
@@ -38,7 +37,7 @@ private:
   std::optional<SearchRecord> AIsearchRecord;
   Position lastAIpos = {DEFAULT_COORDINATES,DEFAULT_COORDINATES};
   bool lastActionWasJumpWall = false;
-  JumpWallPolicy jumpPolicy = JumpWallPolicy::GREEDY;
+  JumpWallPolicy jumpPolicy = JumpWallPolicy::RANDOM;
 
   /**
    * @brief Gives the direction of the step between two adjacent cells.
