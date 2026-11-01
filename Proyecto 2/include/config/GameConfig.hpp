@@ -39,3 +39,11 @@ inline constexpr int PORTAL_ID = -1;
 //AI probability of using certain actions
 inline constexpr double JUMP_WALL_PROB = 0.429; // this number was chosen at random by picking a number between 400 and 600 
 
+// Improved AI constantes 
+constexpr int AI_JUMP_MIN_GAIN = 3;
+constexpr int AI_POWERUP_RADIUS = 8;
+constexpr int AI_WORTH_JUMP_WALL = 3;
+constexpr int AI_WORTH_DOUBLE_PLAY = 2;
+constexpr int AI_WORTH_CONTROL_ENEMY = 2;
+
+
