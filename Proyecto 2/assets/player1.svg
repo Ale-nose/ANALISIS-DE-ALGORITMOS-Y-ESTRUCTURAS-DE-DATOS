@@ -1,32 +1,27 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" width="120" height="120">
-  <!-- Sombra inferior -->
-  <ellipse cx="60" cy="104" rx="28" ry="7" fill="#C4C4C4" />
-
-  <!-- Espada adelantada hacia la izquierda -->
-  <path d="M 34 64 L 18 24 L 10 31 L 25 68 Z" fill="#BDC8D1" stroke="#222A30" stroke-width="4" stroke-linejoin="round" />
-  <rect x="21" y="63" width="18" height="6" rx="2" transform="rotate(-18 30 66)" fill="#DFB126" stroke="#222A30" stroke-width="3.5" />
-
-  <!-- Capa cayendo hacia la derecha -->
-  <path d="M 48 54 L 88 96 Q 62 103 34 95 L 40 54 Z" fill="#174C6F" stroke="#222A30" stroke-width="4" stroke-linejoin="round" />
-
-  <!-- Torso lateral -->
-  <rect x="40" y="54" width="38" height="40" rx="10" fill="#8D9CA8" stroke="#222A30" stroke-width="4" />
-  <rect x="42" y="56" width="22" height="38" fill="#216B9C" stroke="#222A30" stroke-width="3" />
-
-  <!-- Pluma azul superior -->
-  <path d="M 52 23 Q 50 10 66 11 Q 76 12 74 18 Q 65 22 56 23 Z" fill="#2D87C8" stroke="#222A30" stroke-width="4" stroke-linejoin="round" />
-
-  <!-- Casco en perfil izquierdo -->
-  <rect x="36" y="22" width="46" height="37" rx="15" fill="#9EACB7" stroke="#222A30" stroke-width="4" />
-  <path d="M 46 28 Q 58 25 70 28" fill="none" stroke="#CBD5DD" stroke-width="3.5" stroke-linecap="round" />
-  <path d="M 36 39 L 66 39 L 66 53 Q 50 58 36 53 Z" fill="#83929E" stroke="#222A30" stroke-width="3" stroke-linejoin="round" />
-
-  <!-- Cruz del visor en perfil izquierdo -->
-  <rect x="35" y="38" width="20" height="6" rx="2" fill="#222A30" />
-  <rect x="41" y="31" width="6" height="21" rx="2" fill="#222A30" />
-
-  <!-- Escudo redondo lateral -->
-  <circle cx="58" cy="76" r="15" fill="#216B9C" stroke="#222A30" stroke-width="4" />
-  <circle cx="58" cy="76" r="9.5" fill="none" stroke="#9EACB7" stroke-width="3" />
-  <circle cx="58" cy="76" r="5" fill="#DFB126" stroke="#222A30" stroke-width="2.5" />
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128">
+  <!-- Sombra en el suelo -->
+  <ellipse cx="64" cy="108" rx="34" ry="12" fill="#000000" opacity="0.28" />
+  <!-- Capa azul -->
+  <path d="M 34 62 L 26 102 C 44 110, 84 110, 102 102 L 94 62 Z" fill="#1F567D" stroke="#232B32" stroke-width="4" stroke-linejoin="round" />
+  <!-- Cuerpo y hombreras de acero -->
+  <rect x="38" y="58" width="52" height="40" rx="12" fill="#8C9BA5" stroke="#232B32" stroke-width="4" />
+  <path d="M 48 58 V 98 H 80 V 58 Z" fill="#2B72A6" stroke="#232B32" stroke-width="3" />
+  <!-- Espada en mano derecha -->
+  <path d="M 98 42 L 106 34 L 112 40 L 104 48 Z" fill="#D4AF37" stroke="#232B32" stroke-width="3" />
+  <path d="M 94 74 L 108 24 L 116 32 L 102 78 Z" fill="#CBD4DA" stroke="#232B32" stroke-width="4" stroke-linejoin="round" />
+  <rect x="86" y="70" width="20" height="6" rx="2" transform="rotate(15 96 73)" fill="#D4AF37" stroke="#232B32" stroke-width="3" />
+  <!-- Escudo redondo izquierdo -->
+  <circle cx="32" cy="78" r="16" fill="#2B72A6" stroke="#232B32" stroke-width="4" />
+  <circle cx="32" cy="78" r="12" fill="none" stroke="#ABB6BE" stroke-width="3" />
+  <circle cx="32" cy="78" r="5" fill="#D4AF37" stroke="#232B32" stroke-width="2" />
+  <!-- Yelmo medieval -->
+  <rect x="38" y="24" width="52" height="44" rx="18" fill="#ABB6BE" stroke="#232B32" stroke-width="4" />
+  <path d="M 42 44 H 86 V 60 C 86 66, 42 66, 42 60 Z" fill="#8C9BA5" stroke="#232B32" stroke-width="3" />
+  <!-- Visera en cruz del yelmo -->
+  <rect x="46" y="42" width="36" height="8" rx="3" fill="#232B32" />
+  <rect x="61" y="36" width="6" height="26" rx="2" fill="#232B32" />
+  <!-- Penacho azul -->
+  <path d="M 56 24 C 52 10, 72 8, 78 18 C 74 22, 68 24, 56 24 Z" fill="#398AD7" stroke="#232B32" stroke-width="4" stroke-linejoin="round" />
+  <!-- Brillo del casco -->
+  <path d="M 48 30 Q 64 26 76 30" stroke="#D5DEE4" stroke-width="3" stroke-linecap="round" fill="none" />
 </svg>
