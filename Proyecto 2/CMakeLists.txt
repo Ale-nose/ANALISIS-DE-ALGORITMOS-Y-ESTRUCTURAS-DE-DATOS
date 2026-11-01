@@ -69,6 +69,7 @@ add_executable(MazeCrazeTests
     tests/TestMain.cpp
     tests/CoreTests.cpp
     tests/GameTests.cpp
+    tests/test_ai.cpp
     tests/test_algorithm_metrics.cpp
     tests/test_bfs.cpp
     tests/test_bfs_pathfinding.cpp
@@ -77,6 +78,7 @@ add_executable(MazeCrazeTests
 )
 
 target_link_libraries(MazeCrazeTests PRIVATE maze_core)
+target_compile_options(MazeCrazeTests PRIVATE -UNDEBUG)
 
 add_test(NAME MazeCrazeTests COMMAND MazeCrazeTests)
 
@@ -91,3 +93,11 @@ target_link_libraries(BenchmarkRunner PRIVATE maze_core)
 
 add_executable(IntegrationTests tests/IntegrationTests.cpp)
 target_link_libraries(IntegrationTests PRIVATE maze_core)
+add_test(NAME IntegrationTests COMMAND IntegrationTests)
+
+# these 3 have their own main so to actually check them tehy most be run on their own
+foreach(standalone IN ITEMS test_dijkstra test_extra_passages test_treasure)
+  add_executable(${standalone} tests/${standalone}.cpp)
+  target_link_libraries(${standalone} PRIVATE maze_core)
+  add_test(NAME ${standalone} COMMAND ${standalone})
+endforeach()

@@ -126,6 +126,7 @@ void MainWindow::startMatch(const GameOptions& options) {
     engine_ = std::make_unique<GameEngine>(GameSetup::createGame(options));
     aiRng_.seed(options.seed);
     aiController_ = std::make_unique<AIController>();  // fresh path per match
+    aiController_->setJumpWallPolicy(AIController::JumpWallPolicy::GREEDY);
   } catch (const std::runtime_error&) {
     QMessageBox::warning(this, TEXT_WINDOW_TITLE, TEXT_ERROR_MAP_GENERATION);
     return;
