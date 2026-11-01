@@ -19,5 +19,5 @@ inline constexpr int AUTO_MATCH_MAX_ACTIONS = 20000;
  * @return True if the match ended with a winner, false if it was stuck or the
  * limit was reached.
  */
-bool playAutomatedMatch(GameEngine& engine, std::mt19937& rng
-  , int maxActions = AUTO_MATCH_MAX_ACTIONS);
+bool playAutomatedMatch(GameEngine& engine, std::mt19937& rng,
+                        int maxActions = AUTO_MATCH_MAX_ACTIONS);

@@ -12,10 +12,10 @@
  */
 class Maze {
  private:
-  int rows_; ///< Total number of rows in the maze.
-  int cols_; ///< Total number of columns in the maze.
+  int rows_;  ///< Total number of rows in the maze.
+  int cols_;  ///< Total number of columns in the maze.
 
-  std::vector<Cell> cells_; ///< Flat storage of all cells in row-major order.
+  std::vector<Cell> cells_;  ///< Flat storage of all cells in row-major order.
 
   /**
    * @brief Computes the 1D index in cells_ corresponding to a 2D position.
@@ -33,12 +33,13 @@ class Maze {
   explicit Maze(int rows, int cols);
 
   /**
-   * @brief Opens a passage between a cell and its neighbor in the given direction.
+   * @brief Opens a passage between a cell and its neighbor in the given
+   * direction.
    * @param from Origin cell coordinate.
    * @param direction Direction towards the neighbor cell.
    */
   void openPassage(Position from, Direction direction);
-  
+
   /**
    * @brief Checks if a direct open passage exists between two adjacent cells.
    * @param from First cell coordinate.
@@ -46,14 +47,15 @@ class Maze {
    * @return true if passage is open, false otherwise.
    */
   bool hasPassage(Position from, Position to) const;
-  
+
   /**
-   * @brief Retrieves all accessible neighboring coordinates without crossing walls.
+   * @brief Retrieves all accessible neighboring coordinates without crossing
+   * walls.
    * @param position Cell coordinate to inspect.
    * @return Vector of accessible neighboring positions.
    */
   std::vector<Position> neighbors(Position position) const;
-  
+
   /**
    * @brief Counts the number of dead-end cells in the maze.
    * @return Number of cells with exactly one open connection.
@@ -66,17 +68,16 @@ class Maze {
    * @return Action cost (MUD_COST if mud terrain, NORMAL_COST otherwise).
    */
   inline int entryCost(Position destination) const {
-    return cellAt(destination).terrain == TerrainType::MUD ? MUD_COST : NORMAL_COST;
+    return cellAt(destination).terrain == TerrainType::MUD ? MUD_COST
+                                                           : NORMAL_COST;
   }
-  
+
   /**
    * @brief Retrieves a mutable reference to the cell at the given position.
    * @param position Target coordinate.
    * @return Reference to the Cell object.
    */
-  inline Cell& cellAt(Position position) {
-    return cells_[indexOf(position)];
-  }
+  inline Cell& cellAt(Position position) { return cells_[indexOf(position)]; }
 
   /**
    * @brief Retrieves a read-only reference to the cell at the given position.
@@ -93,22 +94,19 @@ class Maze {
    * @return true if the position is within bounds, false otherwise.
    */
   inline bool isInside(Position position) const {
-    return position.row >= 0 && position.row < rows_ && position.col >= 0 && position.col < cols_;
+    return position.row >= 0 && position.row < rows_ && position.col >= 0 &&
+           position.col < cols_;
   }
 
   /**
    * @brief Gets the total row count of the maze.
    * @return Number of rows.
    */
-  inline int rows() const {
-    return rows_;
-  }
+  inline int rows() const { return rows_; }
 
   /**
    * @brief Gets the total column count of the maze.
    * @return Number of columns.
    */
-  inline int cols() const {
-    return cols_;
-  }
+  inline int cols() const { return cols_; }
 };

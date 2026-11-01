@@ -1,10 +1,11 @@
 // Copyright Alejandro, Ashley y Kevin
-#include <stdexcept>
-#include <cmath>
-
 #include "TreasurePlacer.hpp"
 
-Position chooseTreasurePosition(const Maze& maze, const SearchResult& shortestPath) {
+#include <cmath>
+#include <stdexcept>
+
+Position chooseTreasurePosition(const Maze& maze,
+                                const SearchResult& shortestPath) {
   // Ensure a valid, non-empty path was provided
   if (shortestPath.found == false || shortestPath.path.empty()) {
     throw std::invalid_argument("Invalid argument");

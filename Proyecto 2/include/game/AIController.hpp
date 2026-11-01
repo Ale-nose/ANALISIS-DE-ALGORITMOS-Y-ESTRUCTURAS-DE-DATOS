@@ -1,20 +1,20 @@
 // Copyright Alejandro, Ashley y Kevin
-
 #pragma once
 
-#include <random>
 #include <optional>
+#include <random>
+#include <vector>
 
-#include "GameState.hpp"
 #include "GameAction.hpp"
+#include "GameState.hpp"
 #include "GameTypes.hpp"
 #include "Pathfinding.hpp"
 
 class AIController {
-private:
+ private:
   std::vector<Position> currentPath;
   std::optional<SearchRecord> AIsearchRecord;
-  Position lastAIpos = {DEFAULT_COORDINATES,DEFAULT_COORDINATES};
+  Position lastAIpos = {DEFAULT_COORDINATES, DEFAULT_COORDINATES};
 
   /**
    * @brief Gives the direction of the step between two adjacent cells.
@@ -40,9 +40,9 @@ private:
    * @return The adjacent cell in that direction.
    */
   Position neighbor(Position pos, Direction dir) const;
-public:
 
-    /**
+ public:
+  /**
    * @brief Chooses the action the AI plays on its turn.
    *
    * Follows the path that leads to the treasure, recomputing it when the AI
@@ -58,7 +58,7 @@ public:
    */
   Action chooseAction(const GameState& state, std::mt19937& RNGesus);
 
-   /**
+  /**
    * @brief Computes the cheapest path from the AI to the treasure with A*.
    *
    * The search is recorded so the game log can report it. The record is kept
@@ -83,7 +83,7 @@ public:
    */
   Action chooseRandomJumpWall(const GameState& state, std::mt19937& RNGesus);
 
-    /**
+  /**
    * @brief Hands over the record of the last search, if there is one.
    *
    * The record is removed, so the same search is never reported twice. The
@@ -93,7 +93,6 @@ public:
    *         happened since the previous call.
    */
   std::optional<SearchRecord> takeLatestSearchRecord();
-
 
   ~AIController() = default;
 };

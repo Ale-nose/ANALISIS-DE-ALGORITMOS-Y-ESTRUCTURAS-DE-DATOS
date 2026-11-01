@@ -2,11 +2,7 @@
 #pragma once
 
 // Available pathfinding algorithms
-enum class SearchAlgorithm {
-  BFS,
-  DIJKSTRA,
-  A_STAR
-};
+enum class SearchAlgorithm { BFS, DIJKSTRA, A_STAR };
 
 // Maze generation statistics
 struct GenerationMetrics {

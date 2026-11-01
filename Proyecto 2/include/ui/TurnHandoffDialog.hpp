@@ -18,11 +18,12 @@ class TurnHandoffDialog : public QDialog {
    * @param playerName Name of the next player, as shown in the HUD.
    * @param parent Window this dialog belongs to.
    */
-   explicit TurnHandoffDialog(const QString& playerName, QWidget* parent = nullptr);
+  explicit TurnHandoffDialog(const QString& playerName,
+                             QWidget* parent = nullptr);
 
  protected:
   /**
-   * @brief The dialog can only be closed with the Ready button, so the board 
+   * @brief The dialog can only be closed with the Ready button, so the board
    * is never revealed by accident.
    */
   void reject() override;

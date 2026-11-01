@@ -2,20 +2,15 @@
 #pragma once
 
 #include <vector>
+
 #include "Metrics.hpp"
 
-enum class ReplanReason {
-  START,
-  PORTAL,
-  POWER_UP,
-  BLOCKED_ROUTE
-};
+enum class ReplanReason { START, PORTAL, POWER_UP, BLOCKED_ROUTE };
 
 struct SearchRecord {
   SearchAlgorithm algorithm = SearchAlgorithm::A_STAR;
   ReplanReason reason = ReplanReason::START;
   SearchMetrics metrics;
-
 };
 
 struct GameStats {

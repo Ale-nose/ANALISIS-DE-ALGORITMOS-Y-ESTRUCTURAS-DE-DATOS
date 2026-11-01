@@ -6,15 +6,15 @@
 #include <QPushButton>
 #include <QString>
 #include <QVBoxLayout>
- 
+
 #include "GameConfig.hpp"
-#include "UiTexts.hpp"
 #include "MenuTheme.hpp"
+#include "UiTexts.hpp"
 
 GameOverDialog::GameOverDialog(bool singlePlayer, QWidget* parent)
-  : QDialog(parent
-  , Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint)
-  , singlePlayer_(singlePlayer) {
+    : QDialog(parent,
+              Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint),
+      singlePlayer_(singlePlayer) {
   setWindowTitle(TEXT_WINDOW_TITLE);
   setModal(true);
   setStyleSheet(buildStyleSheet());
@@ -33,9 +33,9 @@ GameOverDialog::GameOverDialog(bool singlePlayer, QWidget* parent)
   newGameButton->setObjectName("startButton");
   newGameButton->setCursor(Qt::PointingHandCursor);
   newGameButton->setDefault(true);
-  connect(newGameButton, &QPushButton::clicked, this
-    , &GameOverDialog::chooseNewGame);
-  
+  connect(newGameButton, &QPushButton::clicked, this,
+          &GameOverDialog::chooseNewGame);
+
   auto* quitButton = new QPushButton(TEXT_GAME_OVER_QUIT);
   quitButton->setObjectName("startButton");
   quitButton->setCursor(Qt::PointingHandCursor);
@@ -47,8 +47,8 @@ GameOverDialog::GameOverDialog(bool singlePlayer, QWidget* parent)
   buttons->addWidget(quitButton);
 
   auto* layout = new QVBoxLayout(this);
-  layout->setContentsMargins(UI_LAYOUT_MARGIN, UI_LAYOUT_MARGIN
-    , UI_LAYOUT_MARGIN, UI_LAYOUT_MARGIN);
+  layout->setContentsMargins(UI_LAYOUT_MARGIN, UI_LAYOUT_MARGIN,
+                             UI_LAYOUT_MARGIN, UI_LAYOUT_MARGIN);
   layout->setSpacing(UI_LAYOUT_SPACING);
   layout->addWidget(heading);
   layout->addWidget(winnerLabel_);
@@ -62,15 +62,13 @@ void GameOverDialog::showWinner(int winnerIndex) {
   } else if (singlePlayer_) {
     name = TEXT_HUD_AI;
   }
- 
+
   winnerLabel_->setText(QString::fromLatin1(TEXT_GAME_OVER_WINNER)
-    .arg(QString::fromLatin1(name)));
+                            .arg(QString::fromLatin1(name)));
   exec();
 }
 
-bool GameOverDialog::newGameRequested() const {
-  return newGameRequested_;
-}
+bool GameOverDialog::newGameRequested() const { return newGameRequested_; }
 
 void GameOverDialog::reject() {
   // Intentionally empty: only the two buttons close this dialog

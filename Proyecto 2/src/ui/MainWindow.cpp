@@ -1,41 +1,41 @@
 // Copyright Alejandro, Ashley y Kevin
 #include "MainWindow.hpp"
- 
+
 #include <QCoreApplication>
 #include <QGuiApplication>
 #include <QHBoxLayout>
 #include <QKeyEvent>
 #include <QMessageBox>
-#include <QScreen>
-#include <QStackedWidget>
-#include <QString>
-#include <cstdlib>
-#include <stdexcept>
-#include <utility>
 #include <QPoint>
 #include <QRect>
-#include <vector>
-#include <QTimer>
-#include <random>
-#include <string>
-#include <optional>
+#include <QScreen>
+#include <QStackedWidget>
 #include <QStatusBar>
+#include <QString>
+#include <QTimer>
+#include <cstdlib>
+#include <optional>
+#include <random>
+#include <stdexcept>
+#include <string>
+#include <utility>
+#include <vector>
 
+#include "AIController.hpp"
 #include "BoardTheme.hpp"
 #include "GameBoardWidget.hpp"
 #include "GameEngine.hpp"
+#include "GameLogger.hpp"
+#include "GameOverDialog.hpp"
 #include "GameSetup.hpp"
+#include "GameView.hpp"
 #include "HudTheme.hpp"
 #include "HudWidget.hpp"
+#include "OnlineSession.hpp"
 #include "StartWindow.hpp"
+#include "TurnHandoffDialog.hpp"
 #include "UiControls.hpp"
 #include "UiTexts.hpp"
-#include "TurnHandoffDialog.hpp"
-#include "AIController.hpp"
-#include "GameOverDialog.hpp"
-#include "GameLogger.hpp"
-#include "GameView.hpp"
-#include "OnlineSession.hpp"
 
 namespace {
 
@@ -46,25 +46,25 @@ namespace {
  * @return True if the key is a movement key, false otherwise.
  */
 bool directionFromKey(int key, Direction& direction) {
-  switch (key){
-  case Qt::Key_Up:
-  case Qt::Key_W:
-    direction = Direction::UP;
-    return true;
-  case Qt::Key_Down:
-  case Qt::Key_S:
-    direction = Direction::DOWN;
-    return true;
-  case Qt::Key_Left:
-  case Qt::Key_A:
-    direction = Direction::LEFT;
-    return true;
-  case Qt::Key_Right:
-  case Qt::Key_D:
-    direction = Direction::RIGHT;
-    return true;
-  default:
-    return false;
+  switch (key) {
+    case Qt::Key_Up:
+    case Qt::Key_W:
+      direction = Direction::UP;
+      return true;
+    case Qt::Key_Down:
+    case Qt::Key_S:
+      direction = Direction::DOWN;
+      return true;
+    case Qt::Key_Left:
+    case Qt::Key_A:
+      direction = Direction::LEFT;
+      return true;
+    case Qt::Key_Right:
+    case Qt::Key_D:
+      direction = Direction::RIGHT;
+      return true;
+    default:
+      return false;
   }
 }
 
@@ -82,10 +82,10 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent) {
   searchButton_ = new QPushButton(TEXT_BUTTON_SHOW_SEARCH, this);
   searchButton_->setFocusPolicy(Qt::NoFocus);
   hudWidget_->layout()->addWidget(searchButton_);
-  connect(searchButton_, &QPushButton::clicked, this, &MainWindow::toggleSearchView);
-  connect(searchVisualizer_, &AStarVisualizer::finished, this, [this]() {  
-    searchButton_->setText(TEXT_BUTTON_HIDE_SEARCH);
-  });
+  connect(searchButton_, &QPushButton::clicked, this,
+          &MainWindow::toggleSearchView);
+  connect(searchVisualizer_, &AStarVisualizer::finished, this,
+          [this]() { searchButton_->setText(TEXT_BUTTON_HIDE_SEARCH); });
 
   // Match page: the board on the left and the HUD panel on the right
   gamePage_ = new QWidget;
@@ -100,20 +100,26 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent) {
   pages_->addWidget(gamePage_);
   setCentralWidget(pages_);
 
-  connect(startWindow_, &StartWindow::gameStartRequested, this
-    , &MainWindow::startMatch);
-  
+  connect(startWindow_, &StartWindow::gameStartRequested, this,
+          &MainWindow::startMatch);
+
   // Extra: Network
-  connect(startWindow_, &StartWindow::hostRequested, this, &MainWindow::startHosting);
-  connect(startWindow_, &StartWindow::joinRequested, this, &MainWindow::joinMatch);
+  connect(startWindow_, &StartWindow::hostRequested, this,
+          &MainWindow::startHosting);
+  connect(startWindow_, &StartWindow::joinRequested, this,
+          &MainWindow::joinMatch);
 
   online_ = new OnlineSession(this);
-  connect(online_, &OnlineSession::playerAssigned, this, &MainWindow::onPlayerAssigned);
-  connect(online_, &OnlineSession::viewReceived, this, &MainWindow::onViewReceived);
+  connect(online_, &OnlineSession::playerAssigned, this,
+          &MainWindow::onPlayerAssigned);
+  connect(online_, &OnlineSession::viewReceived, this,
+          &MainWindow::onViewReceived);
   connect(online_, &OnlineSession::matchEnded, this, &MainWindow::onMatchEnded);
-  connect(online_, &OnlineSession::errorOccurred, this, &MainWindow::onSessionError);
+  connect(online_, &OnlineSession::errorOccurred, this,
+          &MainWindow::onSessionError);
   connect(online_, &OnlineSession::notice, this, &MainWindow::onNotice);
-  connect(online_, &OnlineSession::connectionClosed, this, &MainWindow::onConnectionClosed);
+  connect(online_, &OnlineSession::connectionClosed, this,
+          &MainWindow::onConnectionClosed);
 
   resize(startWindow_->sizeHint());
 }
@@ -140,10 +146,11 @@ void MainWindow::startMatch(const GameOptions& options) {
     return;
   }
 
-  // Start with the preferred size (board + hud) but never bigger than the screen
+  // Start with the preferred size (board + hud) but never bigger than the
+  // screen
   const QSize boardHint = boardWidget_->sizeHint();
   resize(QSize(boardHint.width() + HUD_WIDTH, boardHint.height())
-    .boundedTo(availableScreenSize()));
+             .boundedTo(availableScreenSize()));
   pages_->setCurrentWidget(gamePage_);
 
   setFocus();  // so the window, not a hidden menu button, receives the keys
@@ -152,8 +159,8 @@ void MainWindow::startMatch(const GameOptions& options) {
 
 void MainWindow::keyPressEvent(QKeyEvent* event) {
   Direction direction = Direction::DOWN;
-  const bool playing = (engine_ || onlineActive_) && pages_->currentWidget()
-    == gamePage_;
+  const bool playing =
+      (engine_ || onlineActive_) && pages_->currentWidget() == gamePage_;
 
   if (!playing || !directionFromKey(event->key(), direction)) {
     QMainWindow::keyPressEvent(event);
@@ -161,14 +168,16 @@ void MainWindow::keyPressEvent(QKeyEvent* event) {
   }
 
   Action action;
-  action.type = (event->modifiers() & JUMP_WALL_MODIFIER) 
-    ? ActionType::JUMP_WALL : ActionType::MOVE;
+  action.type = (event->modifiers() & JUMP_WALL_MODIFIER)
+                    ? ActionType::JUMP_WALL
+                    : ActionType::MOVE;
   action.direction = direction;
   submitPlayerAction(action);
 }
 
 void MainWindow::submitPlayerAction(const Action& action) {
-  // Extra: Network. Online: the server decides, so the window only sends the action
+  // Extra: Network. Online: the server decides, so the window only sends the
+  // action
   if (onlineActive_) {
     if (onlineShown_ && !onlineEnded_) {
       online_->sendAction(action);
@@ -181,7 +190,7 @@ void MainWindow::submitPlayerAction(const Action& action) {
   }
 
   // Extra: animated A* search visualizer
-  searchVisualizer_->stopAnimation(); 
+  searchVisualizer_->stopAnimation();
   searchButton_->setText(TEXT_BUTTON_SHOW_SEARCH);
 
   const int previousPlayer = engine_->currentPlayer();
@@ -198,15 +207,15 @@ void MainWindow::submitPlayerAction(const Action& action) {
 
   // In a local match, first show the result of the move to the player who
   // made it, and cover the board only after a short pause
-  const bool localMatch = engine_->state().options.mode 
-    == GameMode::LOCAL_TWO_PLAYERS;
+  const bool localMatch =
+      engine_->state().options.mode == GameMode::LOCAL_TWO_PLAYERS;
 
   if (localMatch && engine_->currentPlayer() != previousPlayer) {
     drawBoard(previousPlayer);
     handoffPending_ = true;
 
-    QTimer::singleShot(HANDOFF_PREVIEW_DELAY_MS, this
-      ,&MainWindow::finishHandoff);
+    QTimer::singleShot(HANDOFF_PREVIEW_DELAY_MS, this,
+                       &MainWindow::finishHandoff);
     return;
   }
 
@@ -234,16 +243,17 @@ void MainWindow::refreshView() {
 
   const GameState& state = engine_->state();
   const int viewer = state.options.mode == GameMode::SINGLE_PLAYER
-    ? PLAYER_1 : state.currentPlayer;
+                         ? PLAYER_1
+                         : state.currentPlayer;
 
   drawBoard(viewer);
   hudWidget_->updateFromState(state);
 }
 
 bool MainWindow::isAiTurn() const {
-  return engine_ && !engine_->isGameOver()
-    && engine_->state().options.mode == GameMode::SINGLE_PLAYER
-    && engine_->currentPlayer() == PLAYER_2;
+  return engine_ && !engine_->isGameOver() &&
+         engine_->state().options.mode == GameMode::SINGLE_PLAYER &&
+         engine_->currentPlayer() == PLAYER_2;
 }
 
 void MainWindow::scheduleAiTurn() {
@@ -260,14 +270,14 @@ void MainWindow::runAiTurn() {
   }
 
   // Extra: animated A* search visualizer
-  searchVisualizer_->stopAnimation(); 
+  searchVisualizer_->stopAnimation();
   searchButton_->setText(TEXT_BUTTON_SHOW_SEARCH);
 
   const Action action = aiController_->chooseAction(engine_->state(), aiRng_);
 
   // Hand the search (if the AI planned) to the engine for the game log
   const std::optional<SearchRecord> record =
-    aiController_->takeLatestSearchRecord();
+      aiController_->takeLatestSearchRecord();
   if (record.has_value()) {
     engine_->recordAiSearch(*record);
   }
@@ -288,7 +298,7 @@ void MainWindow::runAiTurn() {
 
 void MainWindow::showTurnHandoff() {
   const char* name = engine_->currentPlayer() == PLAYER_1 ? TEXT_HUD_PLAYER_1
-    : TEXT_HUD_PLAYER_2;
+                                                          : TEXT_HUD_PLAYER_2;
 
   TurnHandoffDialog dialog(QString::fromLatin1(name), this);
 
@@ -304,28 +314,30 @@ void MainWindow::showTurnHandoff() {
 
 QSize MainWindow::availableScreenSize() const {
   const QScreen* screen = QGuiApplication::primaryScreen();
-  const QSize screenSize = screen ? screen->availableGeometry().size() : QSize();
+  const QSize screenSize =
+      screen ? screen->availableGeometry().size() : QSize();
 
-  return QSize(screenSize.width() - BOARD_SCREEN_RESERVED_WIDTH
-    , screenSize.height() - BOARD_SCREEN_RESERVED_HEIGHT);
+  return QSize(screenSize.width() - BOARD_SCREEN_RESERVED_WIDTH,
+               screenSize.height() - BOARD_SCREEN_RESERVED_HEIGHT);
 }
 
 bool MainWindow::validateBoardFits() {
   // Area left for the grid once the board margins are removed
   const QSize available = availableScreenSize();
-    const QSize gridArea(available.width() - HUD_WIDTH - 2 * BOARD_MARGIN
-    , available.height() - 2 * BOARD_MARGIN);
-  
+  const QSize gridArea(available.width() - HUD_WIDTH - 2 * BOARD_MARGIN,
+                       available.height() - 2 * BOARD_MARGIN);
+
   // The maze fits if cells can be at least as big as the readable minimum
   if (boardWidget_->calculateCellSize(gridArea) >= BOARD_MIN_CELL_SIZE) {
     return true;
   }
 
   const QSize grid = boardWidget_->gridSize();  // width = cols, height = row
-  
-  QMessageBox::critical(this, TEXT_WINDOW_TITLE
-    , QString::fromLatin1(TEXT_ERROR_BOARD_DOES_NOT_FIT).arg(grid.height())
-    .arg(grid.width()));
+
+  QMessageBox::critical(this, TEXT_WINDOW_TITLE,
+                        QString::fromLatin1(TEXT_ERROR_BOARD_DOES_NOT_FIT)
+                            .arg(grid.height())
+                            .arg(grid.width()));
 
   return false;
 }
@@ -353,14 +365,17 @@ void MainWindow::finishGame() {
   showMenu();
 }
 
-void MainWindow::toggleSearchView() {  
-  if (searchVisualizer_->isRunning() || searchButton_->text() == TEXT_BUTTON_HIDE_SEARCH) {    
-    searchVisualizer_->stopAnimation();    
-    searchButton_->setText(TEXT_BUTTON_SHOW_SEARCH);    
-    return;  }  
-  const GameState& state = engine_->state();  
-  SearchResult result = findPathAStar(      
-      state.maze, state.players[state.currentPlayer].position, state.treasure, true);  
+void MainWindow::toggleSearchView() {
+  if (searchVisualizer_->isRunning() ||
+      searchButton_->text() == TEXT_BUTTON_HIDE_SEARCH) {
+    searchVisualizer_->stopAnimation();
+    searchButton_->setText(TEXT_BUTTON_SHOW_SEARCH);
+    return;
+  }
+  const GameState& state = engine_->state();
+  SearchResult result =
+      findPathAStar(state.maze, state.players[state.currentPlayer].position,
+                    state.treasure, true);
   searchVisualizer_->playTrace(result.trace);
 }
 
@@ -368,8 +383,8 @@ void MainWindow::writeGameLog(const GameState& state) {
   const std::string logFile = GameLogger::makeLogFilename();
   if (!GameLogger::writeLog(state, logFile)) {
     QMessageBox::warning(this, TEXT_WINDOW_TITLE,
-        QString::fromLatin1(TEXT_ERROR_GAME_LOG)
-            .arg(QString::fromStdString(logFile)));
+                         QString::fromLatin1(TEXT_ERROR_GAME_LOG)
+                             .arg(QString::fromStdString(logFile)));
   }
 }
 
@@ -391,8 +406,9 @@ void MainWindow::beginOnline() {
   onlineShown_ = false;
   onlineEnded_ = false;
   localPlayerId_ = -1;
-  hudWidget_->setPrivateInfoHidden(true);  // the protocol does not send the counts
-  startWindow_->setEnabled(false);         // no second click while connecting
+  hudWidget_->setPrivateInfoHidden(
+      true);                        // the protocol does not send the counts
+  startWindow_->setEnabled(false);  // no second click while connecting
   statusBar()->showMessage(TEXT_ONLINE_WAITING);
 }
 
@@ -417,9 +433,10 @@ void MainWindow::onPlayerAssigned(int playerId) {
     return;
   }
   localPlayerId_ = playerId;
-  const char* name = playerId == PLAYER_1 ? TEXT_HUD_PLAYER_1 : TEXT_HUD_PLAYER_2;
-  statusBar()->showMessage(QString::fromLatin1(TEXT_ONLINE_YOU_ARE)
-      .arg(QString::fromLatin1(name)));
+  const char* name =
+      playerId == PLAYER_1 ? TEXT_HUD_PLAYER_1 : TEXT_HUD_PLAYER_2;
+  statusBar()->showMessage(
+      QString::fromLatin1(TEXT_ONLINE_YOU_ARE).arg(QString::fromLatin1(name)));
 }
 
 void MainWindow::onViewReceived(const GameView& view) {
@@ -439,7 +456,7 @@ void MainWindow::onViewReceived(const GameView& view) {
     }
     const QSize boardHint = boardWidget_->sizeHint();
     resize(QSize(boardHint.width() + HUD_WIDTH, boardHint.height())
-      .boundedTo(availableScreenSize()));
+               .boundedTo(availableScreenSize()));
     pages_->setCurrentWidget(gamePage_);
     setFocus();
   }
@@ -470,8 +487,9 @@ void MainWindow::onSessionError(const QString& error) {
   if (!onlineActive_ || onlineEnded_) {
     return;
   }
-  QMessageBox::warning(this, TEXT_WINDOW_TITLE
-    , QString::fromLatin1(TEXT_ERROR_ONLINE_CONNECTION).arg(error));
+  QMessageBox::warning(
+      this, TEXT_WINDOW_TITLE,
+      QString::fromLatin1(TEXT_ERROR_ONLINE_CONNECTION).arg(error));
   showMenu();
 }
 

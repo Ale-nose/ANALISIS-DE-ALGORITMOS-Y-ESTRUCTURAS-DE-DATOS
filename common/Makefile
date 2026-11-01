@@ -261,10 +261,10 @@ Doxyfile:
 
 lint:  ## Check code style conformance using Cpplint
 ifneq ($(INPUTFC),)
-	-cpplint --filter=$(LINTC) $(INPUTFC)
+	-cpplint --linelength=120 --filter=$(LINTC) $(INPUTFC)
 endif
 ifneq ($(INPUTFX),)
-	-cpplint --filter=$(LINTX) $(INPUTFX)
+	-cpplint --linelength=120 --filter=$(LINTX) $(INPUTFX)
 endif
 ifneq ($(SOURCEJ),)
 	-checkstyle -c /google_checks.xml $(SOURCEJ)

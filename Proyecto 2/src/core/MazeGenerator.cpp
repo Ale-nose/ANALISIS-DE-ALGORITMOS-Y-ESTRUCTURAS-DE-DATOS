@@ -1,19 +1,20 @@
 // Copyright Alejandro, Ashley y Kevin
-#include <vector>
-#include <stack>
-#include <ctime>
-#include <utility>
-#include <queue>
-#include <array>
-#include <algorithm>
-#include <stdexcept>
-#include <optional>
-
 #include "MazeGenerator.hpp"
 
-GenerationResult MazeGenerator::generateDfs(int rows, int cols, std::mt19937& rng) {
+#include <algorithm>
+#include <array>
+#include <ctime>
+#include <optional>
+#include <queue>
+#include <stack>
+#include <stdexcept>
+#include <utility>
+#include <vector>
+
+GenerationResult MazeGenerator::generateDfs(int rows, int cols,
+                                            std::mt19937& rng) {
   std::clock_t startTime = std::clock();
-  
+
   Maze maze(rows, cols);
   GenerationMetrics metrics{};
   std::vector<bool> visited(rows * cols, false);
@@ -31,7 +32,8 @@ GenerationResult MazeGenerator::generateDfs(int rows, int cols, std::mt19937& rn
     std::vector<Direction> availableDirections;
 
     // Check all four adjacent directions for unvisited neighbors
-    for (auto direction : {Direction::UP, Direction::DOWN, Direction::LEFT, Direction::RIGHT}) {
+    for (auto direction :
+         {Direction::UP, Direction::DOWN, Direction::LEFT, Direction::RIGHT}) {
       Position next = current;
 
       if (direction == Direction::UP) {
@@ -65,7 +67,8 @@ GenerationResult MazeGenerator::generateDfs(int rows, int cols, std::mt19937& rn
     }
 
     // Randomly choose one unvisited neighbor to advance
-    std::uniform_int_distribution<std::size_t> dist(0, availableDirections.size() - 1);
+    std::uniform_int_distribution<std::size_t> dist(
+        0, availableDirections.size() - 1);
     std::size_t randomIndex = dist(rng);
     Direction selectedDirection = availableDirections[randomIndex];
 
@@ -100,7 +103,8 @@ GenerationResult MazeGenerator::generateDfs(int rows, int cols, std::mt19937& rn
   return GenerationResult{std::move(maze), metrics};
 }
 
-GenerationResult MazeGenerator::generateBfs(int rows, int cols, std::mt19937& rng) {
+GenerationResult MazeGenerator::generateBfs(int rows, int cols,
+                                            std::mt19937& rng) {
   std::clock_t startTime = std::clock();
 
   Maze maze(rows, cols);
@@ -119,13 +123,14 @@ GenerationResult MazeGenerator::generateBfs(int rows, int cols, std::mt19937& rn
     Position current = pending.front();
     pending.pop();
 
-    std::array<Direction, 4> directions =
-      {Direction::UP, Direction::DOWN, Direction::LEFT, Direction::RIGHT};
-    
+    std::array<Direction, 4> directions = {Direction::UP, Direction::DOWN,
+                                           Direction::LEFT, Direction::RIGHT};
+
     // Shuffle neighbor visit order to randomize branching
     std::shuffle(directions.begin(), directions.end(), rng);
 
-    for (auto direction : {Direction::UP, Direction::DOWN, Direction::LEFT, Direction::RIGHT}) {
+    for (auto direction :
+         {Direction::UP, Direction::DOWN, Direction::LEFT, Direction::RIGHT}) {
       Position next = current;
 
       if (direction == Direction::UP) {
@@ -166,7 +171,8 @@ GenerationResult MazeGenerator::generateBfs(int rows, int cols, std::mt19937& rn
   return GenerationResult{std::move(maze), metrics};
 }
 
-int MazeGenerator::addExtraPassages(Maze& maze, double probability, std::mt19937& rng) {
+int MazeGenerator::addExtraPassages(Maze& maze, double probability,
+                                    std::mt19937& rng) {
   if (probability < 0 || probability > 1) {
     throw std::invalid_argument("Invalid probability");
   }
@@ -179,7 +185,8 @@ int MazeGenerator::addExtraPassages(Maze& maze, double probability, std::mt19937
   // Bernoulli distribution for deciding wall removal
   std::bernoulli_distribution shouldOpen(probability);
 
-  // Iterate over unique internal wall candidates (RIGHT and DOWN to avoid duplicates)
+  // Iterate over unique internal wall candidates (RIGHT and DOWN to avoid
+  // duplicates)
   for (int row = 0; row < rows; row++) {
     for (int col = 0; col < cols; col++) {
       Position current{row, col};
@@ -214,8 +221,10 @@ int MazeGenerator::addExtraPassages(Maze& maze, double probability, std::mt19937
   return addedPassages;
 }
 
-GenerationResult MazeGenerator::generate(
-  int rows, int cols, GenerationAlgorithm algorithm, double extraEdgeProb, std::mt19937& rng) {
+GenerationResult MazeGenerator::generate(int rows, int cols,
+                                         GenerationAlgorithm algorithm,
+                                         double extraEdgeProb,
+                                         std::mt19937& rng) {
   if (extraEdgeProb < 0 || extraEdgeProb > 1) {
     throw std::invalid_argument("Invalid probability");
   }

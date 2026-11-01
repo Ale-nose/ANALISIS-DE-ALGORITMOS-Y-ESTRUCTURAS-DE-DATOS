@@ -21,7 +21,7 @@ inline constexpr double PORTAL_SPAWN_RATE = 0.03;
 inline constexpr double MUD_SPAWN_RATE = 0.12;
 inline constexpr double SHIELD_SPAWN_RATE = 0.02;
 
-// Player id 
+// Player id
 inline constexpr int PLAYER_1 = 0;
 inline constexpr int PLAYER_2 = 1;
 inline constexpr int PLAYER_NONE = -1;
@@ -36,6 +36,7 @@ inline constexpr unsigned int DEFAULT_SEED = 1u;
 // default portalID
 inline constexpr int PORTAL_ID = -1;
 
-//AI probability of using certain actions
-inline constexpr double JUMP_WALL_PROB = 0.429; // this number was chosen at random by picking a number between 400 and 600 
-
+// AI probability of using certain actions
+inline constexpr double JUMP_WALL_PROB =
+    0.429;  // this number was chosen at random by picking a number between 400
+            // and 600

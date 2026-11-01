@@ -1,9 +1,10 @@
 // Copyright Alejandro, Ashley y Kevin
-#include <stdexcept>
-
 #include "StartPositions.hpp"
 
-struct StartPositions chooseStartPositions(int rows, int cols, std::mt19937& rng) {
+#include <stdexcept>
+
+struct StartPositions chooseStartPositions(int rows, int cols,
+                                           std::mt19937& rng) {
   // Ensure grid dimensions are strictly positive
   if (rows <= 0 || cols <= 0) {
     throw std::invalid_argument("Invalid argument");

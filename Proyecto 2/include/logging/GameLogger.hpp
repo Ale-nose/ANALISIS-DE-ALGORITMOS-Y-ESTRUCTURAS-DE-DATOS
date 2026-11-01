@@ -1,8 +1,8 @@
 // Copyright Alejandro, Ashley y Kevin
 #pragma once
- 
+
 #include <string>
- 
+
 #include "GameState.hpp"
 
 /**
@@ -15,7 +15,7 @@ class GameLogger {
    * @brief Builds a file name that is unique for every match:
    * logs/mazecraze_YYYY-MM-DD_HH-MM-SS.txt.
    * @return Relative path of the new log file.
-   * @note If it already exists, a number is added (_2, _3...) so a previous 
+   * @note If it already exists, a number is added (_2, _3...) so a previous
    * log is never overwritten.
    */
   static std::string makeLogFilename();

@@ -11,7 +11,7 @@
 namespace {
 
 const std::array<Direction, 4> ALL_DIRECTIONS{
-  Direction::UP, Direction::DOWN, Direction::LEFT, Direction::RIGHT};
+    Direction::UP, Direction::DOWN, Direction::LEFT, Direction::RIGHT};
 
 /**
  * @brief Direction of the step between two adjacent cells.
@@ -48,8 +48,8 @@ Action chooseGuidedAction(const GameEngine& engine) {
 
   Direction direction = Direction::UP;
   for (std::size_t i = 0; result.found && i + 1 < result.path.size(); ++i) {
-    if (result.path[i] == from 
-        && directionBetween(from, result.path[i + 1], direction)) {
+    if (result.path[i] == from &&
+        directionBetween(from, result.path[i + 1], direction)) {
       return Action{ActionType::MOVE, direction};
     }
   }
@@ -64,8 +64,7 @@ Action chooseGuidedAction(const GameEngine& engine) {
 
 }  // namespace
 
-bool playAutomatedMatch(GameEngine& engine, std::mt19937& rng
-    , int maxActions) {
+bool playAutomatedMatch(GameEngine& engine, std::mt19937& rng, int maxActions) {
   AIController ai;
 
   for (int step = 0; step < maxActions && !engine.isGameOver(); ++step) {
