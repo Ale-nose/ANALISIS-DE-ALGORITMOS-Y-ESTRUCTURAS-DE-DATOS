@@ -4,15 +4,16 @@
 #include <vector>
 
 #include "GameTypes.hpp"
-#include "Metrics.hpp"
 #include "Maze.hpp"
+#include "Metrics.hpp"
 
 // Search visualization data
 struct SearchTrace {
   std::vector<Position> opened;
   std::vector<Position> closed;
   std::vector<Position> path;
-  /** Extra: For each closed cell, how many entries of opened existed when it was closed. */
+  /** Extra: For each closed cell, how many entries of opened existed when it
+   * was closed. */
   std::vector<std::size_t> openedCountAtClose;
 };
 
@@ -25,31 +26,35 @@ struct SearchResult {
 };
 
 /**
- * @brief Finds the shortest or lowest-cost path between two cells using Dijkstra's algorithm.
+ * @brief Finds the shortest or lowest-cost path between two cells using
+ * Dijkstra's algorithm.
  *
- * Explores the maze graph by priority of accumulated cost, accounting for varying terrain
- * entry costs such as mud.
+ * Explores the maze graph by priority of accumulated cost, accounting for
+ * varying terrain entry costs such as mud.
  *
  * @param maze Maze grid to search.
  * @param start Starting cell coordinate.
  * @param goal Target destination cell coordinate.
- * @return SearchResult containing path validity, ordered coordinates, and performance metrics.
+ * @return SearchResult containing path validity, ordered coordinates, and
+ * performance metrics.
  */
-struct SearchResult findPathDijkstra(const Maze& maze, Position start, Position goal);
+struct SearchResult findPathDijkstra(const Maze& maze, Position start,
+                                     Position goal);
 
 /**
  * @brief Finds a path between two cells using Breadth-First Search (BFS).
  *
- * Traverses the maze level by level, finding a path with the minimal number of steps
- * without accounting for edge weights or terrain costs.
+ * Traverses the maze level by level, finding a path with the minimal number of
+ * steps without accounting for edge weights or terrain costs.
  *
  * @param maze Maze grid to search.
  * @param start Starting cell coordinate.
  * @param goal Target destination cell coordinate.
- * @return SearchResult containing path validity, ordered coordinates, and evaluated metrics.
+ * @return SearchResult containing path validity, ordered coordinates, and
+ * evaluated metrics.
  */
-struct SearchResult findPathBfs(const Maze& maze, Position start, Position goal);
-
+struct SearchResult findPathBfs(const Maze& maze, Position start,
+                                Position goal);
 
 /**
  * @brief Computes the Manhattan distance between two cells.
@@ -64,7 +69,6 @@ struct SearchResult findPathBfs(const Maze& maze, Position start, Position goal)
  *         are the same.
  */
 int manhattanDistance(Position a, Position b);
-
 
 /**
  * @brief Finds the cheapest path between two cells using A*.
@@ -83,4 +87,5 @@ int manhattanDistance(Position a, Position b);
  * @return The path from start to goal with its metrics. If the goal cannot
  *         be reached, found is false and the path is empty.
  */
-struct SearchResult findPathAStar(const Maze& maze, Position start, Position goal, bool saveTrace = false);
+struct SearchResult findPathAStar(const Maze& maze, Position start,
+                                  Position goal, bool saveTrace = false);

@@ -11,9 +11,9 @@
 #include <QVBoxLayout>
 #include <random>
 
-#include "UiTexts.hpp"
 #include "MenuTheme.hpp"
 #include "UiControls.hpp"
+#include "UiTexts.hpp"
 
 namespace {
 
@@ -77,23 +77,24 @@ StartWindow::StartWindow(QWidget* parent) : QWidget(parent) {
   // Radio buttons in different group boxes are exclusive independently,
   // because each QGroupBox is its own parent widget.
   auto* layout = new QVBoxLayout(this);
-  layout->setContentsMargins(UI_LAYOUT_MARGIN, UI_LAYOUT_MARGIN
-    , UI_LAYOUT_MARGIN, UI_LAYOUT_MARGIN);
+  layout->setContentsMargins(UI_LAYOUT_MARGIN, UI_LAYOUT_MARGIN,
+                             UI_LAYOUT_MARGIN, UI_LAYOUT_MARGIN);
   layout->setSpacing(UI_LAYOUT_SPACING);
   layout->addWidget(title);
   layout->addWidget(subtitle);
-  layout->addWidget(makeGroup(TEXT_GROUP_MODE, {singlePlayerButton_
-    , localTwoPlayersButton_, hostButton_, joinButton_}));
-  layout->addWidget(makeGroup(TEXT_GROUP_CONNECTION, {addressEdit_
-    , portSpin_}));
+  layout->addWidget(makeGroup(
+      TEXT_GROUP_MODE,
+      {singlePlayerButton_, localTwoPlayersButton_, hostButton_, joinButton_}));
+  layout->addWidget(
+      makeGroup(TEXT_GROUP_CONNECTION, {addressEdit_, portSpin_}));
   layout->addWidget(generatorGroup_);
   layout->addWidget(fogCheckBox_);
   layout->addWidget(startButton);
 
-  connect(hostButton_, &QRadioButton::toggled, this
-    , &StartWindow::updateOnlineFields);
-  connect(joinButton_, &QRadioButton::toggled, this
-    , &StartWindow::updateOnlineFields);
+  connect(hostButton_, &QRadioButton::toggled, this,
+          &StartWindow::updateOnlineFields);
+  connect(joinButton_, &QRadioButton::toggled, this,
+          &StartWindow::updateOnlineFields);
   updateOnlineFields();
 }
 
@@ -113,12 +114,13 @@ GameOptions StartWindow::selectedOptions() const {
     options.mode = GameMode::ONLINE;
   } else {
     options.mode = singlePlayerButton_->isChecked()
-      ? GameMode::SINGLE_PLAYER : GameMode::LOCAL_TWO_PLAYERS;
+                       ? GameMode::SINGLE_PLAYER
+                       : GameMode::LOCAL_TWO_PLAYERS;
   }
   options.generator = dfsButton_->isChecked() ? GenerationAlgorithm::DFS
-    : GenerationAlgorithm::BFS;
+                                              : GenerationAlgorithm::BFS;
   options.fogEnabled = fogCheckBox_->isChecked();
-  options.seed = std::random_device{}();  // new maze on every match
+  options.seed = std::random_device {}();  // new maze on every match
   return options;
 }
 

@@ -1,10 +1,10 @@
 // Copyright Alejandro, Ashley y Kevin
 #pragma once
- 
+
 #include <QWidget>
- 
+
 #include "GameState.hpp"
- 
+
 class QLabel;
 
 /**

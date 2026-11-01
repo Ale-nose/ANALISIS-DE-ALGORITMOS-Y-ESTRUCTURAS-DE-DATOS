@@ -163,7 +163,7 @@ void writeSummary(std::ostream& out, const GameState& state) {
 
   out << "Winner: "
       << (state.winner == PLAYER_NONE ? std::string("none")
-        : playerName(state, state.winner))
+                                      : playerName(state, state.winner))
       << '\n';
 }
 
@@ -182,8 +182,7 @@ std::string GameLogger::makeLogFilename() {
   char stamp[32];
   std::strftime(stamp, sizeof(stamp), "%Y-%m-%d_%H-%M-%S", &localTime);
 
-  const std::string base =
-      std::string(LOG_FOLDER) + "/" + LOG_PREFIX + stamp;
+  const std::string base = std::string(LOG_FOLDER) + "/" + LOG_PREFIX + stamp;
   std::string name = base + LOG_EXTENSION;
 
   // Two matches in the same second: add a number instead of overwriting
@@ -193,8 +192,7 @@ std::string GameLogger::makeLogFilename() {
   return name;
 }
 
-bool GameLogger::writeLog(const GameState& state
-    , const std::string& filename) {
+bool GameLogger::writeLog(const GameState& state, const std::string& filename) {
   const std::filesystem::path path(filename);
   if (path.has_parent_path()) {
     std::error_code error;

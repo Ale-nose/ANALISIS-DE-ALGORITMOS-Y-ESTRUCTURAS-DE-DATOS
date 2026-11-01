@@ -2,9 +2,8 @@
 
 #pragma once
 
-#include "GameTypes.hpp"
 #include "GameConfig.hpp"
-
+#include "GameTypes.hpp"
 
 /**
  * @brief Tells whether a cell is inside the field of view of a player.

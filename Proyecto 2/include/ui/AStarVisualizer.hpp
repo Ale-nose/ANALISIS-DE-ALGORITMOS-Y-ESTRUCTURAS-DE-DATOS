@@ -2,10 +2,9 @@
 
 #pragma once
 
-#include <cstddef>
-
 #include <QObject>
 #include <QTimer>
+#include <cstddef>
 
 #include "Pathfinding.hpp"
 
@@ -41,7 +40,8 @@ class AStarVisualizer : public QObject {
   bool isRunning() const;
 
  signals:
-  /** @brief Emitted when the whole trace, including the final path, is shown. */
+  /** @brief Emitted when the whole trace, including the final path, is shown.
+   */
   void finished();
 
  private slots:

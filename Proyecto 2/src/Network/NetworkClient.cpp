@@ -1,63 +1,59 @@
 // Copyright Alejandro, Ashley y Kevin
 #include "NetworkClient.hpp"
 
-#include <stdexcept>
-
 #include <QAbstractSocket>
 #include <QByteArray>
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QTcpSocket>
 #include <QtGlobal>
+#include <stdexcept>
 
 #include "GameAction.hpp"
 #include "NetworkProtocol.hpp"
 
 NetworkClient::NetworkClient(QObject* parent)
-  : QObject(parent), socket_(new QTcpSocket(this)) {
-
+    : QObject(parent), socket_(new QTcpSocket(this)) {
   QObject::connect(socket_, &QTcpSocket::connected, this, [this]() {
     const std::string frame = frameNetworkMessage(serializeHelloMessage());
 
-    const qint64 written = socket_->write(frame.data(), static_cast<qint64>(frame.size()));
+    const qint64 written =
+        socket_->write(frame.data(), static_cast<qint64>(frame.size()));
 
     if (written != static_cast<qint64>(frame.size())) {
       lastError_ = "Could not send HELLO";
       emit errorReceived(QString::fromStdString(lastError_));
       socket_->disconnectFromHost();
     }
-  }
-  );
+  });
 
-  QObject::connect(socket_, &QTcpSocket::readyRead, this, [this]() {
-    receiveMessages();
-  }
-  );
+  QObject::connect(socket_, &QTcpSocket::readyRead, this,
+                   [this]() { receiveMessages(); });
 
   QObject::connect(socket_, &QTcpSocket::disconnected, this, [this]() {
     playerId_ = -1;
     emit connectionClosed();
-  }
-  );
+  });
 
 #if QT_VERSION >= QT_VERSION_CHECK(5, 15, 0)
-  QObject::connect(socket_, &QTcpSocket::errorOccurred, this, [this](QAbstractSocket::SocketError) {
-    lastError_ = socket_->errorString().toStdString();
-    emit errorReceived(QString::fromStdString(lastError_));
-  }
-  );
+  QObject::connect(socket_, &QTcpSocket::errorOccurred, this,
+                   [this](QAbstractSocket::SocketError) {
+                     lastError_ = socket_->errorString().toStdString();
+                     emit errorReceived(QString::fromStdString(lastError_));
+                   });
 #else
-  QObject::connect(socket_, QOverload<QAbstractSocket::SocketError>::of(&QTcpSocket::error), this,
-    [this](QAbstractSocket::SocketError) {
-      lastError_ = socket_->errorString().toStdString();
-      emit errorReceived(QString::fromStdString(lastError_));
-    }
-  );
+  QObject::connect(
+      socket_, QOverload<QAbstractSocket::SocketError>::of(&QTcpSocket::error),
+      this, [this](QAbstractSocket::SocketError) {
+        lastError_ = socket_->errorString().toStdString();
+        emit errorReceived(QString::fromStdString(lastError_));
+      });
 #endif
 }
 
 bool NetworkClient::connectTo(const std::string& host, uint16_t port) {
-  if (host.empty() || port == 0 || socket_->state() != QAbstractSocket::UnconnectedState) {
+  if (host.empty() || port == 0 ||
+      socket_->state() != QAbstractSocket::UnconnectedState) {
     return false;
   }
 
@@ -75,13 +71,15 @@ bool NetworkClient::connectTo(const std::string& host, uint16_t port) {
 }
 
 bool NetworkClient::sendAction(const Action& action) {
-  if (socket_->state() != QAbstractSocket::ConnectedState || playerId_ < 0 || gameOver_) {
+  if (socket_->state() != QAbstractSocket::ConnectedState || playerId_ < 0 ||
+      gameOver_) {
     return false;
   }
 
   const std::string frame = frameNetworkMessage(serializeActionMessage(action));
 
-  const qint64 written = socket_->write(frame.data(), static_cast<qint64>(frame.size()));
+  const qint64 written =
+      socket_->write(frame.data(), static_cast<qint64>(frame.size()));
 
   return written == static_cast<qint64>(frame.size());
 }
@@ -90,13 +88,16 @@ void NetworkClient::receiveMessages() {
   receiveBuffer_ += socket_->readAll().toStdString();
 
   try {
-    const std::vector<std::string> messages = extractNetworkMessages(receiveBuffer_);
+    const std::vector<std::string> messages =
+        extractNetworkMessages(receiveBuffer_);
 
     for (const std::string& message : messages) {
       const NetworkMessageType type = parseNetworkMessageType(message);
 
       if (type == NetworkMessageType::Start) {
-        const QJsonObject object = QJsonDocument::fromJson(QByteArray::fromStdString(message)).object();
+        const QJsonObject object =
+            QJsonDocument::fromJson(QByteArray::fromStdString(message))
+                .object();
 
         if (!object.value("playerId").isDouble()) {
           throw std::runtime_error("Missing player ID");
@@ -122,7 +123,9 @@ void NetworkClient::receiveMessages() {
         emit gameViewReceived(view);
 
       } else if (type == NetworkMessageType::Error) {
-        const QJsonObject object = QJsonDocument::fromJson(QByteArray::fromStdString(message)).object();
+        const QJsonObject object =
+            QJsonDocument::fromJson(QByteArray::fromStdString(message))
+                .object();
 
         if (!object.value("reason").isString()) {
           throw std::runtime_error("Invalid ERROR message");
@@ -134,7 +137,9 @@ void NetworkClient::receiveMessages() {
         emit errorReceived(reason);
 
       } else if (type == NetworkMessageType::GameOver) {
-        const QJsonObject object = QJsonDocument::fromJson(QByteArray::fromStdString(message)).object();
+        const QJsonObject object =
+            QJsonDocument::fromJson(QByteArray::fromStdString(message))
+                .object();
 
         if (!object.value("winner").isDouble()) {
           throw std::runtime_error("Missing winner");
@@ -155,7 +160,6 @@ void NetworkClient::receiveMessages() {
         throw std::runtime_error("Unexpected server message");
       }
     }
-
   } catch (const std::exception& error) {
     lastError_ = error.what();
 

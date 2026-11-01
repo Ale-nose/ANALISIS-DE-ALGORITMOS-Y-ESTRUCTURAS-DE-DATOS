@@ -8,3 +8,8 @@ INPUTFX := $(filter-out $(MOC_FILES),$(INPUTFX))
 FLAG += $(shell pkg-config --cflags Qt5Widgets Qt5Multimedia) -fPIC
 FLAG += -I../include -I../include/core -I../include/config -I../include/game
 LIBS += $(shell pkg-config --libs Qt5Widgets Qt5Multimedia)
+
+.PHONY: format
+
+format:
+	clang-format -i $(INPUTFX)

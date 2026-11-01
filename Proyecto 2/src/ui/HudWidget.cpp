@@ -1,17 +1,17 @@
 // Copyright Alejandro, Ashley y Kevin
 #include "HudWidget.hpp"
- 
+
 #include <QLabel>
 #include <QString>
 #include <QStringList>
 #include <QVBoxLayout>
- 
+
 #include "HudTheme.hpp"
-#include "UiTexts.hpp"
 #include "MenuTheme.hpp"
+#include "UiTexts.hpp"
 
 namespace {
-  
+
 /**
  * @brief Name shown for a player. In single player mode the second player is
  * the AI.
@@ -37,12 +37,13 @@ QString playerName(const GameState& state, int index) {
  */
 QString titleStyle(const char* color) {
   return QString("font-size: %1px; font-weight: bold; color: %2;")
-    .arg(HUD_TITLE_FONT_SIZE).arg(QString::fromLatin1(color));
+      .arg(HUD_TITLE_FONT_SIZE)
+      .arg(QString::fromLatin1(color));
 }
 
 QString countText(const char* format, int value, bool hidden) {
-  const QString shown = hidden ? QString::fromLatin1(TEXT_HUD_HIDDEN)
-    : QString::number(value);
+  const QString shown =
+      hidden ? QString::fromLatin1(TEXT_HUD_HIDDEN) : QString::number(value);
   return QString::fromLatin1(format).arg(shown);
 }
 
@@ -53,12 +54,14 @@ HudWidget::HudWidget(QWidget* parent) : QWidget(parent) {
   setAttribute(Qt::WA_StyledBackground, true);
   setFixedWidth(HUD_WIDTH);
 
-  const QString panelStyle = QString("QWidget#hudPanel { background-color: %1; " 
-    "border-left: %2px solid %3; } QLabel { background-color: transparent; }")
-    .arg(QString::fromLatin1(COLOR_HUD_PANEL))
-    .arg(HUD_BORDER_WIDTH)
-    .arg(QString::fromLatin1(COLOR_HUD_BORDER));
-  
+  const QString panelStyle = QString(
+                                 "QWidget#hudPanel { background-color: %1; "
+                                 "border-left: %2px solid %3; } QLabel { "
+                                 "background-color: transparent; }")
+                                 .arg(QString::fromLatin1(COLOR_HUD_PANEL))
+                                 .arg(HUD_BORDER_WIDTH)
+                                 .arg(QString::fromLatin1(COLOR_HUD_BORDER));
+
   setStyleSheet(buildStyleSheet() + panelStyle);
 
   playerLabel_ = new QLabel;
@@ -68,9 +71,9 @@ HudWidget::HudWidget(QWidget* parent) : QWidget(parent) {
 
   noticeLabel_ = new QLabel;
   noticeLabel_->setWordWrap(true);
-  noticeLabel_->setStyleSheet(QString("color: %1;")
-    .arg(QString::fromLatin1(COLOR_HUD_NOTICE)));
-  
+  noticeLabel_->setStyleSheet(
+      QString("color: %1;").arg(QString::fromLatin1(COLOR_HUD_NOTICE)));
+
   auto* layout = new QVBoxLayout(this);
   layout->setContentsMargins(HUD_MARGIN, HUD_MARGIN, HUD_MARGIN, HUD_MARGIN);
   layout->setSpacing(HUD_SPACING);
@@ -87,17 +90,17 @@ void HudWidget::updateFromState(const GameState& state) {
   const int opponent = (current + 1) % NUM_PLAYERS;
   const PlayerState& player = state.players[current];
 
-  playerLabel_->setText(QString::fromLatin1(TEXT_HUD_TURN)
-    .arg(playerName(state, current)));
-  playerLabel_->setStyleSheet(titleStyle(current == PLAYER_1 ? COLOR_PLAYER_1 
-    : COLOR_PLAYER_2));
-  
+  playerLabel_->setText(
+      QString::fromLatin1(TEXT_HUD_TURN).arg(playerName(state, current)));
+  playerLabel_->setStyleSheet(
+      titleStyle(current == PLAYER_1 ? COLOR_PLAYER_1 : COLOR_PLAYER_2));
+
   actionsLabel_->setText(countText(TEXT_HUD_ACTIONS, state.actionsLeft, false));
-  jumpWallsLabel_->setText(countText(TEXT_HUD_JUMP_WALLS, player.jumpWalls
-    , privateInfoHidden_));
-  shieldsLabel_->setText(countText(TEXT_HUD_SHIELDS, player.shieldCount
-    , privateInfoHidden_));
-  
+  jumpWallsLabel_->setText(
+      countText(TEXT_HUD_JUMP_WALLS, player.jumpWalls, privateInfoHidden_));
+  shieldsLabel_->setText(
+      countText(TEXT_HUD_SHIELDS, player.shieldCount, privateInfoHidden_));
+
   // Warnings: pending mud actions of the current player, and an opponent
   // that will lose the next turn.
   QStringList notices;

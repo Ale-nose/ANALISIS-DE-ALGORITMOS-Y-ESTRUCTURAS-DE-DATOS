@@ -28,19 +28,19 @@ void AStarVisualizer::stopAnimation() {
   board_->clearSearchOverlay();
 }
 
-bool AStarVisualizer::isRunning() const {
-  return timer_.isActive();
-}
+bool AStarVisualizer::isRunning() const { return timer_.isActive(); }
 
 void AStarVisualizer::showNextStep() {
   ++shownClosed_;
   const std::size_t openedCount = trace_.openedCountAtClose[shownClosed_ - 1];
 
   SearchOverlay overlay;
-  overlay.closed.assign(trace_.closed.begin(),
-                        trace_.closed.begin() + static_cast<std::ptrdiff_t>(shownClosed_));
-  overlay.opened.assign(trace_.opened.begin(),
-                        trace_.opened.begin() + static_cast<std::ptrdiff_t>(openedCount));
+  overlay.closed.assign(
+      trace_.closed.begin(),
+      trace_.closed.begin() + static_cast<std::ptrdiff_t>(shownClosed_));
+  overlay.opened.assign(
+      trace_.opened.begin(),
+      trace_.opened.begin() + static_cast<std::ptrdiff_t>(openedCount));
 
   const bool isLastStep = shownClosed_ >= trace_.closed.size();
   if (isLastStep) {

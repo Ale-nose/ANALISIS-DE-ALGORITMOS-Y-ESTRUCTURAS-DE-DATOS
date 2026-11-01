@@ -1,13 +1,14 @@
 // Copyright Alejandro, Ashley y Kevin
 
-#include <array>
-#include <vector>
-#include <random>
-#include <optional>
-
 #include "AIController.hpp"
 
-Action AIController::chooseAction(const GameState& state, std::mt19937& RNGesus){
+#include <array>
+#include <optional>
+#include <random>
+#include <vector>
+
+Action AIController::chooseAction(const GameState& state,
+                                  std::mt19937& RNGesus) {
   const PlayerState& AI = state.players[PLAYER_2];
   Position AIPos = AI.position;
   Position prevPos = lastAIpos;
@@ -17,7 +18,7 @@ Action AIController::chooseAction(const GameState& state, std::mt19937& RNGesus)
 
   int foundAt = -1;
   for (std::size_t i = 0; i < currentPath.size(); ++i) {
-    if (currentPath[i] == AIPos){
+    if (currentPath[i] == AIPos) {
       foundAt = static_cast<int>(i);
       break;
     }
@@ -34,7 +35,8 @@ Action AIController::chooseAction(const GameState& state, std::mt19937& RNGesus)
 
     SearchResult replan = recalculatePath(state, reason);
     if (!replan.found) {
-      // The treasure cannot be reached through open passages so the ai uses the fallback
+      // The treasure cannot be reached through open passages so the ai uses the
+      // fallback
       currentPath.clear();
       return fallbackAction(state, prevPos);
     }
@@ -52,7 +54,8 @@ Action AIController::chooseAction(const GameState& state, std::mt19937& RNGesus)
     if (jumpPolicy == JumpWallPolicy::GREEDY) {
       std::optional<JumpPlan> plan = planJumpWall(state);
       if (plan.has_value()) {
-        // The path from the far side of the wall becomes the new plan to avoid recalculating it
+        // The path from the far side of the wall becomes the new plan to avoid
+        // recalculating it
         recordSearch(plan.value().result, ReplanReason::BLOCKED_ROUTE);
         currentPath = plan.value().result.path;
         lastActionWasJumpWall = true;
@@ -60,7 +63,7 @@ Action AIController::chooseAction(const GameState& state, std::mt19937& RNGesus)
       }
     } else {
       std::bernoulli_distribution d(JUMP_WALL_PROB);
-      if(d(RNGesus)) {
+      if (d(RNGesus)) {
         Action jump = AIController::chooseRandomJumpWall(state, RNGesus);
         if (jump.type == ActionType::JUMP_WALL) {
           lastActionWasJumpWall = true;
@@ -71,7 +74,7 @@ Action AIController::chooseAction(const GameState& state, std::mt19937& RNGesus)
   }
 
   if (static_cast<std::size_t>(foundAt + 1) >= currentPath.size()) {
-    //the ai already stands on the last cell of its path
+    // the ai already stands on the last cell of its path
     return fallbackAction(state, prevPos);
   }
 
@@ -80,8 +83,10 @@ Action AIController::chooseAction(const GameState& state, std::mt19937& RNGesus)
   return Action{ActionType::MOVE, nextDir};
 }
 
-Action AIController::fallbackAction(const GameState& state, Position previousPosition) const {
-  const std::array<Direction,4> directions{Direction::UP, Direction::DOWN, Direction::LEFT, Direction::RIGHT};
+Action AIController::fallbackAction(const GameState& state,
+                                    Position previousPosition) const {
+  const std::array<Direction, 4> directions{Direction::UP, Direction::DOWN,
+                                            Direction::LEFT, Direction::RIGHT};
   const PlayerState& AI = state.players[PLAYER_2];
   const Position AIPos = AI.position;
   const Position goal = state.treasure;
@@ -92,7 +97,8 @@ Action AIController::fallbackAction(const GameState& state, Position previousPos
     Direction bestJumpDir = Direction::UP;
     for (const auto dir : directions) {
       const Position target = AIController::neighbor(AIPos, dir);
-      if (!state.maze.isInside(target) || state.maze.hasPassage(AIPos, target)) {
+      if (!state.maze.isInside(target) ||
+          state.maze.hasPassage(AIPos, target)) {
         continue;
       }
       const int distance = manhattanDistance(target, goal);
@@ -126,12 +132,15 @@ Action AIController::fallbackAction(const GameState& state, Position previousPos
     return Action{ActionType::MOVE, nextDirections(bestStep, AIPos)};
   }
 
-  // Nothing is legal. The engine rejects this action without consuming the turn.
+  // Nothing is legal. The engine rejects this action without consuming the
+  // turn.
   return Action{ActionType::MOVE, Direction::UP};
 }
 
-std::optional<AIController::JumpPlan> AIController::planJumpWall(const GameState& state) const {
-  const std::array<Direction,4> directions{Direction::UP, Direction::DOWN, Direction::LEFT, Direction::RIGHT};
+std::optional<AIController::JumpPlan> AIController::planJumpWall(
+    const GameState& state) const {
+  const std::array<Direction, 4> directions{Direction::UP, Direction::DOWN,
+                                            Direction::LEFT, Direction::RIGHT};
   const Position AIPos = state.players[PLAYER_2].position;
   const Position goal = state.treasure;
 
@@ -152,7 +161,8 @@ std::optional<AIController::JumpPlan> AIController::planJumpWall(const GameState
     if (!fromTarget.found) {
       continue;
     }
-    const int totalCost = state.maze.entryCost(target) + fromTarget.metrics.pathCost;
+    const int totalCost =
+        state.maze.entryCost(target) + fromTarget.metrics.pathCost;
     if (totalCost <= bestCost) {
       bestCost = totalCost;
       JumpPlan plan;
@@ -182,8 +192,8 @@ int AIController::powerUpWorth(PowerUpType type) const {
   return 0;
 }
 
-std::optional<SearchResult> AIController::planPowerUpDetour(const GameState& state,
-                                                            const SearchResult& direct) const {
+std::optional<SearchResult> AIController::planPowerUpDetour(
+    const GameState& state, const SearchResult& direct) const {
   const Position AIPos = state.players[PLAYER_2].position;
   const Position goal = state.treasure;
 
@@ -208,8 +218,8 @@ std::optional<SearchResult> AIController::planPowerUpDetour(const GameState& sta
       if (!toGoal.found || toGoal.path.empty()) {
         continue;
       }
-      const int overhead = toPowerUp.metrics.pathCost + toGoal.metrics.pathCost
-                         - direct.metrics.pathCost;
+      const int overhead = toPowerUp.metrics.pathCost +
+                           toGoal.metrics.pathCost - direct.metrics.pathCost;
       if (overhead > powerUpWorth(type)) {
         continue;
       }
@@ -220,10 +230,14 @@ std::optional<SearchResult> AIController::planPowerUpDetour(const GameState& sta
       SearchResult joined;
       joined.found = true;
       joined.path = toPowerUp.path;
-      joined.path.insert(joined.path.end(), toGoal.path.begin() + 1, toGoal.path.end());
-      joined.metrics.pathCost = toPowerUp.metrics.pathCost + toGoal.metrics.pathCost;
-      joined.metrics.visitedNodes = toPowerUp.metrics.visitedNodes + toGoal.metrics.visitedNodes;
-      joined.metrics.cpuTimeMs = toPowerUp.metrics.cpuTimeMs + toGoal.metrics.cpuTimeMs;
+      joined.path.insert(joined.path.end(), toGoal.path.begin() + 1,
+                         toGoal.path.end());
+      joined.metrics.pathCost =
+          toPowerUp.metrics.pathCost + toGoal.metrics.pathCost;
+      joined.metrics.visitedNodes =
+          toPowerUp.metrics.visitedNodes + toGoal.metrics.visitedNodes;
+      joined.metrics.cpuTimeMs =
+          toPowerUp.metrics.cpuTimeMs + toGoal.metrics.cpuTimeMs;
       bestOverhead = overhead;
       best = joined;
     }
@@ -231,23 +245,24 @@ std::optional<SearchResult> AIController::planPowerUpDetour(const GameState& sta
   return best;
 }
 
-Direction AIController::nextDirections (Position nextPos, Position currentPos) const {
+Direction AIController::nextDirections(Position nextPos,
+                                       Position currentPos) const {
   int rowDiff = nextPos.row - currentPos.row;
   int colDiff = nextPos.col - currentPos.col;
-   if (rowDiff > 0 && colDiff == 0) {
+  if (rowDiff > 0 && colDiff == 0) {
     return Direction::DOWN;
 
   } else if (rowDiff < 0 && colDiff == 0) {
     return Direction::UP;
-  } else if (rowDiff == 0 && colDiff > 0 ) {
+  } else if (rowDiff == 0 && colDiff > 0) {
     return Direction::RIGHT;
   }
 
   return Direction::LEFT;
- }
+}
 
-
-void AIController::recordSearch(const SearchResult& result, ReplanReason reason) {
+void AIController::recordSearch(const SearchResult& result,
+                                ReplanReason reason) {
   SearchRecord tempRecord;
   tempRecord.algorithm = SearchAlgorithm::A_STAR;
   tempRecord.reason = reason;
@@ -255,54 +270,57 @@ void AIController::recordSearch(const SearchResult& result, ReplanReason reason)
   AIsearchRecord.emplace(tempRecord);
 }
 
-SearchResult AIController::recalculatePath (const GameState& state,ReplanReason reason) {
-  SearchResult result = findPathAStar(state.maze, state.players[PLAYER_2].position, state.treasure);
+SearchResult AIController::recalculatePath(const GameState& state,
+                                           ReplanReason reason) {
+  SearchResult result = findPathAStar(
+      state.maze, state.players[PLAYER_2].position, state.treasure);
   AIController::recordSearch(result, reason);
   return result;
- }
-
-Position AIController::neighbor(Position pos, Direction dir) const{
-  switch (dir)
-  {
-  case Direction::UP : {
-    Position newPosition {pos.row-1, pos.col};
-    return newPosition;
-  }
-  case Direction::DOWN : {
-    Position newPosition {pos.row+1, pos.col};
-    return newPosition;
-  }
-    case Direction::RIGHT : {
-    Position newPosition {pos.row, pos.col + 1};
-    return newPosition;
-  }
-    case Direction::LEFT : {
-    Position newPosition {pos.row, pos.col - 1};
-    return newPosition;
-  }
-  }
-  return pos ;
 }
 
-Action AIController::chooseRandomJumpWall(const GameState& state, std::mt19937& RNGesus) {
-  std::array<Direction,4> directions{Direction::UP, Direction::DOWN, Direction::LEFT, Direction::RIGHT};
+Position AIController::neighbor(Position pos, Direction dir) const {
+  switch (dir) {
+    case Direction::UP: {
+      Position newPosition{pos.row - 1, pos.col};
+      return newPosition;
+    }
+    case Direction::DOWN: {
+      Position newPosition{pos.row + 1, pos.col};
+      return newPosition;
+    }
+    case Direction::RIGHT: {
+      Position newPosition{pos.row, pos.col + 1};
+      return newPosition;
+    }
+    case Direction::LEFT: {
+      Position newPosition{pos.row, pos.col - 1};
+      return newPosition;
+    }
+  }
+  return pos;
+}
+
+Action AIController::chooseRandomJumpWall(const GameState& state,
+                                          std::mt19937& RNGesus) {
+  std::array<Direction, 4> directions{Direction::UP, Direction::DOWN,
+                                      Direction::LEFT, Direction::RIGHT};
   std::vector<Direction> validDirs;
 
-  for(const auto dir: directions ) {
+  for (const auto dir : directions) {
     const PlayerState& AI = state.players[PLAYER_2];
     Position AIPos = AI.position;
     Position target = AIController::neighbor(AIPos, dir);
-    if(state.maze.isInside(target) && ! (state.maze.hasPassage(AIPos,target))) {
+    if (state.maze.isInside(target) &&
+        !(state.maze.hasPassage(AIPos, target))) {
       validDirs.push_back(dir);
     }
   }
-  if(validDirs.empty()) {
-    return Action {ActionType::MOVE};
+  if (validDirs.empty()) {
+    return Action{ActionType::MOVE};
   }
-  std::uniform_int_distribution<int> move(0, int(validDirs.size()) - 1);
-  return Action {ActionType::JUMP_WALL,validDirs[move(RNGesus)]};
- }
-
+  std::uniform_int_distribution<int> move(0, static_cast<int>(validDirs.size()) - 1);
+  return Action{ActionType::JUMP_WALL, validDirs[move(RNGesus)]};
+}
 
 std::optional<SearchRecord> AIController::takeLatestSearchRecord() {
   if (AIsearchRecord.has_value()) {
@@ -310,5 +328,5 @@ std::optional<SearchRecord> AIController::takeLatestSearchRecord() {
     AIsearchRecord.reset();
     return record;
   }
-return std::nullopt;
+  return std::nullopt;
 }

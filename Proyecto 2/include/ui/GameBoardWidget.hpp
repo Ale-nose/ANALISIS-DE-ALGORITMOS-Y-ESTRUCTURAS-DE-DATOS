@@ -75,7 +75,8 @@ class GameBoardWidget : public QWidget {
    * @brief Largest whole cell size that lets every row and column fit inside
    * the given area without deforming the grid.
    * @param availableSize Area reserved for the grid (margins already removed).
-   * @return Cell side in pixels (0 if the maze is empty or the area is too small).
+   * @return Cell side in pixels (0 if the maze is empty or the area is too
+   * small).
    */
   int calculateCellSize(QSize availableSize) const;
 
@@ -101,9 +102,7 @@ class GameBoardWidget : public QWidget {
    * @brief What the board is drawing now (used by the HUD).
    * @return The state built from the last state or view received.
    */
-  const GameState& state() const {
-    return state_;
-  }
+  const GameState& state() const { return state_; }
 
  protected:
   /**
@@ -114,7 +113,7 @@ class GameBoardWidget : public QWidget {
 
  private:
   /**
-   * @brief Computes cellSize_ and boardOrigin_ mathematically so the board 
+   * @brief Computes cellSize_ and boardOrigin_ mathematically so the board
    * fits the widget and stays centered, strictly keeping square cells.
    */
   void updateBoardLayout();
@@ -149,7 +148,7 @@ class GameBoardWidget : public QWidget {
   QSvgRenderer& playerRenderer(int player, bool shielded);
 
   /**
-   * @brief Draws the base layer of a single cell: floor/mud, special tiles, 
+   * @brief Draws the base layer of a single cell: floor/mud, special tiles,
    * power-ups, portals, and boundary walls.
    * @param painter Painter already active on this widget.
    * @param position Row and column of the cell.
