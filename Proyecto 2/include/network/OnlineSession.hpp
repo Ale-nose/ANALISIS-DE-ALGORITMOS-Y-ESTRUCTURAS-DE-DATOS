@@ -2,6 +2,7 @@
 #pragma once
 
 #include <cstdint>
+#include <memory>
 #include <string>
 
 #include <QObject>
@@ -10,11 +11,6 @@
 #include "GameAction.hpp"
 #include "GameState.hpp"
 #include "GameView.hpp"
-
-// TODO (Kevin): implement it in src/network/OnlineSession.cpp using
-// NetworkServer and NetworkClient. The interface already uses this
-// header as it is. The host creates its own engine inside the session and
-// plays through its own client, like the other player.
 
 /**
  * @brief Online match as the interface sees it: it hides the server, the
@@ -25,6 +21,14 @@ class OnlineSession : public QObject {
   Q_OBJECT
 
  public:
+  /**
+   * @brief Creates an online session.
+   * @param parent Optional QObject parent.
+   */
+  explicit OnlineSession(QObject* parent = nullptr);
+
+  ~OnlineSession() override;
+
   /**
    * @brief Creates the match from the menu options, starts the server and
    * joins it as Player 1.
@@ -60,6 +64,10 @@ class OnlineSession : public QObject {
    * @return The authoritative state if this is the host, nullptr otherwise.
    */
   const GameState* authoritativeState() const;
+
+ private:
+  struct Private;
+  std::unique_ptr<Private> d_;
 
  signals:
   /// The server assigned the player (PLAYER_1 or PLAYER_2) to this client.

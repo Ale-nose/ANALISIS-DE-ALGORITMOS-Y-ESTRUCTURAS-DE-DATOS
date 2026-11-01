@@ -56,7 +56,34 @@ generator (DFS or BFS), the mud rate and whether fog of war is enabled.
   A* / Dijkstra on the real maze.
 - **Local two players**: both players share the same computer. A hand-off
   screen hides the board between turns.
-- **Online (host / join)**: TODO
+- **Online (host / join)**: two players can play from different computers using a TCP connection. One player hosts the match, and the other joins using the host's IP address and the same port.
+
+## Online Multiplayer
+
+To play online, both players must run the same version of Maze Craze.
+
+**Host a match:**
+1. Open Maze Craze and select the online host mode.
+2. Enter the port on which the match will listen (the default port is 5000).
+3. Start the match and wait for the other player to connect.
+
+**Join a match:**
+1. Open Maze Craze on the second computer and select the online join mode.
+2. Enter the host computer's IP address.
+3. Enter the same port used by the host.
+4. Start the connection.
+
+**Testing on the same computer:**
+You can test online multiplayer without a second computer by opening two instances of Maze Craze:
+1. Start the first instance as the host using port 5000.
+2. Start a second instance and join using `127.0.0.1` as the host address and port 5000.
+`127.0.0.1` refers to the local computer, so this connects the second instance to the first one.
+
+**Network requirements:**
+- Both computers must be able to communicate over the network.
+- When playing on the same local network, the joining player must use the host computer's local IP address.
+- The host's firewall must allow incoming TCP connections on the selected port.
+- To play across different networks, the host must be reachable from the Internet. Router configuration or port forwarding may be required.
 
 ## Rules and Power-Ups
 
