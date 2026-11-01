@@ -1,13 +1,13 @@
 // Copyright Alejandro, Ashley y Kevin
 #include "NetworkServer.hpp"
 
-#include <stdexcept>
-#include <QHostAddress>
-#include <QTcpServer>
-#include <QTcpSocket>
 #include <QByteArray>
+#include <QHostAddress>
 #include <QJsonDocument>
 #include <QJsonObject>
+#include <QTcpServer>
+#include <QTcpSocket>
+#include <stdexcept>
 
 #include "GameAction.hpp"
 #include "GameEngine.hpp"
@@ -16,9 +16,8 @@
 
 NetworkServer::NetworkServer(GameEngine& engine, QObject* parent)
     : QObject(parent), engine_(engine), listener_(new QTcpServer(this)) {
-  QObject::connect(listener_, &QTcpServer::newConnection, this, [this]() {
-    acceptConnection();
-  });
+  QObject::connect(listener_, &QTcpServer::newConnection, this,
+                   [this]() { acceptConnection(); });
 }
 
 bool NetworkServer::start(uint16_t port) {
@@ -39,13 +38,15 @@ void NetworkServer::acceptConnection() {
     int id = clients_[0] == nullptr ? 0 : (clients_[1] == nullptr ? 1 : -1);
 
     if (id < 0 || started_) {
-      std::string frame = frameNetworkMessage(serializeErrorMessage("Match is full"));
+      std::string frame =
+          frameNetworkMessage(serializeErrorMessage("Match is full"));
 
       socket->write(frame.data(), static_cast<qint64>(frame.size()));
       socket->flush();
       socket->disconnectFromHost();
 
-      QObject::connect(socket, &QTcpSocket::disconnected, socket, &QObject::deleteLater);
+      QObject::connect(socket, &QTcpSocket::disconnected, socket,
+                       &QObject::deleteLater);
       continue;
     }
 
@@ -53,13 +54,11 @@ void NetworkServer::acceptConnection() {
     receiveBuffers_[id].clear();
     ready_[id] = false;
 
-    QObject::connect(socket, &QTcpSocket::readyRead, this, [this, id]() {
-      receiveFrom(id);
-    });
+    QObject::connect(socket, &QTcpSocket::readyRead, this,
+                     [this, id]() { receiveFrom(id); });
 
-    QObject::connect(socket, &QTcpSocket::disconnected, this, [this, id]() {
-      disconnectClient(id);
-    });
+    QObject::connect(socket, &QTcpSocket::disconnected, this,
+                     [this, id]() { disconnectClient(id); });
   }
 }
 
@@ -70,13 +69,17 @@ void NetworkServer::receiveFrom(int clientId) {
   receiveBuffers_[clientId] += socket->readAll().toStdString();
 
   try {
-    for (const std::string& message : extractNetworkMessages(receiveBuffers_[clientId])) {
+    for (const std::string& message :
+         extractNetworkMessages(receiveBuffers_[clientId])) {
       NetworkMessageType type = parseNetworkMessageType(message);
 
       if (type == NetworkMessageType::Hello && !ready_[clientId] && !started_) {
-        const QJsonObject hello = QJsonDocument::fromJson(QByteArray::fromStdString(message)).object();
+        const QJsonObject hello =
+            QJsonDocument::fromJson(QByteArray::fromStdString(message))
+                .object();
 
-        if (!hello.value("version").isDouble() || hello.value("version").toInt(-1) != NETWORK_PROTOCOL_VERSION) {
+        if (!hello.value("version").isDouble() ||
+            hello.value("version").toInt(-1) != NETWORK_PROTOCOL_VERSION) {
           throw std::runtime_error("Unsupported protocol version");
         }
 
@@ -91,10 +94,12 @@ void NetworkServer::receiveFrom(int clientId) {
 
           broadcastState();
         }
-      } else if (type == NetworkMessageType::Action && started_ && ready_[clientId]) {
+      } else if (type == NetworkMessageType::Action && started_ &&
+                 ready_[clientId]) {
         handleAction(clientId, parseActionMessage(message));
       } else {
-        sendTo(clientId, serializeErrorMessage("Unexpected message or match not started"));
+        sendTo(clientId, serializeErrorMessage(
+                             "Unexpected message or match not started"));
       }
     }
   } catch (const std::exception& error) {
@@ -104,8 +109,10 @@ void NetworkServer::receiveFrom(int clientId) {
 }
 
 void NetworkServer::handleAction(int clientId, const Action& action) {
-  if (!started_ || engine_.state().gameOver || clientId != engine_.state().currentPlayer) {
-    sendTo(clientId, serializeErrorMessage("Not your turn or match unavailable"));
+  if (!started_ || engine_.state().gameOver ||
+      clientId != engine_.state().currentPlayer) {
+    sendTo(clientId,
+           serializeErrorMessage("Not your turn or match unavailable"));
     return;
   }
 

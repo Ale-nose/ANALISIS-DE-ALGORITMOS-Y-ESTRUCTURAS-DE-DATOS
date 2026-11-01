@@ -11,11 +11,11 @@
 #include <algorithm>
 #include <cstddef>
 #include <utility>
- 
+
 #include "BoardTheme.hpp"
+#include "GameView.hpp"
 #include "UiAssets.hpp"
 #include "UiTheme.hpp"
-#include "GameView.hpp"
 
 namespace {
 /**
@@ -23,9 +23,7 @@ namespace {
  * @param hex Color text.
  * @return The matching QColor.
  */
-QColor toColor(const char* hex) {
-  return QColor(QLatin1String(hex));
-}
+QColor toColor(const char* hex) { return QColor(QLatin1String(hex)); }
 
 /**
  * @brief Index of a direction inside Cell::walls.
@@ -39,16 +37,17 @@ std::size_t wallSlot(Direction direction) {
 /**
  * @brief Computes a smaller square centered inside a reference rectangle.
  * @param area Rectangle that provides the center coordinates.
- * @param ratio Fraction (0.0 to 1.0) of area's width used as the new side length.
+ * @param ratio Fraction (0.0 to 1.0) of area's width used as the new side
+ * length.
  * @return The perfectly centered square.
  */
 QRectF centered(const QRectF& area, double ratio) {
   const double side = area.width() * ratio;
 
-  // Offset the starting top-left corner by exactly half the side length 
+  // Offset the starting top-left corner by exactly half the side length
   // from the absolute center to maintain symmetry.
-  return QRectF(area.center().x() - side / 2.0, area.center().y() - side 
-    / 2.0, side, side);
+  return QRectF(area.center().x() - side / 2.0, area.center().y() - side / 2.0,
+                side, side);
 }
 
 /**
@@ -59,8 +58,8 @@ QRectF centered(const QRectF& area, double ratio) {
  * @param color Text color.
  * @param pixelSize Font height in pixels, clamped to a minimum of 1.
  */
-void drawLabel(QPainter& painter, const QRectF& area, const QString& text
-    , const QColor& color, double pixelSize) {
+void drawLabel(QPainter& painter, const QRectF& area, const QString& text,
+               const QColor& color, double pixelSize) {
   QFont font = painter.font();
   font.setBold(true);
   font.setPixelSize(std::max(1, static_cast<int>(pixelSize)));
@@ -87,8 +86,8 @@ void loadSprite(QSvgRenderer& renderer, const char* path) {
  * @param area Cell rectangle.
  * @param ratio Side of the image as a fraction of the cell side.
  */
-void drawSprite(QPainter& painter, QSvgRenderer& renderer, const QRectF& area
-  , double ratio) {
+void drawSprite(QPainter& painter, QSvgRenderer& renderer, const QRectF& area,
+                double ratio) {
   renderer.render(&painter, centered(area, ratio));
 }
 
@@ -96,7 +95,7 @@ void drawSprite(QPainter& painter, QSvgRenderer& renderer, const QRectF& area
 
 GameBoardWidget::GameBoardWidget(QWidget* parent) : QWidget(parent) {
   setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
- 
+
   loadSprite(player1Renderer_, ASSET_PLAYER_1);
   loadSprite(player1ShieldRenderer_, ASSET_PLAYER_1_SHIELD);
   loadSprite(player2Renderer_, ASSET_PLAYER_2);
@@ -129,13 +128,13 @@ void GameBoardWidget::setVisibleCells(const std::vector<Position>& visible) {
 
 QSize GameBoardWidget::sizeHint() const {
   return QSize(
-    state_.maze.cols() * BOARD_PREFERRED_CELL_SIZE + 2 * BOARD_MARGIN,
-    state_.maze.rows() * BOARD_PREFERRED_CELL_SIZE + 2 * BOARD_MARGIN);
+      state_.maze.cols() * BOARD_PREFERRED_CELL_SIZE + 2 * BOARD_MARGIN,
+      state_.maze.rows() * BOARD_PREFERRED_CELL_SIZE + 2 * BOARD_MARGIN);
 }
 
 QSize GameBoardWidget::minimumSizeHint() const {
-  return QSize(state_.maze.cols() * BOARD_MIN_CELL_SIZE + 2 * BOARD_MARGIN
-    , state_.maze.rows() * BOARD_MIN_CELL_SIZE + 2 * BOARD_MARGIN);
+  return QSize(state_.maze.cols() * BOARD_MIN_CELL_SIZE + 2 * BOARD_MARGIN,
+               state_.maze.rows() * BOARD_MIN_CELL_SIZE + 2 * BOARD_MARGIN);
 }
 
 int GameBoardWidget::calculateCellSize(QSize availableSize) const {
@@ -144,7 +143,7 @@ int GameBoardWidget::calculateCellSize(QSize availableSize) const {
   if (cols == 0 || rows == 0) {
     return 0;
   }
- 
+
   // Integer division gives the biggest whole cell for each direction
   const int widthPerCell = availableSize.width() / cols;
   const int heightPerCell = availableSize.height() / rows;
@@ -166,14 +165,15 @@ void GameBoardWidget::updateBoardLayout() {
 
   // Leftover space divided by 2 centers the board in the window to leave equal
   // margins on all sides
-  boardOrigin_ = QPoint((width() - cellSize_ * maze.cols()) / 2, (height() 
-    - cellSize_ * maze.rows()) / 2);
+  boardOrigin_ = QPoint((width() - cellSize_ * maze.cols()) / 2,
+                        (height() - cellSize_ * maze.rows()) / 2);
 }
 
 QRect GameBoardWidget::cellRect(Position position) const {
   // Grid-to-pixel mapping: Origin + (Matrix Index * Cell Pixel Size)
-  return QRect(boardOrigin_.x() + position.col * cellSize_, boardOrigin_.y() 
-    + position.row * cellSize_, cellSize_, cellSize_);
+  return QRect(boardOrigin_.x() + position.col * cellSize_,
+               boardOrigin_.y() + position.row * cellSize_, cellSize_,
+               cellSize_);
 }
 
 bool GameBoardWidget::isCellVisible(Position position) const {
@@ -182,8 +182,8 @@ bool GameBoardWidget::isCellVisible(Position position) const {
     return true;
   }
 
-  return std::find(visibleCells_.begin(), visibleCells_.end(), position)
-    != visibleCells_.end();
+  return std::find(visibleCells_.begin(), visibleCells_.end(), position) !=
+         visibleCells_.end();
 }
 
 QSvgRenderer& GameBoardWidget::powerUpRenderer(PowerUpType type) {
@@ -213,7 +213,7 @@ void GameBoardWidget::paintEvent(QPaintEvent* event) {
   painter.fillRect(rect(), toColor(COLOR_BOARD_BACKGROUND));
 
   updateBoardLayout();
-  
+
   // Layer 1a: fog over every cell the viewer cannot see. It goes first so it
   // never covers the walls of a visible cell.
   for (int row = 0; row < state_.maze.rows(); ++row) {
@@ -262,9 +262,9 @@ void GameBoardWidget::drawCell(QPainter& painter, Position position) {
     painter.setBrush(toColor(COLOR_PORTAL_BADGE));
     painter.drawEllipse(centered(area, BOARD_PORTAL_BADGE_RATIO));
 
-    drawLabel(painter, centered(area, BOARD_PORTAL_BADGE_RATIO)
-      , QString::number(cell.portalID), toColor(COLOR_PORTAL_LABEL)
-      , cellSize_ * BOARD_PORTAL_LABEL_RATIO);
+    drawLabel(painter, centered(area, BOARD_PORTAL_BADGE_RATIO),
+              QString::number(cell.portalID), toColor(COLOR_PORTAL_LABEL),
+              cellSize_ * BOARD_PORTAL_LABEL_RATIO);
   }
 
   // Shield Tile
@@ -274,16 +274,18 @@ void GameBoardWidget::drawCell(QPainter& painter, Position position) {
 
   // Power-up
   if (cell.powerUp != PowerUpType::NONE) {
-    drawSprite(painter, powerUpRenderer(cell.powerUp), area, BOARD_POWER_UP_RATIO);
+    drawSprite(painter, powerUpRenderer(cell.powerUp), area,
+               BOARD_POWER_UP_RATIO);
   }
 
   // Walls: line segments mapped to the 4 borders of the cell area
   // True indicates an intact wall; false is an open passage
-  const double wallWidth = std::max(BOARD_MIN_WALL_WIDTH, cellSize_ * BOARD_WALL_RATIO);
- 
-  painter.setPen(QPen(toColor(COLOR_WALL), wallWidth, Qt::SolidLine
-    , Qt::SquareCap, Qt::MiterJoin));
- 
+  const double wallWidth =
+      std::max(BOARD_MIN_WALL_WIDTH, cellSize_ * BOARD_WALL_RATIO);
+
+  painter.setPen(QPen(toColor(COLOR_WALL), wallWidth, Qt::SolidLine,
+                      Qt::SquareCap, Qt::MiterJoin));
+
   if (cell.walls[wallSlot(Direction::UP)]) {
     painter.drawLine(area.topLeft(), area.topRight());
   }
@@ -303,7 +305,7 @@ void GameBoardWidget::drawFog(QPainter& painter, Position position) {
   if (fogPixmap_.width() != cellSize_) {
     fogPixmap_ = QPixmap(cellSize_, cellSize_);
     fogPixmap_.fill(Qt::transparent);
- 
+
     QPainter fogPainter(&fogPixmap_);
     fogPainter.setRenderHint(QPainter::Antialiasing, true);
     fogRenderer_.render(&fogPainter, QRectF(0, 0, cellSize_, cellSize_));
@@ -320,8 +322,8 @@ void GameBoardWidget::drawTreasure(QPainter& painter) {
     return;  // hidden by the fog
   }
 
-  drawSprite(painter, treasureRenderer_, cellRect(state_.treasure)
-    , BOARD_TREASURE_RATIO);
+  drawSprite(painter, treasureRenderer_, cellRect(state_.treasure),
+             BOARD_TREASURE_RATIO);
 }
 
 void GameBoardWidget::drawPlayers(QPainter& painter) {
@@ -330,28 +332,28 @@ void GameBoardWidget::drawPlayers(QPainter& painter) {
     if (!state_.maze.isInside(position)) {
       continue;  // not placed yet (default position is -1, -1)
     }
- 
+
     // Under fog the viewer is always seen, the rival only if close enough
     if (player != viewer_ && !isCellVisible(position)) {
       continue;
     }
- 
+
     const QRectF area = cellRect(position);
- 
+
     // Turn Indicator: ring behind the active player
     if (player == state_.currentPlayer && !state_.gameOver) {
-      const double ringWidth = std::max(BOARD_MIN_OUTLINE_WIDTH, cellSize_
-        * BOARD_ACTIVE_RING_WIDTH_RATIO);
- 
+      const double ringWidth = std::max(
+          BOARD_MIN_OUTLINE_WIDTH, cellSize_ * BOARD_ACTIVE_RING_WIDTH_RATIO);
+
       painter.setBrush(Qt::NoBrush);
       painter.setPen(QPen(toColor(COLOR_ACTIVE_PLAYER_RING), ringWidth));
       painter.drawEllipse(centered(area, BOARD_ACTIVE_RING_RATIO));
     }
- 
+
     // Player image, the one with the aura is used while a shield is held
     const bool shielded = state_.players[player].shieldCount > 0;
-    drawSprite(painter, playerRenderer(player, shielded), area
-      , BOARD_PLAYER_RATIO);
+    drawSprite(painter, playerRenderer(player, shielded), area,
+               BOARD_PLAYER_RATIO);
   }
 }
 
@@ -368,10 +370,12 @@ void GameBoardWidget::clearSearchOverlay() {
 
 // Extra: animated A* search visualizer
 void GameBoardWidget::drawSearchOverlay(QPainter& painter) const {
-  auto fillCells = [&](const std::vector<Position>& cells, const QColor& color) {
+  auto fillCells = [&](const std::vector<Position>& cells,
+                       const QColor& color) {
     for (const Position& cell : cells) {
-      QRectF rect(boardOrigin_.x() + cell.col * cellSize_
-        , boardOrigin_.y() + cell.row * cellSize_, cellSize_, cellSize_);
+      QRectF rect(boardOrigin_.x() + cell.col * cellSize_,
+                  boardOrigin_.y() + cell.row * cellSize_, cellSize_,
+                  cellSize_);
       painter.fillRect(rect, color);
     }
   };

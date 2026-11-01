@@ -1,33 +1,38 @@
 // Copyright Alejandro, Ashley y Kevin
 #pragma once
 
+#include <QObject>
+#include <QString>
+#include <QTcpSocket>
 #include <cstdint>
 #include <string>
-#include <QObject>
-#include <QTcpSocket>
-#include <QString>
 
 #include "GameView.hpp"
 
 struct Action;
 
 /**
- * @brief Manages the client-side TCP connection and communication with the game server.
+ * @brief Manages the client-side TCP connection and communication with the game
+ * server.
  */
 class NetworkClient : public QObject {
   Q_OBJECT
 
  private:
-  QTcpSocket* socket_ = nullptr;        ///< TCP socket handling network I/O.
-  std::string receiveBuffer_;           ///< Stream buffer for incoming framed network data.
-  std::string latestState_;             ///< Most recent serialized GameView received.
-  std::string lastError_;               ///< Last error message reported by the server or socket.
-  std::string gameOverMessage_;         ///< Outcome message received upon match conclusion.
-  int playerId_ = -1;                   ///< Assigned player index for this client (0 or 1).
+  QTcpSocket* socket_ = nullptr;  ///< TCP socket handling network I/O.
+  std::string
+      receiveBuffer_;  ///< Stream buffer for incoming framed network data.
+  std::string latestState_;  ///< Most recent serialized GameView received.
+  std::string
+      lastError_;  ///< Last error message reported by the server or socket.
+  std::string
+      gameOverMessage_;  ///< Outcome message received upon match conclusion.
+  int playerId_ = -1;    ///< Assigned player index for this client (0 or 1).
   bool gameOver_ = false;
 
   /**
-   * @brief Parses and processes complete delimited messages from the receive buffer.
+   * @brief Parses and processes complete delimited messages from the receive
+   * buffer.
    */
   void receiveMessages();
 
@@ -56,41 +61,31 @@ class NetworkClient : public QObject {
   /**
    * @brief Disconnects the socket from the host server.
    */
-  inline void disconnectFromServer() {
-    socket_->disconnectFromHost();
-  }
+  inline void disconnectFromServer() { socket_->disconnectFromHost(); }
 
   /**
    * @brief Gets the assigned player index for this client session.
    * @return Player index (0 or 1), or -1 if not assigned.
    */
-  inline int playerId() const {
-    return playerId_;
-  }
+  inline int playerId() const { return playerId_; }
 
   /**
    * @brief Gets the latest serialized state payload received from the server.
    * @return Raw state string.
    */
-  inline std::string latestState() const {
-    return latestState_;
-  }
+  inline std::string latestState() const { return latestState_; }
 
   /**
    * @brief Gets the most recent error message recorded.
    * @return Error description string.
    */
-  inline std::string lastError() const {
-    return lastError_;
-  }
+  inline std::string lastError() const { return lastError_; }
 
   /**
    * @brief Gets the game over message received from the server.
    * @return Match conclusion details string.
    */
-  inline std::string gameOverMessage() const {
-    return gameOverMessage_;
-  }
+  inline std::string gameOverMessage() const { return gameOverMessage_; }
 
  signals:
   void connectionClosed();

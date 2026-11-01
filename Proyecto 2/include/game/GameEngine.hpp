@@ -1,27 +1,27 @@
 // Copyright Alejandro, Ashley y Kevin
-
 #pragma once
 
-#include "GameState.hpp"
+#include <vector>
+
 #include "GameAction.hpp"
+#include "GameState.hpp"
 #include "GameTypes.hpp"
 
-class GameEngine
-{
-private:
-/**
- * @brief Computes the cell next to a position in a given direction.
- *
- * Row 0 is the top row of the maze, so UP decreases the row and DOWN
- * increases it. The result is not checked against the maze bounds.
- *
+class GameEngine {
+ private:
+  /**
+   * @brief Computes the cell next to a position in a given direction.
+   *
+   * Row 0 is the top row of the maze, so UP decreases the row and DOWN
+   * increases it. The result is not checked against the maze bounds.
+   *
    * @param pos Starting cell.
    * @param dir Direction of the step.
    * @return The adjacent cell in that direction.
    */
-  Position newPos (Position pos, Direction dir) const ;
+  Position newPos(Position pos, Direction dir) const;
   GameState gameState;
-  
+
   /**
    * @brief Prepares the turn of the player that has just received it.
    *
@@ -32,7 +32,7 @@ private:
    * next turn.
    */
   void beginTurn();
-  
+
   /**
    * @brief Consumes one action of the active player after an accepted move.
    *
@@ -57,9 +57,7 @@ private:
    * several are collected, and it must run before finishAction() spends the
    * action of the move that picked the power-up up.
    */
-  inline void doublePlay() {
-    gameState.actionsLeft++;
-  }
+  inline void doublePlay() { gameState.actionsLeft++; }
   /**
    * @brief Makes the opponent lose their next turn.
    *
@@ -69,8 +67,8 @@ private:
    * beginTurn() clears the mark when that turn would start.
    */
   void applyControlEnemy();
-  
-   /**
+
+  /**
    * @brief Records the extra actions that entering a mud cell costs.
    *
    * Called when the active player enters a mud cell. The move that entered
@@ -143,8 +141,7 @@ private:
    */
   void checkWinner();
 
-  
-  public:
+ public:
   /**
    * @brief Creates an engine that manages the given match.
    *
@@ -153,7 +150,7 @@ private:
   explicit GameEngine(GameState gameStateArg);
 
   ~GameEngine() = default;
-  
+
   /**
    * @brief Executes one action requested by a player or by the AI.
    *
@@ -184,7 +181,7 @@ private:
    * @return true if the player moved, false if the move was illegal.
    */
   bool movePlayer(Direction directionToMove);
-  
+
   /**
    * @brief Gives access to the current state of the match.
    *
@@ -197,9 +194,7 @@ private:
    *
    * @return PLAYER_1 or PLAYER_2.
    */
-  inline int currentPlayer() const {
-    return gameState.currentPlayer;
-  }
+  inline int currentPlayer() const { return gameState.currentPlayer; }
 
   /**
    * @brief Moves the active player through a wall using one Jump Wall.
@@ -215,17 +210,14 @@ private:
    */
   bool useJumpWall(Direction jumpDir);
 
-
   /**
    * @brief Tells whether the match has ended.
    *
    * @return true if a player has reached the treasure, false otherwise.
    */
-  inline bool isGameOver() const {
-    return gameState.gameOver;
-  }
+  inline bool isGameOver() const { return gameState.gameOver; }
 
-    /**
+  /**
    * @brief Lists the cells that a player can see under Fog of War.
    *
    * Includes every cell of the maze within FOG_RADIUS of the player, the
@@ -250,5 +242,4 @@ private:
    *               metrics.
    */
   void recordAiSearch(const SearchRecord& record);
-
 };

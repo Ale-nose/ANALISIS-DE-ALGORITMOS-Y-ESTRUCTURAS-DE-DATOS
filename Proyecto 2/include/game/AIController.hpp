@@ -2,17 +2,17 @@
 
 #pragma once
 
-#include <random>
 #include <optional>
+#include <random>
 #include <vector>
 
-#include "GameState.hpp"
 #include "GameAction.hpp"
+#include "GameState.hpp"
 #include "GameTypes.hpp"
 #include "Pathfinding.hpp"
 
 class AIController {
-public:
+ public:
   /**
    * @brief How the AI decides when to spend a Jump Wall.
    *
@@ -21,12 +21,9 @@ public:
    * path cost, and only when the saving reaches AI_JUMP_MIN_GAIN.
    * RANDOM is the default
    */
-  enum class JumpWallPolicy {
-    RANDOM,
-    GREEDY
-  };
+  enum class JumpWallPolicy { RANDOM, GREEDY };
 
-private:
+ private:
   /** A Jump Wall worth spending, with the path it opens. */
   struct JumpPlan {
     Direction direction = Direction::UP;
@@ -35,7 +32,7 @@ private:
 
   std::vector<Position> currentPath;
   std::optional<SearchRecord> AIsearchRecord;
-  Position lastAIpos = {DEFAULT_COORDINATES,DEFAULT_COORDINATES};
+  Position lastAIpos = {DEFAULT_COORDINATES, DEFAULT_COORDINATES};
   bool lastActionWasJumpWall = false;
   JumpWallPolicy jumpPolicy = JumpWallPolicy::RANDOM;
 
@@ -89,7 +86,8 @@ private:
    * @param previousPosition Cell the AI occupied on the previous turn.
    * @return The action to play.
    */
-  Action fallbackAction(const GameState& state, Position previousPosition) const;
+  Action fallbackAction(const GameState& state,
+                        Position previousPosition) const;
 
   /**
    * @brief Looks for a Jump Wall that is worth spending this turn.
@@ -132,12 +130,11 @@ private:
    * @return The joined path through the power-up with its added metrics, or
    *         no value when no detour pays for itself.
    */
-  std::optional<SearchResult> planPowerUpDetour(const GameState& state,
-                                                const SearchResult& direct) const;
+  std::optional<SearchResult> planPowerUpDetour(
+      const GameState& state, const SearchResult& direct) const;
 
-public:
-
-    /**
+ public:
+  /**
    * @brief Chooses the action the AI plays on its turn.
    *
    * Follows the path that leads to the treasure, recomputing it when the AI
@@ -153,7 +150,7 @@ public:
    */
   Action chooseAction(const GameState& state, std::mt19937& RNGesus);
 
-   /**
+  /**
    * @brief Computes the cheapest path from the AI to the treasure with A*.
    *
    * The search is recorded so the game log can report it. The record is kept
@@ -178,7 +175,7 @@ public:
    */
   Action chooseRandomJumpWall(const GameState& state, std::mt19937& RNGesus);
 
-    /**
+  /**
    * @brief Hands over the record of the last search, if there is one.
    *
    * The record is removed, so the same search is never reported twice. The
@@ -194,9 +191,7 @@ public:
    *
    * @param policy The policy to follow from the next turn on.
    */
-  inline void setJumpWallPolicy(JumpWallPolicy policy) {
-    jumpPolicy = policy;
-  }
+  inline void setJumpWallPolicy(JumpWallPolicy policy) { jumpPolicy = policy; }
 
   ~AIController() = default;
 };

@@ -1,15 +1,16 @@
 // Copyright Alejandro, Ashley y Kevin
-#include <limits>
-#include <queue>
-#include <vector>
-#include <functional>
 #include <algorithm>
 #include <ctime>
+#include <functional>
+#include <limits>
+#include <queue>
 #include <stdexcept>
+#include <vector>
 
 #include "Pathfinding.hpp"
 
-struct SearchResult findPathDijkstra(const Maze& maze, Position start, Position goal) {
+struct SearchResult findPathDijkstra(const Maze& maze, Position start,
+                                     Position goal) {
   std::clock_t startTime = std::clock();
 
   SearchResult result{};
@@ -18,7 +19,7 @@ struct SearchResult findPathDijkstra(const Maze& maze, Position start, Position 
   if (!maze.isInside(start) || !maze.isInside(goal)) {
     throw std::invalid_argument("Start or goal is outside the maze");
   }
-  
+
   int rows = maze.rows();
   int cols = maze.cols();
   int size = rows * cols;
@@ -31,7 +32,9 @@ struct SearchResult findPathDijkstra(const Maze& maze, Position start, Position 
 
   // Min-heap priority queue storing pairs of (cost, cellIndex)
   using QueueNode = std::pair<int, int>;
-  std::priority_queue<QueueNode, std::vector<QueueNode>, std::greater<QueueNode>> pending;
+  std::priority_queue<QueueNode, std::vector<QueueNode>,
+                      std::greater<QueueNode>>
+      pending;
 
   int startIndex = start.row * cols + start.col;
   int goalIndex = goal.row * cols + goal.col;

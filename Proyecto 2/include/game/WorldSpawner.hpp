@@ -2,14 +2,13 @@
 
 #pragma once
 
-#include <random>
-#include <array>
-#include <vector>
 #include <algorithm>
+#include <array>
+#include <random>
+#include <vector>
 
-#include "Maze.hpp"
 #include "GameTypes.hpp"
-
+#include "Maze.hpp"
 
 /**
  * @brief Utility class that places random world elements on a maze.
@@ -18,8 +17,7 @@
  * modify the maze they receive.
  */
 class WorldSpawner {
-
-  public:
+ public:
   /**
    * @brief Marks random cells of the maze as mud.
    *
@@ -40,16 +38,17 @@ class WorldSpawner {
    * @note The cells are visited in a fixed order, which keeps the result
    *       reproducible for a given generator state.
    */
-    static void placeMud(Maze& maze, Position posPlayer1, Position posPlayer2, double rate, std::mt19937& random);
+  static void placeMud(Maze& maze, Position posPlayer1, Position posPlayer2,
+                       double rate, std::mt19937& random);
 
-      /**
+  /**
    * @brief Places shield tiles on random cells of the maze.
    *
    * Visits every cell except the two starting positions and the treasure and,
-   * with probability SHIELD_SPAWN_RATE, marks it as SpecialCellType::SHIELD_TILE.
-   * Walls and other cell data are not modified, and no shield is granted here:
-   * the protection logic is handled by the game engine when a player enters
-   * the cell.
+   * with probability SHIELD_SPAWN_RATE, marks it as
+   * SpecialCellType::SHIELD_TILE. Walls and other cell data are not modified,
+   * and no shield is granted here: the protection logic is handled by the game
+   * engine when a player enters the cell.
    *
    * @param maze Maze whose cells may receive a shield tile.
    * @param posPlayer1 Starting position of player 1 (never a shield tile).
@@ -61,9 +60,11 @@ class WorldSpawner {
    * @note The cells are visited in a fixed order, which keeps the result
    *       reproducible for a given generator state.
    */
-  static void placeShieldTile(Maze& maze,Position posPlayer1,Position posPlayer2, Position treasure,std::mt19937& random);
+  static void placeShieldTile(Maze& maze, Position posPlayer1,
+                              Position posPlayer2, Position treasure,
+                              std::mt19937& random);
 
-    /**
+  /**
    * @brief Places random power-ups on the maze.
    *
    * Visits every cell except the two starting positions and the treasure and,
@@ -75,8 +76,10 @@ class WorldSpawner {
    * the cell.
    *
    * @param[in,out] maze Maze whose cells may receive a power-up.
-   * @param[in] posPlayer1 Starting position of player 1 (never gets a power-up).
-   * @param[in] posPlayer2 Starting position of player 2 (never gets a power-up).
+   * @param[in] posPlayer1 Starting position of player 1 (never gets a
+   * power-up).
+   * @param[in] posPlayer2 Starting position of player 2 (never gets a
+   * power-up).
    * @param[in] treasure Treasure position (never gets a power-up).
    * @param[in,out] random Random number generator, shared with the rest of the
    *                       setup so that the same seed produces the same maze.
@@ -85,7 +88,8 @@ class WorldSpawner {
    *       power-up) only happens when the first one succeeds, which keeps the
    *       result reproducible for a given generator state.
    */
-  static void placePowerUp(Maze& maze, Position posPlayer1,Position posPlayer2, Position treasure,std::mt19937& random);
+  static void placePowerUp(Maze& maze, Position posPlayer1, Position posPlayer2,
+                           Position treasure, std::mt19937& random);
 
   /**
    * @brief Places portals in pairs on random cells of the maze.
@@ -109,5 +113,6 @@ class WorldSpawner {
    *       linking cells that are close in scan order. The result is
    *       reproducible for a given generator state and standard library.
    */
-  static void placePortal(Maze& maze, Position posPlayer1,Position posPlayer2, Position treasure,std::mt19937& random);
+  static void placePortal(Maze& maze, Position posPlayer1, Position posPlayer2,
+                          Position treasure, std::mt19937& random);
 };

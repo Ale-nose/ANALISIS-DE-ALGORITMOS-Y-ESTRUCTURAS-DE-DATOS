@@ -1,13 +1,14 @@
 // Copyright Alejandro, Ashley y Kevin
+#include <algorithm>
 #include <ctime>
+#include <queue>
 #include <stdexcept>
 #include <vector>
-#include <queue>
-#include <algorithm>
 
 #include "Pathfinding.hpp"
 
-struct SearchResult findPathBfs(const Maze& maze, Position start, Position goal) {
+struct SearchResult findPathBfs(const Maze& maze, Position start,
+                                Position goal) {
   std::clock_t startTime = std::clock();
 
   SearchResult result{};
@@ -72,14 +73,14 @@ struct SearchResult findPathBfs(const Maze& maze, Position start, Position goal)
   } else {
     result.found = true;
     int cursor = goalIndex;
-  
+
     // Backtrack from goal to start using parent pointers
     while (cursor != -1) {
       Position position{cursor / cols, cursor % cols};
       result.path.push_back(position);
-      cursor = previous[cursor]; 
+      cursor = previous[cursor];
     }
-    
+
     // Reverse to obtain chronological start-to-goal path order
     std::reverse(result.path.begin(), result.path.end());
 

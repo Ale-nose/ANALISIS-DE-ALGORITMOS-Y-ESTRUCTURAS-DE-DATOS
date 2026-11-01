@@ -1,7 +1,8 @@
 // Copyright Alejandro, Ashley y Kevin
+#include "Maze.hpp"
+
 #include <stdexcept>
 
-#include "Maze.hpp"
 #include "GameConfig.hpp"
 
 // Converts a direction enum value to its corresponding wall array index
@@ -61,7 +62,8 @@ Maze::Maze(int rows, int cols) : rows_(rows), cols_(cols) {
   }
 
   // Allocate contiguous storage for all cells
-  cells_.resize(static_cast<std::size_t>(rows_) * static_cast<std::size_t>(cols_));
+  cells_.resize(static_cast<std::size_t>(rows_) *
+                static_cast<std::size_t>(cols_));
 }
 
 // Converts a 2D grid position to a 1D vector index with bounds checking
@@ -70,8 +72,9 @@ std::size_t Maze::indexOf(Position position) const {
     throw std::out_of_range("Position outside maze");
   }
 
-  return static_cast<std::size_t>(position.row) * static_cast<std::size_t>(cols_) +
-    static_cast<std::size_t>(position.col);
+  return static_cast<std::size_t>(position.row) *
+             static_cast<std::size_t>(cols_) +
+         static_cast<std::size_t>(position.col);
 }
 
 // Opens a bidirectional passage between a cell and its adjacent neighbor
@@ -113,11 +116,12 @@ bool Maze::hasPassage(Position from, Position to) const {
   } else if (to.row == from.row && to.col == from.col + 1) {
     direction = Direction::RIGHT;
   } else {
-    return false; // Cells are not immediate orthogonal neighbors
+    return false;  // Cells are not immediate orthogonal neighbors
   }
 
   // Both sides of the shared wall must be open
-  return !cellAt(from).walls[wallIndex(direction)] && !cellAt(to).walls[wallIndex(opposite(direction))];
+  return !cellAt(from).walls[wallIndex(direction)] &&
+         !cellAt(to).walls[wallIndex(opposite(direction))];
 }
 
 // Finds all directly accessible neighbor cells through open passages
@@ -129,7 +133,8 @@ std::vector<Position> Maze::neighbors(Position position) const {
   }
 
   // Inspect all 4 cardinal directions for reachable open paths
-  for (Direction direction : {Direction::UP, Direction::DOWN, Direction::LEFT, Direction::RIGHT}) {
+  for (Direction direction :
+       {Direction::UP, Direction::DOWN, Direction::LEFT, Direction::RIGHT}) {
     const Position next = moved(position, direction);
 
     if (hasPassage(position, next)) {

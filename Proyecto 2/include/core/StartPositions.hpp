@@ -9,8 +9,8 @@
  * @brief Holds the initial starting coordinates for both players.
  */
 struct StartPositions {
-  Position player1; ///< Starting coordinate for Player 1 (column 0).
-  Position player2; ///< Starting coordinate for Player 2 (last column).
+  Position player1;  ///< Starting coordinate for Player 1 (column 0).
+  Position player2;  ///< Starting coordinate for Player 2 (last column).
 };
 
 /**
@@ -24,4 +24,5 @@ struct StartPositions {
  * @param rng Random number generator engine.
  * @return StartPositions containing the initial coordinates for both players.
  */
-struct StartPositions chooseStartPositions(int rows, int cols, std::mt19937& rng);
+struct StartPositions chooseStartPositions(int rows, int cols,
+                                           std::mt19937& rng);

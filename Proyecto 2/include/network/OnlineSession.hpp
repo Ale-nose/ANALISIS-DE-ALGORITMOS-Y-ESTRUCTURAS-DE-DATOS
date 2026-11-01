@@ -1,12 +1,11 @@
 // Copyright Alejandro, Ashley y Kevin
 #pragma once
 
+#include <QObject>
+#include <QString>
 #include <cstdint>
 #include <memory>
 #include <string>
-
-#include <QObject>
-#include <QString>
 
 #include "GameAction.hpp"
 #include "GameState.hpp"

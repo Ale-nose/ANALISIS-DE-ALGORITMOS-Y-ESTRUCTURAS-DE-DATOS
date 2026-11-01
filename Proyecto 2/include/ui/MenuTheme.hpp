@@ -6,8 +6,8 @@
 #include "UiTheme.hpp"
 
 /**
- * @brief Colors, fonts, and layout sizes specific to the Start Window (Main Menu).
- * It builds the QSS stylesheet for the UI components.
+ * @brief Colors, fonts, and layout sizes specific to the Start Window (Main
+ * Menu). It builds the QSS stylesheet for the UI components.
  */
 
 // Base palette (roles)

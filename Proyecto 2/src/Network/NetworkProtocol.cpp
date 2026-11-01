@@ -1,11 +1,6 @@
 // Copyright Alejandro, Ashley and Kevin
 #include "NetworkProtocol.hpp"
 
-#include <cstdint>
-#include <cstdlib>
-#include <stdexcept>
-#include <utility>
-
 #include <QByteArray>
 #include <QJsonArray>
 #include <QJsonDocument>
@@ -13,6 +8,10 @@
 #include <QJsonParseError>
 #include <QJsonValue>
 #include <QString>
+#include <cstdint>
+#include <cstdlib>
+#include <stdexcept>
+#include <utility>
 
 #include "GameAction.hpp"
 #include "GameConfig.hpp"
@@ -92,7 +91,8 @@ std::string serializeActionMessage(const Action& action) {
     case ActionType::JUMP_WALL:
       kind = QStringLiteral("JUMP_WALL");
       break;
-    default: throw std::invalid_argument("Unknown action type");
+    default:
+      throw std::invalid_argument("Unknown action type");
   }
 
   QJsonObject actionObject;
@@ -155,7 +155,8 @@ NetworkMessageType parseNetworkMessageType(const std::string& message) {
 
 Action parseActionMessage(const std::string& message) {
   QJsonObject root = readJsonObject(message);
-  if (!root.value("type").isString() || root.value("type").toString() != QStringLiteral("ACTION")) {
+  if (!root.value("type").isString() ||
+      root.value("type").toString() != QStringLiteral("ACTION")) {
     throw std::invalid_argument("Expected an ACTION message");
   }
   if (!root.value("action").isObject()) {
@@ -198,9 +199,12 @@ std::vector<std::string> extractNetworkMessages(std::string& receiveBuffer) {
   std::size_t offset = 0;
 
   while (receiveBuffer.size() - offset >= 4) {
-    const unsigned char* bytes = reinterpret_cast<const unsigned char*>(receiveBuffer.data() + offset);
-    std::uint32_t length = (static_cast<std::uint32_t>(bytes[0]) << 24) | (static_cast<std::uint32_t>(bytes[1]) << 16)
-      | (static_cast<std::uint32_t>(bytes[2]) << 8) | static_cast<std::uint32_t>(bytes[3]);
+    const unsigned char* bytes =
+        reinterpret_cast<const unsigned char*>(receiveBuffer.data() + offset);
+    std::uint32_t length = (static_cast<std::uint32_t>(bytes[0]) << 24) |
+                           (static_cast<std::uint32_t>(bytes[1]) << 16) |
+                           (static_cast<std::uint32_t>(bytes[2]) << 8) |
+                           static_cast<std::uint32_t>(bytes[3]);
 
     if (length == 0 || length > MAX_NETWORK_MESSAGE_SIZE) {
       throw std::invalid_argument("Invalid TCP frame length");
@@ -236,7 +240,8 @@ GameView createGameView(const GameState& state, int clientId) {
   const Position treasure = state.treasure;
 
   if (state.maze.isInside(treasure)) {
-    const int distance = std::abs(viewer.row - treasure.row) + std::abs(viewer.col - treasure.col);
+    const int distance = std::abs(viewer.row - treasure.row) +
+                         std::abs(viewer.col - treasure.col);
     if (!state.options.fogEnabled || distance <= FOG_RADIUS) {
       view.treasure = treasure;
     }
@@ -249,7 +254,8 @@ GameView createGameView(const GameState& state, int clientId) {
   for (int row = 0; row < state.maze.rows(); ++row) {
     for (int col = 0; col < state.maze.cols(); ++col) {
       const Position position{row, col};
-      const int distance = std::abs(viewer.row - row) + std::abs(viewer.col - col);
+      const int distance =
+          std::abs(viewer.row - row) + std::abs(viewer.col - col);
       if (!state.options.fogEnabled || distance <= FOG_RADIUS) {
         view.visibleCells.push_back({position, state.maze.cellAt(position)});
       }
@@ -258,9 +264,11 @@ GameView createGameView(const GameState& state, int clientId) {
 
   for (int playerId = 0; playerId < NUM_PLAYERS; ++playerId) {
     const Position position = state.players[playerId].position;
-    const int distance = std::abs(viewer.row - position.row) + std::abs(viewer.col - position.col);
-    const bool visible = state.maze.isInside(position)
-      && (!state.options.fogEnabled || playerId == clientId || distance <= FOG_RADIUS);
+    const int distance = std::abs(viewer.row - position.row) +
+                         std::abs(viewer.col - position.col);
+    const bool visible = state.maze.isInside(position) &&
+                         (!state.options.fogEnabled || playerId == clientId ||
+                          distance <= FOG_RADIUS);
     view.players[playerId].visible = visible;
     view.players[playerId].position = visible ? position : Position{-1, -1};
   }
@@ -369,11 +377,13 @@ GameView deserializeGameView(const std::string& message) {
   view.rows = data.value("rows").toInt();
   view.cols = data.value("cols").toInt();
 
-  if (view.rows <= 0 || view.cols <= 0 || view.rows > 10000 || view.cols > 10000 || view.rows * view.cols > 10000) {
+  if (view.rows <= 0 || view.cols <= 0 || view.rows > 10000 ||
+      view.cols > 10000 || view.rows * view.cols > 10000) {
     throw std::invalid_argument("Invalid maze dimensions");
   }
 
-  if (!data.value("currentPlayer").isDouble() || !data.value("gameOver").isBool() || !data.value("winner").isDouble()) {
+  if (!data.value("currentPlayer").isDouble() ||
+      !data.value("gameOver").isBool() || !data.value("winner").isDouble()) {
     throw std::invalid_argument("Invalid match information");
   }
 
@@ -381,7 +391,8 @@ GameView deserializeGameView(const std::string& message) {
   view.gameOver = data.value("gameOver").toBool();
   view.winner = data.value("winner").toInt(-1);
 
-  if (view.currentPlayer < 0 || view.currentPlayer >= NUM_PLAYERS || view.winner < -1 || view.winner >= NUM_PLAYERS) {
+  if (view.currentPlayer < 0 || view.currentPlayer >= NUM_PLAYERS ||
+      view.winner < -1 || view.winner >= NUM_PLAYERS) {
     throw std::invalid_argument("Invalid player information");
   }
 
@@ -389,7 +400,7 @@ GameView deserializeGameView(const std::string& message) {
     view.treasure = positionFromJson(data.value("treasure"));
 
     if (view.treasure.row < 0 || view.treasure.row >= view.rows ||
-      view.treasure.col < 0 || view.treasure.col >= view.cols) {
+        view.treasure.col < 0 || view.treasure.col >= view.cols) {
       throw std::invalid_argument("Invalid treasure position");
     }
   }
@@ -404,9 +415,8 @@ GameView deserializeGameView(const std::string& message) {
     throw std::invalid_argument("Too many visible cells");
   }
 
-  std::vector<bool> received(
-    static_cast<std::size_t>(view.rows) * view.cols, false
-  );
+  std::vector<bool> received(static_cast<std::size_t>(view.rows) * view.cols,
+                             false);
 
   for (const QJsonValue& entry : cells) {
     if (!entry.isObject()) {
@@ -416,12 +426,13 @@ GameView deserializeGameView(const std::string& message) {
     const QJsonObject item = entry.toObject();
     const Position position = positionFromJson(item.value("position"));
 
-    if (position.row < 0 || position.row >= view.rows || position.col < 0 || position.col >= view.cols
-      || !item.value("contents").isObject()) {
+    if (position.row < 0 || position.row >= view.rows || position.col < 0 ||
+        position.col >= view.cols || !item.value("contents").isObject()) {
       throw std::invalid_argument("Invalid cell data");
     }
 
-    const std::size_t index = static_cast<std::size_t>(position.row) * view.cols + position.col;
+    const std::size_t index =
+        static_cast<std::size_t>(position.row) * view.cols + position.col;
 
     if (received[index]) {
       throw std::invalid_argument("Duplicate visible cell");
@@ -431,9 +442,11 @@ GameView deserializeGameView(const std::string& message) {
 
     const QJsonObject contents = item.value("contents").toObject();
 
-    if (!contents.value("terrain").isDouble() || !contents.value("powerUp").isDouble()||
-      !contents.value("special").isDouble() || !contents.value("portalID").isDouble() ||
-      !contents.value("walls").isArray()) {
+    if (!contents.value("terrain").isDouble() ||
+        !contents.value("powerUp").isDouble() ||
+        !contents.value("special").isDouble() ||
+        !contents.value("portalID").isDouble() ||
+        !contents.value("walls").isArray()) {
       throw std::invalid_argument("Invalid cell contents");
     }
 
@@ -442,8 +455,9 @@ GameView deserializeGameView(const std::string& message) {
     const int special = contents.value("special").toInt(-1);
 
     if (terrain < 0 || terrain > static_cast<int>(TerrainType::MUD) ||
-      powerUp < 0 || powerUp > static_cast<int>(PowerUpType::CONTROL_ENEMY) ||
-      special < 0 || special > static_cast<int>(SpecialCellType::SHIELD_TILE)) {
+        powerUp < 0 || powerUp > static_cast<int>(PowerUpType::CONTROL_ENEMY) ||
+        special < 0 ||
+        special > static_cast<int>(SpecialCellType::SHIELD_TILE)) {
       throw std::invalid_argument("Unknown cell type");
     }
 
@@ -470,7 +484,9 @@ GameView deserializeGameView(const std::string& message) {
   }
 
   if (view.treasure.row >= 0) {
-    const std::size_t index = static_cast<std::size_t>(view.treasure.row) * view.cols + view.treasure.col;
+    const std::size_t index =
+        static_cast<std::size_t>(view.treasure.row) * view.cols +
+        view.treasure.col;
     if (!received[index]) {
       throw std::invalid_argument("Treasure is outside visible cells");
     }
@@ -502,11 +518,13 @@ GameView deserializeGameView(const std::string& message) {
     if (view.players[id].visible) {
       const Position position = positionFromJson(player.value("position"));
 
-      if (position.row < 0 || position.row >= view.rows || position.col < 0 || position.col >= view.cols) {
+      if (position.row < 0 || position.row >= view.rows || position.col < 0 ||
+          position.col >= view.cols) {
         throw std::invalid_argument("Invalid player position");
       }
 
-      const std::size_t index = static_cast<std::size_t>(position.row) * view.cols + position.col;
+      const std::size_t index =
+          static_cast<std::size_t>(position.row) * view.cols + position.col;
 
       if (!received[index]) {
         throw std::invalid_argument("Player outside visible cells");

@@ -13,48 +13,22 @@ inline bool operator==(Position a, Position b) {
 }
 
 // Allowed movement and wall orientations
-enum class Direction {
-  UP,
-  DOWN,
-  LEFT,
-  RIGHT
-};
+enum class Direction { UP, DOWN, LEFT, RIGHT };
 
 // Maze generation algorithms
-enum class GenerationAlgorithm {
-  DFS,
-  BFS
-};
+enum class GenerationAlgorithm { DFS, BFS };
 
 // Match game modes
-enum class GameMode {
-  SINGLE_PLAYER,
-  LOCAL_TWO_PLAYERS,
-  ONLINE
-};
+enum class GameMode { SINGLE_PLAYER, LOCAL_TWO_PLAYERS, ONLINE };
 
 // Ground terrain types
-enum class TerrainType {
-  NORMAL,
-  MUD
-};
+enum class TerrainType { NORMAL, MUD };
 
 // Collectible power-ups
-enum class PowerUpType {
-  NONE,
-  JUMP_WALL,
-  DOUBLE_PLAY,
-  CONTROL_ENEMY
-};
+enum class PowerUpType { NONE, JUMP_WALL, DOUBLE_PLAY, CONTROL_ENEMY };
 
 // Special tile mechanics
-enum class SpecialCellType {
-  NONE,
-  SHIELD_TILE
-};
+enum class SpecialCellType { NONE, SHIELD_TILE };
 
 // Player action types
-enum class ActionType {
-  MOVE,
-  JUMP_WALL
-};
+enum class ActionType { MOVE, JUMP_WALL };

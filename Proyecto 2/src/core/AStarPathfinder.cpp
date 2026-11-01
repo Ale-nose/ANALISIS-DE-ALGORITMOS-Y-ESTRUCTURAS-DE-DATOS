@@ -1,22 +1,23 @@
 // Copyright Alejandro, Ashley y Kevin
-#include <limits>
-#include <queue>
-#include <vector>
-#include <functional>
 #include <algorithm>
 #include <ctime>
+#include <functional>
+#include <limits>
+#include <queue>
 #include <stdexcept>
+#include <vector>
 
 #include "Pathfinding.hpp"
 
 int manhattanDistance(Position a, Position b) {
   int distancesRow = std::abs(a.row - b.row);
   int distancesCol = std::abs(a.col - b.col);
-  int totalDist = std::abs(distancesCol+distancesRow);
+  int totalDist = std::abs(distancesCol + distancesRow);
   return totalDist;
 }
 
-SearchResult findPathAStar(const Maze& maze, Position start, Position goal, bool saveTrace) {
+SearchResult findPathAStar(const Maze& maze, Position start, Position goal,
+                           bool saveTrace) {
   SearchResult result{};
 
   std::clock_t startTime = std::clock();
@@ -30,12 +31,14 @@ SearchResult findPathAStar(const Maze& maze, Position start, Position goal, bool
   std::vector<bool> closedCellIndicator(mazeSize, false);
 
   auto toIndex = [&maze](Position posToIndex) {
-    int index = posToIndex.row * maze.cols() + posToIndex.col; // turns a position into an index for the vectors
+    int index =
+        posToIndex.row * maze.cols() +
+        posToIndex.col;  // turns a position into an index for the vectors
     return index;
   };
 
   auto toPosition = [&maze](int index) {
-    int row = index / maze.cols(); // turns index back into Position
+    int row = index / maze.cols();  // turns index back into Position
     int col = index % maze.cols();
     return Position{row, col};
   };
@@ -64,7 +67,7 @@ SearchResult findPathAStar(const Maze& maze, Position start, Position goal, bool
     Position currentPosition = toPosition(lesser);
     if (saveTrace) {
       result.trace.closed.push_back(currentPosition);
-       // Extra: animated A* search visualizer
+      // Extra: animated A* search visualizer
       result.trace.openedCountAtClose.push_back(result.trace.opened.size());
     }
 
@@ -101,6 +104,7 @@ SearchResult findPathAStar(const Maze& maze, Position start, Position goal, bool
   }
 
   result.metrics.visitedNodes = visitedNodes;
-  result.metrics.cpuTimeMs = 1000.0 * static_cast<double>(std::clock() - startTime) / CLOCKS_PER_SEC;
+  result.metrics.cpuTimeMs =
+      1000.0 * static_cast<double>(std::clock() - startTime) / CLOCKS_PER_SEC;
   return result;
 }

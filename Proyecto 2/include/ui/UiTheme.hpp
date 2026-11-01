@@ -4,7 +4,7 @@
 #include <QString>
 
 /**
- * @brief Core color palette of the game. Other theme files (BoardTheme, 
+ * @brief Core color palette of the game. Other theme files (BoardTheme,
  * HUDTheme, MenuTheme) include this file to use these base colors.
  */
 
@@ -25,7 +25,7 @@ inline constexpr const char* COLOR_PLAYER_2 = PALETTE_ORANGE;
 inline constexpr const char* COLOR_TREASURE = PALETTE_JASMINE;
 inline constexpr const char* COLOR_WALL = PALETTE_FLORAL_WHITE;
 
-// Not in the palette: these need to stay recognizable, so they are tinted to 
+// Not in the palette: these need to stay recognizable, so they are tinted to
 // blend with the indigo background.
 inline constexpr const char* COLOR_MUD = "#B8723A";          // warm brown
 inline constexpr const char* COLOR_FOG = "#9B96B0";          // lavender gray

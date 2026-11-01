@@ -7,11 +7,11 @@
 #include <memory>
 #include <random>
 
+#include "AStarVisualizer.hpp"
 #include "GameAction.hpp"
 #include "GameState.hpp"
-#include "AStarVisualizer.hpp"
 #include "Pathfinding.hpp"
- 
+
 class GameBoardWidget;
 class GameEngine;
 class HudWidget;
@@ -37,7 +37,8 @@ class MainWindow : public QMainWindow {
   explicit MainWindow(QWidget* parent = nullptr);
 
   /**
-   * @brief GameEngine must be a complete type to be destroyed by the unique_ptr.
+   * @brief GameEngine must be a complete type to be destroyed by the
+   * unique_ptr.
    */
   ~MainWindow() override;
 
@@ -53,7 +54,7 @@ class MainWindow : public QMainWindow {
   /**
    * @brief Builds a new match from the menu options and shows the board.
    * @param options Options chosen in the start menu.
-   * @note If the maze cannot be generated the menu stays open with an error 
+   * @note If the maze cannot be generated the menu stays open with an error
    * and if it does not fit on the screen the program ends with an error.
    */
   void startMatch(const GameOptions& options);
@@ -128,13 +129,13 @@ class MainWindow : public QMainWindow {
   void finishHandoff();
 
   /**
-   * @brief Extra: animated A* search visualizer. Toggles the animated A* 
+   * @brief Extra: animated A* search visualizer. Toggles the animated A*
    * pathfinding search visualization on or off.
    */
   void toggleSearchView();
 
   // Extra: Network
-    /** @brief Starts an online match as the host. */
+  /** @brief Starts an online match as the host. */
   void startHosting(const GameOptions& options, quint16 port);
 
   /** @brief Joins an online match hosted at another address. */
@@ -152,7 +153,8 @@ class MainWindow : public QMainWindow {
   /** @brief Shows the winner when the online match ends. */
   void onMatchEnded(int winner);
 
-  /** @brief Connection error before the match: warns and returns to the menu. */
+  /** @brief Connection error before the match: warns and returns to the menu.
+   */
   void onSessionError(const QString& error);
 
   /** @brief Shows a message of the match in the status bar. */
@@ -170,7 +172,7 @@ class MainWindow : public QMainWindow {
   bool handoffPending_ = false;  ///< True while the move preview is waiting
   QStackedWidget* pages_;
   StartWindow* startWindow_;
-  QWidget* gamePage_;            ///< board + hud
+  QWidget* gamePage_;  ///< board + hud
   GameBoardWidget* boardWidget_;
   HudWidget* hudWidget_;
   std::unique_ptr<GameEngine> engine_;

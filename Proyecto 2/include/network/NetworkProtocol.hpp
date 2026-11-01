@@ -11,17 +11,10 @@ struct Action;
 struct GameState;
 
 /**
- * @brief Represents the various types of network messages exchanged between 
+ * @brief Represents the various types of network messages exchanged between
  * client and server.
  */
-enum class NetworkMessageType {
-  Hello,
-  Start,
-  Action,
-  State,
-  Error,
-  GameOver
-};
+enum class NetworkMessageType { Hello, Start, Action, State, Error, GameOver };
 
 // Current version of the network communication protocol.
 inline constexpr int NETWORK_PROTOCOL_VERSION = 1;
@@ -77,21 +70,24 @@ NetworkMessageType parseNetworkMessageType(const std::string& message);
 Action parseActionMessage(const std::string& message);
 
 /**
- * @brief Wraps a network message with a 4-byte big-endian length header (framing).
+ * @brief Wraps a network message with a 4-byte big-endian length header
+ * (framing).
  * @param message Raw JSON message string.
  * @return Framed byte sequence ready for TCP transmission.
  */
 std::string frameNetworkMessage(const std::string& message);
 
 /**
- * @brief Extracts complete delimited messages from the incoming byte stream buffer.
+ * @brief Extracts complete delimited messages from the incoming byte stream
+ * buffer.
  * @references receiveBuffer Reference to the socket's accumulation buffer.
  * @return Vector of complete, isolated message strings.
  */
 std::vector<std::string> extractNetworkMessages(std::string& receiveBuffer);
 
 /**
- * @brief Creates a localized GameView snapshot for a specific client based on Fog of War.
+ * @brief Creates a localized GameView snapshot for a specific client based on
+ * Fog of War.
  * @param state Current authoritative GameState.
  * @param clientId Target client identifier (0 or 1).
  * @return Sanitized GameView structure.
