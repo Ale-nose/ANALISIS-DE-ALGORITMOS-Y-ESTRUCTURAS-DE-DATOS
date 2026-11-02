@@ -1,6 +1,11 @@
 // Copyright Alejandro, Ashley and Kevin
 #include "NetworkProtocol.hpp"
 
+#include <cstdint>
+#include <cstdlib>
+#include <stdexcept>
+#include <utility>
+
 #include <QByteArray>
 #include <QJsonArray>
 #include <QJsonDocument>
@@ -8,10 +13,6 @@
 #include <QJsonParseError>
 #include <QJsonValue>
 #include <QString>
-#include <cstdint>
-#include <cstdlib>
-#include <stdexcept>
-#include <utility>
 
 #include "GameAction.hpp"
 #include "GameConfig.hpp"
@@ -91,8 +92,7 @@ std::string serializeActionMessage(const Action& action) {
     case ActionType::JUMP_WALL:
       kind = QStringLiteral("JUMP_WALL");
       break;
-    default:
-      throw std::invalid_argument("Unknown action type");
+    default: throw std::invalid_argument("Unknown action type");
   }
 
   QJsonObject actionObject;
@@ -155,8 +155,7 @@ NetworkMessageType parseNetworkMessageType(const std::string& message) {
 
 Action parseActionMessage(const std::string& message) {
   QJsonObject root = readJsonObject(message);
-  if (!root.value("type").isString() ||
-      root.value("type").toString() != QStringLiteral("ACTION")) {
+  if (!root.value("type").isString() || root.value("type").toString() != QStringLiteral("ACTION")) {
     throw std::invalid_argument("Expected an ACTION message");
   }
   if (!root.value("action").isObject()) {
@@ -199,12 +198,9 @@ std::vector<std::string> extractNetworkMessages(std::string& receiveBuffer) {
   std::size_t offset = 0;
 
   while (receiveBuffer.size() - offset >= 4) {
-    const unsigned char* bytes =
-        reinterpret_cast<const unsigned char*>(receiveBuffer.data() + offset);
-    std::uint32_t length = (static_cast<std::uint32_t>(bytes[0]) << 24) |
-                           (static_cast<std::uint32_t>(bytes[1]) << 16) |
-                           (static_cast<std::uint32_t>(bytes[2]) << 8) |
-                           static_cast<std::uint32_t>(bytes[3]);
+    const unsigned char* bytes = reinterpret_cast<const unsigned char*>(receiveBuffer.data() + offset);
+    std::uint32_t length = (static_cast<std::uint32_t>(bytes[0]) << 24) | (static_cast<std::uint32_t>(bytes[1]) << 16)
+      | (static_cast<std::uint32_t>(bytes[2]) << 8) | static_cast<std::uint32_t>(bytes[3]);
 
     if (length == 0 || length > MAX_NETWORK_MESSAGE_SIZE) {
       throw std::invalid_argument("Invalid TCP frame length");
@@ -240,22 +236,22 @@ GameView createGameView(const GameState& state, int clientId) {
   const Position treasure = state.treasure;
 
   if (state.maze.isInside(treasure)) {
-    const int distance = std::abs(viewer.row - treasure.row) +
-                         std::abs(viewer.col - treasure.col);
+    const int distance = std::abs(viewer.row - treasure.row) + std::abs(viewer.col - treasure.col);
     if (!state.options.fogEnabled || distance <= FOG_RADIUS) {
       view.treasure = treasure;
     }
   }
 
   view.currentPlayer = state.currentPlayer;
+  view.actionsLeft = state.actionsLeft;
+  view.viewerId = clientId;
   view.gameOver = state.gameOver;
   view.winner = state.winner;
 
   for (int row = 0; row < state.maze.rows(); ++row) {
     for (int col = 0; col < state.maze.cols(); ++col) {
       const Position position{row, col};
-      const int distance =
-          std::abs(viewer.row - row) + std::abs(viewer.col - col);
+      const int distance = std::abs(viewer.row - row) + std::abs(viewer.col - col);
       if (!state.options.fogEnabled || distance <= FOG_RADIUS) {
         view.visibleCells.push_back({position, state.maze.cellAt(position)});
       }
@@ -264,13 +260,24 @@ GameView createGameView(const GameState& state, int clientId) {
 
   for (int playerId = 0; playerId < NUM_PLAYERS; ++playerId) {
     const Position position = state.players[playerId].position;
-    const int distance = std::abs(viewer.row - position.row) +
-                         std::abs(viewer.col - position.col);
-    const bool visible = state.maze.isInside(position) &&
-                         (!state.options.fogEnabled || playerId == clientId ||
-                          distance <= FOG_RADIUS);
-    view.players[playerId].visible = visible;
-    view.players[playerId].position = visible ? position : Position{-1, -1};
+    const int distance = std::abs(viewer.row - position.row) + std::abs(viewer.col - position.col);
+    const bool visible = state.maze.isInside(position)
+      && (!state.options.fogEnabled || playerId == clientId || distance <= FOG_RADIUS);
+    PlayerPublicView& playerView = view.players[playerId];
+    const PlayerState& playerState = state.players[playerId];
+
+    playerView.visible = visible;
+    playerView.position = visible ? position : Position{-1, -1};
+    playerView.pendingMudActions = playerState.pendingMudActions;
+    playerView.skipNextTurn = playerState.skipNextTurn;
+    playerView.shielded = playerState.shieldCount > 0;
+
+    // Inventory counts are private: each client receives only its own counts.
+    if (playerId == clientId) {
+      playerView.jumpWalls = playerState.jumpWalls;
+      playerView.shieldCount = playerState.shieldCount;
+      playerView.inventoryVisible = true;
+    }
   }
 
   return view;
@@ -314,6 +321,14 @@ std::string serializeGameView(const GameView& view) {
     if (player.visible) {
       item["position"] = positionToJson(player.position);
     }
+    item["pendingMudActions"] = player.pendingMudActions;
+    item["skipNextTurn"] = player.skipNextTurn;
+    item["inventoryVisible"] = player.inventoryVisible;
+    item["shielded"] = player.shielded;
+    if (player.inventoryVisible) {
+      item["jumpWalls"] = player.jumpWalls;
+      item["shieldCount"] = player.shieldCount;
+    }
     players.append(item);
   }
 
@@ -328,6 +343,8 @@ std::string serializeGameView(const GameView& view) {
   gameView["visibleCells"] = visibleCells;
   gameView["players"] = players;
   gameView["currentPlayer"] = view.currentPlayer;
+  gameView["actionsLeft"] = view.actionsLeft;
+  gameView["viewerId"] = view.viewerId;
   gameView["gameOver"] = view.gameOver;
   gameView["winner"] = view.winner;
 
@@ -377,22 +394,25 @@ GameView deserializeGameView(const std::string& message) {
   view.rows = data.value("rows").toInt();
   view.cols = data.value("cols").toInt();
 
-  if (view.rows <= 0 || view.cols <= 0 || view.rows > 10000 ||
-      view.cols > 10000 || view.rows * view.cols > 10000) {
+  if (view.rows <= 0 || view.cols <= 0 || view.rows > 10000 || view.cols > 10000 || view.rows * view.cols > 10000) {
     throw std::invalid_argument("Invalid maze dimensions");
   }
 
-  if (!data.value("currentPlayer").isDouble() ||
-      !data.value("gameOver").isBool() || !data.value("winner").isDouble()) {
+  if (!data.value("currentPlayer").isDouble() || !data.value("actionsLeft").isDouble() ||
+    !data.value("viewerId").isDouble() || !data.value("gameOver").isBool() ||
+    !data.value("winner").isDouble()) {
     throw std::invalid_argument("Invalid match information");
   }
 
   view.currentPlayer = data.value("currentPlayer").toInt(-1);
+  view.actionsLeft = data.value("actionsLeft").toInt(-1);
+  view.viewerId = data.value("viewerId").toInt(-1);
   view.gameOver = data.value("gameOver").toBool();
   view.winner = data.value("winner").toInt(-1);
 
-  if (view.currentPlayer < 0 || view.currentPlayer >= NUM_PLAYERS ||
-      view.winner < -1 || view.winner >= NUM_PLAYERS) {
+  if (view.currentPlayer < 0 || view.currentPlayer >= NUM_PLAYERS || view.viewerId < 0 ||
+    view.viewerId >= NUM_PLAYERS || view.actionsLeft < 0 || view.actionsLeft > 10000 ||
+    view.winner < -1 || view.winner >= NUM_PLAYERS) {
     throw std::invalid_argument("Invalid player information");
   }
 
@@ -400,7 +420,7 @@ GameView deserializeGameView(const std::string& message) {
     view.treasure = positionFromJson(data.value("treasure"));
 
     if (view.treasure.row < 0 || view.treasure.row >= view.rows ||
-        view.treasure.col < 0 || view.treasure.col >= view.cols) {
+      view.treasure.col < 0 || view.treasure.col >= view.cols) {
       throw std::invalid_argument("Invalid treasure position");
     }
   }
@@ -415,8 +435,9 @@ GameView deserializeGameView(const std::string& message) {
     throw std::invalid_argument("Too many visible cells");
   }
 
-  std::vector<bool> received(static_cast<std::size_t>(view.rows) * view.cols,
-                             false);
+  std::vector<bool> received(
+    static_cast<std::size_t>(view.rows) * view.cols, false
+  );
 
   for (const QJsonValue& entry : cells) {
     if (!entry.isObject()) {
@@ -426,13 +447,12 @@ GameView deserializeGameView(const std::string& message) {
     const QJsonObject item = entry.toObject();
     const Position position = positionFromJson(item.value("position"));
 
-    if (position.row < 0 || position.row >= view.rows || position.col < 0 ||
-        position.col >= view.cols || !item.value("contents").isObject()) {
+    if (position.row < 0 || position.row >= view.rows || position.col < 0 || position.col >= view.cols
+      || !item.value("contents").isObject()) {
       throw std::invalid_argument("Invalid cell data");
     }
 
-    const std::size_t index =
-        static_cast<std::size_t>(position.row) * view.cols + position.col;
+    const std::size_t index = static_cast<std::size_t>(position.row) * view.cols + position.col;
 
     if (received[index]) {
       throw std::invalid_argument("Duplicate visible cell");
@@ -442,11 +462,9 @@ GameView deserializeGameView(const std::string& message) {
 
     const QJsonObject contents = item.value("contents").toObject();
 
-    if (!contents.value("terrain").isDouble() ||
-        !contents.value("powerUp").isDouble() ||
-        !contents.value("special").isDouble() ||
-        !contents.value("portalID").isDouble() ||
-        !contents.value("walls").isArray()) {
+    if (!contents.value("terrain").isDouble() || !contents.value("powerUp").isDouble()||
+      !contents.value("special").isDouble() || !contents.value("portalID").isDouble() ||
+      !contents.value("walls").isArray()) {
       throw std::invalid_argument("Invalid cell contents");
     }
 
@@ -455,9 +473,8 @@ GameView deserializeGameView(const std::string& message) {
     const int special = contents.value("special").toInt(-1);
 
     if (terrain < 0 || terrain > static_cast<int>(TerrainType::MUD) ||
-        powerUp < 0 || powerUp > static_cast<int>(PowerUpType::CONTROL_ENEMY) ||
-        special < 0 ||
-        special > static_cast<int>(SpecialCellType::SHIELD_TILE)) {
+      powerUp < 0 || powerUp > static_cast<int>(PowerUpType::CONTROL_ENEMY) ||
+      special < 0 || special > static_cast<int>(SpecialCellType::SHIELD_TILE)) {
       throw std::invalid_argument("Unknown cell type");
     }
 
@@ -484,9 +501,7 @@ GameView deserializeGameView(const std::string& message) {
   }
 
   if (view.treasure.row >= 0) {
-    const std::size_t index =
-        static_cast<std::size_t>(view.treasure.row) * view.cols +
-        view.treasure.col;
+    const std::size_t index = static_cast<std::size_t>(view.treasure.row) * view.cols + view.treasure.col;
     if (!received[index]) {
       throw std::invalid_argument("Treasure is outside visible cells");
     }
@@ -509,28 +524,51 @@ GameView deserializeGameView(const std::string& message) {
 
     const QJsonObject player = players.at(id).toObject();
 
-    if (!player.value("visible").isBool()) {
-      throw std::invalid_argument("Invalid player visibility");
+    if (!player.value("visible").isBool() || !player.value("pendingMudActions").isDouble() ||
+      !player.value("skipNextTurn").isBool() || !player.value("inventoryVisible").isBool() ||
+      !player.value("shielded").isBool()) {
+      throw std::invalid_argument("Invalid player status");
     }
 
-    view.players[id].visible = player.value("visible").toBool();
+    PlayerPublicView& playerView = view.players[id];
+    playerView.visible = player.value("visible").toBool();
+    playerView.pendingMudActions = player.value("pendingMudActions").toInt(-1);
+    playerView.skipNextTurn = player.value("skipNextTurn").toBool();
+    playerView.inventoryVisible = player.value("inventoryVisible").toBool();
+    playerView.shielded = player.value("shielded").toBool();
+
+    if (playerView.pendingMudActions < 0 || playerView.inventoryVisible != (id == view.viewerId)) {
+      throw std::invalid_argument("Invalid player status or private inventory visibility");
+    }
+
+    if (playerView.inventoryVisible) {
+      if (!player.value("jumpWalls").isDouble() || !player.value("shieldCount").isDouble()) {
+        throw std::invalid_argument("Missing private player inventory");
+      }
+      playerView.jumpWalls = player.value("jumpWalls").toInt(-1);
+      playerView.shieldCount = player.value("shieldCount").toInt(-1);
+      if (playerView.jumpWalls < 0 || playerView.shieldCount < 0 ||
+        playerView.shielded != (playerView.shieldCount > 0)) {
+        throw std::invalid_argument("Invalid private player inventory");
+      }
+    } else if (player.contains("jumpWalls") || player.contains("shieldCount")) {
+      throw std::invalid_argument("Private player inventory was exposed");
+    }
 
     if (view.players[id].visible) {
       const Position position = positionFromJson(player.value("position"));
 
-      if (position.row < 0 || position.row >= view.rows || position.col < 0 ||
-          position.col >= view.cols) {
+      if (position.row < 0 || position.row >= view.rows || position.col < 0 || position.col >= view.cols) {
         throw std::invalid_argument("Invalid player position");
       }
 
-      const std::size_t index =
-          static_cast<std::size_t>(position.row) * view.cols + position.col;
+      const std::size_t index = static_cast<std::size_t>(position.row) * view.cols + position.col;
 
       if (!received[index]) {
         throw std::invalid_argument("Player outside visible cells");
       }
 
-      view.players[id].position = position;
+      playerView.position = position;
     } else if (player.contains("position")) {
       throw std::invalid_argument("Hidden player position exposed");
     }
