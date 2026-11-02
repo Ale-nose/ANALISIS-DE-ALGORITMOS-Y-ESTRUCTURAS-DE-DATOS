@@ -1,10 +1,10 @@
 // Copyright Alejandro, Ashley y Kevin
 #pragma once
 
-#include <QObject>
 #include <array>
 #include <cstdint>
 #include <string>
+#include <QObject>
 
 class QTcpServer;
 class QTcpSocket;
@@ -16,16 +16,12 @@ struct Action;
  */
 class NetworkServer : public QObject {
  private:
-  GameEngine&
-      engine_;  ///< Reference to the authoritative game engine instance.
-  QTcpServer* listener_ = nullptr;  ///< TCP listening server socket.
-  std::array<QTcpSocket*, 2>
-      clients_{};  ///< Sockets for Player 1 and Player 2 clients.
-  std::array<std::string, 2>
-      receiveBuffers_{};         ///< Per-client incoming byte stream buffers.
-  std::array<bool, 2> ready_{};  ///< Readiness flags for connected clients.
-  bool started_ =
-      false;  ///< Indicates if the multiplayer match is currently running.
+  GameEngine& engine_;                    ///< Reference to the authoritative game engine instance.
+  QTcpServer* listener_ = nullptr;        ///< TCP listening server socket.
+  std::array<QTcpSocket*, 2> clients_{};  ///< Sockets for Player 1 and Player 2 clients.
+  std::array<std::string, 2> receiveBuffers_{}; ///< Per-client incoming byte stream buffers.
+  std::array<bool, 2> ready_{};           ///< Readiness flags for connected clients.
+  bool started_ = false;                  ///< Indicates if the multiplayer match is currently running.
 
   /**
    * @brief Accepts incoming client TCP connection requests.
@@ -52,8 +48,7 @@ class NetworkServer : public QObject {
   void sendTo(int clientId, const std::string& message);
 
   /**
-   * @brief Broadcasts customized board states to each client according to Fog
-   * of War visibility.
+   * @brief Broadcasts customized board states to each client according to Fog of War visibility.
    */
   void broadcastState();
 
@@ -66,12 +61,17 @@ class NetworkServer : public QObject {
   explicit NetworkServer(GameEngine& engine, QObject* parent = nullptr);
 
   /**
-   * @brief Starts listening for incoming client connections on the designated
-   * port.
+   * @brief Starts listening for incoming client connections on the designated port.
    * @param port Port number to bind and listen on.
    * @return true if the server started listening successfully, false otherwise.
    */
   bool start(uint16_t port);
+
+  /**
+   * @brief Returns the port currently used by the listening socket.
+   * @return Bound TCP port, or 0 if the server is not listening.
+   */
+  uint16_t listeningPort() const;
 
   /**
    * @brief Validates and applies an action received from a network client.
